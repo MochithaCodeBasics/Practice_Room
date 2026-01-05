@@ -1,0 +1,6 @@
+id,folder_name,title,difficulty,tags,active,topic
+q1,question_01,Build a flexible pricing function for an e-commerce checkout system,Easy,"python, functions, args, kwargs, lambda",TRUE,Python Functions and Arguments
+q2,question_02,Generate a sales summary report from a transaction log file,Easy,"python, file-handling, dictionary, data-processing",TRUE,File Handling and Dictionaries
+q3,question_03,Build a discount calculator using inheritance with input validation,Medium,"python, oop, inheritance, exception-handling",TRUE,Python Inheritance and Exception Handling
+q4,question_04,Analyze monthly revenue trends and growth using order data,Medium,"python, pandas, eda, data-visualization, groupby, datetime",TRUE,EDA and Data Visualization with pandas
+q5,question_05,Build an API to calculate the final bill amount for a food delivery order,Medium,"fastapi, pydantic, api, request-validation",TRUE,FastAPI and Pydantic
