@@ -1,85 +1,85 @@
+import pandas as pd
+import numpy as np
 import math
 
-def _approx_equal(a: float, b: float, tol: float = 1e-2) -> bool:
-    """Check if two floats are approximately equal within tolerance."""
-    return math.isclose(float(a), float(b), abs_tol=tol, rel_tol=0.0)
+
+def _approx_equal(a, b, tol=1e-2):
+    """Check if two values are approximately equal."""
+    if pd.isna(a) and pd.isna(b):
+        return True
+    if pd.isna(a) or pd.isna(b):
+        return False
+    return math.isclose(float(a), float(b), rel_tol=tol, abs_tol=tol)
 
 
 def validate(user_module) -> str:
+    """
+    Validates the summarize_spend function.
+    
+    Checks:
+    1. All required keys are present
+    2. Values match numpy/pandas within tolerance
+    """
     try:
-        # 1) Check if all required classes exist
-        if not hasattr(user_module, "DiscountCalculator"):
-            return "❌ Class `DiscountCalculator` is not defined."
+        # Check if function exists
+        if not hasattr(user_module, "summarize_spend"):
+            return "❌ Function `summarize_spend` is not defined."
+
+        func = user_module.summarize_spend
+
+        # Check if it's callable
+        if not callable(func):
+            return "❌ `summarize_spend` is not callable."
+
+        # Create test data
+        test_series = pd.Series([1200, 1500, 1800, 2000, 1500, 2200, 1900, 1700, np.nan, 1600])
         
-        if not hasattr(user_module, "RegularCustomer"):
-            return "❌ Class `RegularCustomer` is not defined."
+        result = func(test_series)
+
+        # Check if result is a dictionary
+        if not isinstance(result, dict):
+            return f"❌ Expected dict, got {type(result).__name__}"
+
+        # Required keys
+        required_keys = ['mean', 'median', 'mode', 'std', 'variance', 'min', 'max', 'Q1', 'Q3', 'IQR']
         
-        if not hasattr(user_module, "PremiumCustomer"):
-            return "❌ Class `PremiumCustomer` is not defined."
+        for key in required_keys:
+            if key not in result:
+                return f"❌ Missing required key: `{key}`"
+
+        # Compute expected values (ignoring NaN)
+        clean_series = test_series.dropna()
         
-        DiscountCalculator = user_module.DiscountCalculator
-        RegularCustomer = user_module.RegularCustomer
-        PremiumCustomer = user_module.PremiumCustomer
+        expected = {
+            'mean': clean_series.mean(),
+            'median': clean_series.median(),
+            'mode': clean_series.mode().iloc[0] if len(clean_series.mode()) > 0 else None,
+            'std': clean_series.std(),
+            'variance': clean_series.var(),
+            'min': clean_series.min(),
+            'max': clean_series.max(),
+            'Q1': clean_series.quantile(0.25),
+            'Q3': clean_series.quantile(0.75),
+            'IQR': clean_series.quantile(0.75) - clean_series.quantile(0.25)
+        }
+
+        # Validate each value
+        for key in required_keys:
+            if not _approx_equal(result[key], expected[key]):
+                return f"❌ Value mismatch for `{key}`: expected {expected[key]:.2f}, got {result[key]}"
+
+        # Test Case 2: Series without NaN
+        test_series2 = pd.Series([100, 200, 300, 400, 500])
+        result2 = func(test_series2)
         
-        # 2) Check inheritance
-        if not issubclass(RegularCustomer, DiscountCalculator):
-            return "❌ `RegularCustomer` must inherit from `DiscountCalculator`."
-        
-        if not issubclass(PremiumCustomer, DiscountCalculator):
-            return "❌ `PremiumCustomer` must inherit from `DiscountCalculator`."
-        
-        # 3) Test TypeError for invalid type
-        try:
-            customer = RegularCustomer("invalid")
-            customer.final_amount()
-            return "❌ Expected `TypeError` for non-numeric amount, but no exception was raised."
-        except TypeError:
-            pass  # Expected behavior
-        except Exception as e:
-            return f"❌ Expected `TypeError` for non-numeric amount, got {type(e).__name__}: {str(e)}"
-        
-        # 4) Test ValueError for non-positive amount
-        try:
-            customer = RegularCustomer(-100)
-            customer.final_amount()
-            return "❌ Expected `ValueError` for negative amount, but no exception was raised."
-        except ValueError:
-            pass  # Expected behavior
-        except Exception as e:
-            return f"❌ Expected `ValueError` for negative amount, got {type(e).__name__}: {str(e)}"
-        
-        try:
-            customer = PremiumCustomer(0)
-            customer.final_amount()
-            return "❌ Expected `ValueError` for zero amount, but no exception was raised."
-        except ValueError:
-            pass  # Expected behavior
-        except Exception as e:
-            return f"❌ Expected `ValueError` for zero amount, got {type(e).__name__}: {str(e)}"
-        
-        # 5) Test RegularCustomer discount (5%)
-        regular = RegularCustomer(1000)
-        regular_result = regular.final_amount()
-        if not _approx_equal(regular_result, 950.0):
-            return f"❌ RegularCustomer(1000).final_amount() expected 950.0, got {regular_result}"
-        
-        regular2 = RegularCustomer(200)
-        regular2_result = regular2.final_amount()
-        if not _approx_equal(regular2_result, 190.0):
-            return f"❌ RegularCustomer(200).final_amount() expected 190.0, got {regular2_result}"
-        
-        # 6) Test PremiumCustomer discount (15%)
-        premium = PremiumCustomer(1000)
-        premium_result = premium.final_amount()
-        if not _approx_equal(premium_result, 850.0):
-            return f"❌ PremiumCustomer(1000).final_amount() expected 850.0, got {premium_result}"
-        
-        premium2 = PremiumCustomer(500)
-        premium2_result = premium2.final_amount()
-        if not _approx_equal(premium2_result, 425.0):
-            return f"❌ PremiumCustomer(500).final_amount() expected 425.0, got {premium2_result}"
-        
-        return "✅ Correct! Well done."
+        if not isinstance(result2, dict):
+            return "❌ Function should return dict for all valid inputs."
+
+        expected_mean2 = 300.0
+        if not _approx_equal(result2['mean'], expected_mean2):
+            return f"❌ Test case 2: mean mismatch, expected {expected_mean2}, got {result2['mean']}"
+
+        return "✅ Correct! Statistical summary is valid."
 
     except Exception as e:
         return f"⚠️ Validation error: {str(e)}"

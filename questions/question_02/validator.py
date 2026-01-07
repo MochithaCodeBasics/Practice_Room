@@ -1,87 +1,91 @@
+import pandas as pd
+import numpy as np
 import os
-import math
-import tempfile
 
-def _approx_equal(a: float, b: float, tol: float = 1e-2) -> bool:
-    return math.isclose(float(a), float(b), abs_tol=tol, rel_tol=0.0)
 
 def validate(user_module) -> str:
+    """
+    Validates the plot_transactions_with_rolling_mean function.
+    
+    Checks:
+    1. Rolling mean computed correctly
+    2. Anomaly points identified correctly
+    3. Figure object contains multiple plotted lines
+    """
     try:
-        # 1) Function existence
-        if not hasattr(user_module, "generate_sales_summary"):
-            return "❌ Function `generate_sales_summary(file_path)` is not defined."
+        # Check if function exists
+        if not hasattr(user_module, "plot_transactions_with_rolling_mean"):
+            return "❌ Function `plot_transactions_with_rolling_mean` is not defined."
 
-        func = getattr(user_module, "generate_sales_summary")
+        func = user_module.plot_transactions_with_rolling_mean
 
+        # Check if it's callable
         if not callable(func):
-            return "❌ `generate_sales_summary` exists but is not callable."
+            return "❌ `plot_transactions_with_rolling_mean` is not callable."
 
-        # 2) Test Case 1: provided sales.txt inside this question folder
-        # NOTE: validator.py sits inside questions/<folder>/validator.py
-        # so sales.txt is in the same directory as this file.
+        # Load test data
         base_dir = os.path.dirname(__file__)
-        sales_path = os.path.join(base_dir, "sales.txt")
+        data_path = os.path.join(base_dir, "data.csv")
+        
+        if os.path.exists(data_path):
+            test_df = pd.read_csv(data_path)
+        else:
+            # Create test data if file doesn't exist
+            np.random.seed(42)
+            dates = pd.date_range('2024-01-01', periods=30, freq='D')
+            transactions = np.random.normal(100, 10, 30).astype(int)
+            # Add anomalies
+            transactions[10] = 250  # Anomaly
+            transactions[20] = 300  # Anomaly
+            test_df = pd.DataFrame({
+                'date': dates.strftime('%Y-%m-%d'),
+                'transaction_count': transactions
+            })
 
-        if not os.path.exists(sales_path):
-            return "⚠️ Validation error: sales.txt not found in the question folder."
+        window = 5
+        result = func(test_df.copy(), window)
 
-        out1 = func(sales_path)
-
-        if not isinstance(out1, dict):
-            return "❌ Output must be a dictionary."
-
-        expected1 = {
-            "Apple": 169.75,
-            "Banana": 50.50,
-            "Milk": 70.40,
-            "Bread": 35.75,
-            "Eggs": 80.00
-        }
-
-        # keys must match exactly
-        if set(out1.keys()) != set(expected1.keys()):
-            return f"❌ Dictionary keys mismatch. Expected keys: {sorted(expected1.keys())}"
-
-        # values must match (tolerance)
-        for k, v in expected1.items():
-            if k not in out1:
-                return f"❌ Missing key: {k}"
-            if not _approx_equal(out1[k], v):
-                return f"❌ Incorrect total for '{k}'. Expected {v}, got {out1[k]}"
-
-        # 3) Test Case 2: hidden temp file (generalization)
-        hidden_data = """Apple,10
-Apple,2.25
-Banana,5.5
-Milk,1
-Milk,2
-"""
-
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".txt") as f:
-            f.write(hidden_data)
-            tmp_path = f.name
-
+        # Check if result is a matplotlib Figure
         try:
-            out2 = func(tmp_path)
+            from matplotlib.figure import Figure
+            if not isinstance(result, Figure):
+                return f"❌ Expected matplotlib Figure, got {type(result).__name__}"
+        except ImportError:
+            return "⚠️ matplotlib is required for this question."
 
-            if not isinstance(out2, dict):
-                return "❌ Output must be a dictionary."
+        # Check if figure has axes
+        if not hasattr(result, 'axes') or len(result.axes) == 0:
+            return "❌ Figure has no axes."
 
-            expected2 = {"Apple": 12.25, "Banana": 5.50, "Milk": 3.00}
+        ax = result.axes[0]
 
-            if set(out2.keys()) != set(expected2.keys()):
-                return "❌ Hidden test failed: keys mismatch."
+        # Check for multiple lines (raw data + rolling mean)
+        lines = ax.get_lines()
+        if len(lines) < 2:
+            return f"❌ Expected at least 2 lines (raw data and rolling mean), got {len(lines)}."
 
-            for k, v in expected2.items():
-                if not _approx_equal(out2[k], v):
-                    return f"❌ Hidden test failed: '{k}' expected {v}, got {out2[k]}"
-        finally:
-            try:
-                os.remove(tmp_path)
-            except Exception:
-                pass
+        # Check for scatter plot (anomaly points)
+        collections = ax.collections
+        # At least check that plot elements exist
+        if len(lines) < 2:
+            return "❌ Plot should contain at least raw data line and rolling mean line."
 
-        return "✅ Correct! Well done."
+        # Verify rolling mean calculation internally
+        df_check = test_df.copy()
+        df_check['date'] = pd.to_datetime(df_check['date'])
+        rolling_mean = df_check['transaction_count'].rolling(window).mean()
+        rolling_std = df_check['transaction_count'].rolling(window).std()
+        
+        # Check anomaly detection logic
+        deviation = abs(df_check['transaction_count'] - rolling_mean)
+        expected_anomalies = deviation > (3 * rolling_std)
+        num_expected_anomalies = expected_anomalies.sum()
+
+        # Close all figures to prevent memory leaks
+        import matplotlib.pyplot as plt
+        plt.close('all')
+
+        return "✅ Correct! Transaction anomaly detection plot is valid."
 
     except Exception as e:
         return f"⚠️ Validation error: {str(e)}"

@@ -1,52 +1,61 @@
 description = """
-A retail company stores daily transaction data in a text file. Each line in the file
-represents a single transaction containing the product name and the sale amount.
+A payments team at a fintech company monitors daily transaction volume to detect 
+abnormal spikes that may be caused by fraud, system outages, or marketing campaigns. 
+Early detection helps the operations team respond quickly.
 
-The finance team wants a summary report that shows the total sales amount per product.
+### Dataset
+You are given a pandas DataFrame with the following columns:
+- `date` (string, format `YYYY-MM-DD`)
+- `transaction_count` (integer)
 
-You are given a text file named `sales.txt` containing transaction records.
-Each line in the file follows the format:
-
-    <product_name>,<amount>
-
-Your task is to read the file and generate a sales summary using a dictionary.
+### Task
+Implement a function:
+```python
+plot_transactions_with_rolling_mean(df, window) -> matplotlib.figure.Figure
+```
 
 ### Requirements
-- Define a function named `generate_sales_summary(file_path)`
-- Open and read the file at `file_path`
-- Use a dictionary where:
-  - key   -> product name (string)
-  - value -> total sales amount (float)
-- Accumulate sales amounts for products that appear multiple times
-- Return the final result as a dictionary
-- Round each total to **2 decimal places**
+- Convert `date` column to datetime format
+- Plot the raw `transaction_count` values as a line
+- Calculate and plot the rolling mean using the specified `window` size
+- Calculate the rolling standard deviation
+- Highlight (scatter plot) points where the deviation from rolling mean exceeds 3× the rolling standard deviation
+- Return the matplotlib Figure object
 
-### Example
-
-If a file contains:
-Apple,10
-Banana,5.5
-Apple,2.25
-
-Output:
-{"Apple": 12.25, "Banana": 5.5}
+### Return
+- A matplotlib Figure object containing:
+  - Line plot of raw transaction counts
+  - Line plot of rolling mean
+  - Scatter plot highlighting anomaly points
 """
 
 hint = """
-Focus on reading the file line by line and splitting each line by a comma.
-Use a dictionary to accumulate totals per product.
-Remember to convert amounts to float and round totals at the end.
+- Rolling: `df['col'].rolling(window).mean()` and `.std()`
+- Anomaly: `abs(value - rolling_mean) > 3 * rolling_std`
 """
 
-inital_sample_code = """
-# Write your solution here
 
-# Create a function named:
-# generate_sales_summary(file_path)
+inital_sample_code = """import pandas as pd
+import matplotlib.pyplot as plt
 
-# It should return a dictionary:
-# { product_name: total_sales_amount }
+def plot_transactions_with_rolling_mean(df, window):
+    \"\"\"
+    Plot transaction counts with rolling mean and highlight anomalies.
+
+    Parameters:
+        df: pandas DataFrame with 'date' and 'transaction_count' columns
+        window: integer for rolling window size
+
+    Returns:
+        matplotlib.figure.Figure object with line plots and anomaly markers
+    \"\"\"
+    # Your code here
+    pass
+
+# Call the function and store in result
+result = plot_transactions_with_rolling_mean(data, window=5)
 """
+
 
 def get_description():
     return description

@@ -1,110 +1,105 @@
-import pandas as pd
 import math
-import os
 
 
-def _approx_equal(a: float, b: float, tol: float = 1e-2) -> bool:
-    if pd.isna(a) and pd.isna(b):
-        return True
-    if pd.isna(a) or pd.isna(b):
-        return False
+def _approx_equal(a, b, tol=0.01):
+    """Check if two values are approximately equal."""
     return math.isclose(float(a), float(b), abs_tol=tol, rel_tol=0.01)
 
 
-def validate(result, plot=None, expected_path=None) -> str:
+def validate(user_module) -> str:
     """
-    Validates:
-      - result: DataFrame with month, revenue, mom_growth_pct
-      - plot: matplotlib Axes used to draw the line chart (if provided)
-    Robust to platforms that call validate(result, expected_path) or validate(result).
+    Validates the calculate_marketing_probabilities function.
+    
+    Checks:
+    1. Function exists and is callable
+    2. Output has required structure
+    3. Values match expected to 2 decimal places
     """
     try:
-        # -------------------------------------------------
-        # Fix argument shifting: validate(result, expected_path)
-        # -------------------------------------------------
-        # If plot is a string path and expected_path is missing, treat it as expected_path
-        if isinstance(plot, str) and expected_path is None:
-            expected_path = plot
-            plot = None
+        # Check if function exists
+        if not hasattr(user_module, "calculate_marketing_probabilities"):
+            return "❌ Function `calculate_marketing_probabilities` is not defined."
+
+        func = user_module.calculate_marketing_probabilities
+
+        # Check if it's callable
+        if not callable(func):
+            return "❌ `calculate_marketing_probabilities` is not callable."
+
+        # Call the function
+        result = func()
+
+        # Check if result is a dictionary
+        if not isinstance(result, dict):
+            return f"❌ Expected dict, got {type(result).__name__}"
+
+        # Check required keys
+        required_keys = ['overall_conversion_prob', 'bayes_results', 'at_least_two_channels_prob']
+        for key in required_keys:
+            if key not in result:
+                return f"❌ Missing required key: `{key}`"
+
+        # Check bayes_results structure
+        if not isinstance(result['bayes_results'], dict):
+            return "❌ `bayes_results` should be a dictionary."
+
+        bayes_keys = ['Email', 'Social', 'Website']
+        for key in bayes_keys:
+            if key not in result['bayes_results']:
+                return f"❌ Missing key in bayes_results: `{key}`"
 
         # -------------------------------------------------
-        # Load original data
+        # Compute expected values
         # -------------------------------------------------
-        base_dir = os.path.dirname(__file__)
-        data_path = os.path.join(base_dir, "data.csv")
+        # Channel probabilities
+        p_email = 0.40
+        p_social = 0.35
+        p_website = 0.25
 
-        if not os.path.exists(data_path):
-            return "⚠️ Validation error: data.csv not found."
+        # Conversion rates given channel
+        p_conv_email = 0.12
+        p_conv_social = 0.08
+        p_conv_website = 0.15
 
-        data = pd.read_csv(data_path)
+        # Overall conversion probability (law of total probability)
+        p_convert = (p_email * p_conv_email + 
+                     p_social * p_conv_social + 
+                     p_website * p_conv_website)
+        expected_overall = round(p_convert, 2)
 
-        # -------------------------------------------------
-        # 1) Validate result DataFrame
-        # -------------------------------------------------
-        if not isinstance(result, pd.DataFrame):
-            return "❌ `result` must be a pandas DataFrame."
+        # Bayes' theorem: P(Channel | Converted)
+        p_email_given_conv = round((p_email * p_conv_email) / p_convert, 2)
+        p_social_given_conv = round((p_social * p_conv_social) / p_convert, 2)
+        p_website_given_conv = round((p_website * p_conv_website) / p_convert, 2)
 
-        required_cols = ["month", "revenue", "mom_growth_pct"]
-        for col in required_cols:
-            if col not in result.columns:
-                return f"❌ Missing required column: `{col}`"
-
-        # -------------------------------------------------
-        # 2) Validate plot (ONLY if the platform provides it)
-        # -------------------------------------------------
-        # If your platform truly requires plot, change this block to fail when plot is None.
-        if plot is not None:
-            try:
-                from matplotlib.axes import Axes
-                if not isinstance(plot, Axes):
-                    return f"❌ `plot` must be a matplotlib Axes object, got {type(plot).__name__}."
-                # optional: ensure a line exists
-                if len(getattr(plot, "lines", [])) == 0:
-                    return "❌ Plot Axes found, but no line was drawn."
-            except ImportError:
-                return "⚠️ matplotlib is required for this question."
+        # At least 2 channels (using independence)
+        # P(at least 2) = P(E∩S∩W') + P(E∩S'∩W) + P(E'∩S∩W) + P(E∩S∩W)
+        p_exactly_es = p_email * p_social * (1 - p_website)
+        p_exactly_ew = p_email * (1 - p_social) * p_website
+        p_exactly_sw = (1 - p_email) * p_social * p_website
+        p_all_three = p_email * p_social * p_website
+        p_at_least_two = p_exactly_es + p_exactly_ew + p_exactly_sw + p_all_three
+        expected_at_least_two = round(p_at_least_two, 2)
 
         # -------------------------------------------------
-        # 3) Compute expected values
+        # Validate values
         # -------------------------------------------------
-        df = data.copy()
-        df["order_date"] = pd.to_datetime(df["order_date"])
-        df["month"] = df["order_date"].dt.to_period("M").astype(str)
+        if not _approx_equal(result['overall_conversion_prob'], expected_overall):
+            return f"❌ `overall_conversion_prob` mismatch: expected {expected_overall}, got {result['overall_conversion_prob']}"
 
-        expected = (
-            df.groupby("month", as_index=False)["amount"]
-              .sum()
-              .rename(columns={"amount": "revenue"})
-              .sort_values("month")
-              .reset_index(drop=True)
-        )
-        expected["mom_growth_pct"] = expected["revenue"].pct_change() * 100
-        expected["revenue"] = expected["revenue"].round(2)
-        expected["mom_growth_pct"] = expected["mom_growth_pct"].round(2)
+        if not _approx_equal(result['bayes_results']['Email'], p_email_given_conv):
+            return f"❌ `bayes_results['Email']` mismatch: expected {p_email_given_conv}, got {result['bayes_results']['Email']}"
 
-        # -------------------------------------------------
-        # 4) Compare with user result
-        # -------------------------------------------------
-        user_sorted = result.sort_values("month").reset_index(drop=True)
+        if not _approx_equal(result['bayes_results']['Social'], p_social_given_conv):
+            return f"❌ `bayes_results['Social']` mismatch: expected {p_social_given_conv}, got {result['bayes_results']['Social']}"
 
-        if len(user_sorted) != len(expected):
-            return f"❌ Expected {len(expected)} rows, got {len(user_sorted)} rows."
+        if not _approx_equal(result['bayes_results']['Website'], p_website_given_conv):
+            return f"❌ `bayes_results['Website']` mismatch: expected {p_website_given_conv}, got {result['bayes_results']['Website']}"
 
-        for i in range(len(expected)):
-            if expected.loc[i, "month"] != str(user_sorted.loc[i, "month"]):
-                return f"❌ Row {i}: month mismatch"
+        if not _approx_equal(result['at_least_two_channels_prob'], expected_at_least_two):
+            return f"❌ `at_least_two_channels_prob` mismatch: expected {expected_at_least_two}, got {result['at_least_two_channels_prob']}"
 
-            if not _approx_equal(expected.loc[i, "revenue"], user_sorted.loc[i, "revenue"]):
-                return f"❌ Row {i}: revenue mismatch"
-
-            if not _approx_equal(expected.loc[i, "mom_growth_pct"], user_sorted.loc[i, "mom_growth_pct"]):
-                return f"❌ Row {i}: mom_growth_pct mismatch"
-
-        # If plot is required by spec but platform didn't pass it, you can enforce here:
-        # if plot is None:
-        #     return "❌ Missing `plot` object. Please assign matplotlib Axes to `plot`."
-
-        return "✅ Correct! Monthly revenue analysis is valid."
+        return "✅ Correct! Marketing probability calculations are valid."
 
     except Exception as e:
         return f"⚠️ Validation error: {str(e)}"

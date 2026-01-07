@@ -1,138 +1,118 @@
 import math
+from scipy import stats
 
 
-def _approx_equal(a: float, b: float, tol: float = 0.01) -> bool:
-    """Check if two floats are approximately equal within tolerance."""
+def _approx_equal(a, b, tol=0.01):
+    """Check if two values are approximately equal."""
     return math.isclose(float(a), float(b), abs_tol=tol, rel_tol=0.01)
 
 
 def validate(user_module) -> str:
+    """
+    Validates the test_website_conversion function.
+    
+    Checks:
+    1. Function exists and is callable
+    2. Output has required structure
+    3. Values match expected to appropriate decimal places
+    """
     try:
-        # 1) Check if FastAPI app exists
-        if not hasattr(user_module, "app"):
-            return "❌ FastAPI `app` instance is not defined."
-        
-        app = user_module.app
-        
-        # 2) Check if Pydantic models exist
-        if not hasattr(user_module, "OrderItem"):
-            return "❌ Pydantic model `OrderItem` is not defined."
-        
-        if not hasattr(user_module, "OrderRequest"):
-            return "❌ Pydantic model `OrderRequest` is not defined."
-        
-        # 3) Check if endpoint exists by testing with TestClient
-        from fastapi.testclient import TestClient
-        client = TestClient(app)
-        
-        # 4) Test valid request
-        valid_request = {
-            "items": [
-                {"name": "Pizza", "quantity": 2, "price": 12.50},
-                {"name": "Coke", "quantity": 3, "price": 2.00}
-            ],
-            "apply_service_charge": True,
-            "coupon_discount": 10
-        }
-        
-        response = client.post("/order/total", json=valid_request)
-        
-        if response.status_code != 200:
-            return f"❌ Endpoint returned status {response.status_code}, expected 200."
-        
-        data = response.json()
-        
-        # Check response keys
-        required_keys = ["subtotal", "service_charge", "discount_amount", "total"]
-        for key in required_keys:
-            if key not in data:
-                return f"❌ Response missing required key: `{key}`"
-        
-        # Verify calculations
-        # subtotal = 2*12.50 + 3*2.00 = 25 + 6 = 31.00
-        # service_charge = 31.00 * 0.05 = 1.55
-        # discount_amount = (31.00 + 1.55) * 0.10 = 3.255 ≈ 3.26
-        # total = 31.00 + 1.55 - 3.26 = 29.29
-        
-        if not _approx_equal(data["subtotal"], 31.00):
-            return f"❌ Subtotal expected 31.00, got {data['subtotal']}"
-        
-        if not _approx_equal(data["service_charge"], 1.55):
-            return f"❌ Service charge expected 1.55, got {data['service_charge']}"
-        
-        if not _approx_equal(data["discount_amount"], 3.26):
-            return f"❌ Discount amount expected 3.26, got {data['discount_amount']}"
-        
-        if not _approx_equal(data["total"], 29.29):
-            return f"❌ Total expected 29.29, got {data['total']}"
-        
-        # 5) Test with service charge disabled
-        no_service_request = {
-            "items": [
-                {"name": "Burger", "quantity": 1, "price": 10.00}
-            ],
-            "apply_service_charge": False,
-            "coupon_discount": 0
-        }
-        
-        response2 = client.post("/order/total", json=no_service_request)
-        data2 = response2.json()
-        
-        if not _approx_equal(data2["subtotal"], 10.00):
-            return f"❌ Test 2: Subtotal expected 10.00, got {data2['subtotal']}"
-        
-        if not _approx_equal(data2["service_charge"], 0.0):
-            return f"❌ Test 2: Service charge expected 0.0, got {data2['service_charge']}"
-        
-        if not _approx_equal(data2["total"], 10.00):
-            return f"❌ Test 2: Total expected 10.00, got {data2['total']}"
-        
-        # 6) Test invalid input - empty items
-        invalid_request1 = {
-            "items": [],
-            "apply_service_charge": True,
-            "coupon_discount": 10
-        }
-        
-        response3 = client.post("/order/total", json=invalid_request1)
-        data3 = response3.json()
-        
-        if "error" not in data3 or data3["error"] != "Invalid input":
-            return "❌ Empty items list should return {'error': 'Invalid input'}"
-        
-        # 7) Test invalid input - negative price
-        invalid_request2 = {
-            "items": [
-                {"name": "Item", "quantity": 1, "price": -5.00}
-            ],
-            "apply_service_charge": False,
-            "coupon_discount": 0
-        }
-        
-        response4 = client.post("/order/total", json=invalid_request2)
-        data4 = response4.json()
-        
-        if "error" not in data4 or data4["error"] != "Invalid input":
-            return "❌ Negative price should return {'error': 'Invalid input'}"
-        
-        # 8) Test invalid input - coupon_discount > 100
-        invalid_request3 = {
-            "items": [
-                {"name": "Item", "quantity": 1, "price": 10.00}
-            ],
-            "apply_service_charge": False,
-            "coupon_discount": 150
-        }
-        
-        response5 = client.post("/order/total", json=invalid_request3)
-        data5 = response5.json()
-        
-        if "error" not in data5 or data5["error"] != "Invalid input":
-            return "❌ Coupon discount > 100 should return {'error': 'Invalid input'}"
-        
-        return "✅ Correct! Well done."
+        # Check if function exists
+        if not hasattr(user_module, "test_website_conversion"):
+            return "❌ Function `test_website_conversion` is not defined."
 
-    except ImportError as e:
-        return f"⚠️ Import error: {str(e)}. Make sure FastAPI and httpx are installed."
+        func = user_module.test_website_conversion
+
+        # Check if it's callable
+        if not callable(func):
+            return "❌ `test_website_conversion` is not callable."
+
+        # Call the function
+        result = func()
+
+        # Check if result is a dictionary
+        if not isinstance(result, dict):
+            return f"❌ Expected dict, got {type(result).__name__}"
+
+        # Check required keys
+        required_keys = ['null_hypothesis', 'alternative_hypothesis', 'significance_level', 
+                        'test_statistic', 'p_value', 'decision']
+        for key in required_keys:
+            if key not in result:
+                return f"❌ Missing required key: `{key}`"
+
+        # -------------------------------------------------
+        # Compute expected values
+        # -------------------------------------------------
+        # Given data
+        n1 = 5000  # Control group size
+        x1 = 450   # Control conversions
+        n2 = 5000  # Treatment group size
+        x2 = 485   # Treatment conversions
+
+        p1 = x1 / n1  # 0.09
+        p2 = x2 / n2  # 0.097
+
+        # Pooled proportion
+        p_pooled = (x1 + x2) / (n1 + n2)
+
+        # Standard error
+        se = math.sqrt(p_pooled * (1 - p_pooled) * (1/n1 + 1/n2))
+
+        # Z-statistic
+        z_stat = (p2 - p1) / se
+        expected_z = round(z_stat, 2)
+
+        # P-value (one-tailed, upper tail since we test if new > old)
+        p_value = 1 - stats.norm.cdf(z_stat)
+        expected_p = round(p_value, 4)
+
+        # Significance level (common choice)
+        expected_alpha = 0.05
+
+        # Decision
+        if p_value < expected_alpha:
+            expected_decision = "Reject H0"
+        else:
+            expected_decision = "Fail to reject H0"
+
+        # -------------------------------------------------
+        # Validate values
+        # -------------------------------------------------
+        # Check significance level is reasonable (0.01 - 0.10)
+        if not (0.01 <= result['significance_level'] <= 0.10):
+            return f"❌ `significance_level` should be between 0.01 and 0.10, got {result['significance_level']}"
+
+        # Validate test statistic
+        if not _approx_equal(result['test_statistic'], expected_z, tol=0.1):
+            return f"❌ `test_statistic` mismatch: expected ~{expected_z}, got {result['test_statistic']}"
+
+        # Validate p-value
+        if not _approx_equal(result['p_value'], expected_p, tol=0.01):
+            return f"❌ `p_value` mismatch: expected ~{expected_p}, got {result['p_value']}"
+
+        # Validate decision based on their significance level and p-value
+        user_alpha = result['significance_level']
+        user_p = result['p_value']
+        
+        if user_p < user_alpha:
+            correct_decision = "Reject H0"
+        else:
+            correct_decision = "Fail to reject H0"
+
+        # Check decision format (case-insensitive comparison)
+        user_decision = result['decision'].strip().lower()
+        if "reject" not in user_decision:
+            return f"❌ `decision` should contain 'Reject' or 'Fail to reject', got '{result['decision']}'"
+
+        # Check hypotheses are strings
+        if not isinstance(result['null_hypothesis'], str) or len(result['null_hypothesis']) < 5:
+            return "❌ `null_hypothesis` should be a descriptive string."
+
+        if not isinstance(result['alternative_hypothesis'], str) or len(result['alternative_hypothesis']) < 5:
+            return "❌ `alternative_hypothesis` should be a descriptive string."
+
+        return "✅ Correct! Hypothesis testing is valid."
+
     except Exception as e:
         return f"⚠️ Validation error: {str(e)}"

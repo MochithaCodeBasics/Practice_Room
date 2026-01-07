@@ -164,20 +164,30 @@ def _build_sandbox_env(data_df=None):
 def _find_user_dataframe(sandbox_env: dict, original_data: pd.DataFrame | None):
     """
     Priority:
-    1) `result` if DataFrame/Series
+    1) `result` if DataFrame/Series/Figure
     2) Modified `data`
-    3) Any other DataFrame/Series created by user
+    3) Any other DataFrame/Series/Figure created by user
     """
     def is_tabular(x):
         t = getattr(x, "__class__", None)
         n = getattr(t, "__name__", "")
         return n in ("DataFrame", "Series")
 
-    user_output = None
+    def is_figure(x):
+        t = getattr(x, "__class__", None)
+        n = getattr(t, "__name__", "")
+        m = getattr(t, "__module__", "")
+        return n == "Figure" and "matplotlib" in m
 
-    # 1) Explicit result
-    if "result" in sandbox_env and is_tabular(sandbox_env["result"]):
-        user_output = sandbox_env["result"]
+    user_output = None
+    figure_output = None
+
+    # 1) Explicit result - check for DataFrame/Series or Figure
+    if "result" in sandbox_env:
+        if is_tabular(sandbox_env["result"]):
+            user_output = sandbox_env["result"]
+        elif is_figure(sandbox_env["result"]):
+            figure_output = sandbox_env["result"]
 
     # 2) Modified data
     if (
@@ -192,16 +202,16 @@ def _find_user_dataframe(sandbox_env: dict, original_data: pd.DataFrame | None):
         except Exception:
             user_output = sandbox_env["data"]
 
-    # 3) Any other tabular variable
-    if user_output is None:
+    # 3) Any other tabular variable or figure
+    if user_output is None and figure_output is None:
         for var_name, val in sandbox_env.items():
-            if (
-                is_tabular(val)
-                and var_name not in ["data", "expected", "result"]
-                and not var_name.startswith("_")
-            ):
+            if var_name.startswith("_") or var_name in ["data", "expected", "result"]:
+                continue
+            if is_tabular(val):
                 user_output = val
                 break
+            elif is_figure(val) and figure_output is None:
+                figure_output = val
 
     # Normalize Series -> DataFrame
     if user_output is not None and getattr(user_output.__class__, "__name__", "") == "Series":
@@ -209,6 +219,10 @@ def _find_user_dataframe(sandbox_env: dict, original_data: pd.DataFrame | None):
             user_output.to_frame(name=getattr(user_output, "name", None) or "value")
             .reset_index(drop=True)
         )
+
+    # Return figure if no DataFrame found but figure exists
+    if user_output is None and figure_output is not None:
+        return figure_output
 
     return user_output
 
@@ -373,9 +387,14 @@ with col2:
                 user_output = _find_user_dataframe(sandbox_env, original_data=data)
                 if user_output is not None:
                     st.markdown("### 🧾 Your Output")
-                    st.dataframe(user_output, use_container_width=True)
+                    # Check if output is a matplotlib Figure
+                    output_class = getattr(user_output.__class__, "__name__", "")
+                    if output_class == "Figure":
+                        st.pyplot(user_output)
+                    else:
+                        st.dataframe(user_output, use_container_width=True)
                 else:
-                    st.warning("⚠️ No DataFrame found in your output.")
+                    st.warning("⚠️ No DataFrame or Figure found in your output.")
             else:
                 st.success("✅ Code executed. Now click **Submit Code** to run hidden test cases.")
 
@@ -410,13 +429,25 @@ with col2:
             if qtype == "dataframe":
                 user_output = _find_user_dataframe(sandbox_env, original_data=data)
                 if user_output is None:
-                    st.warning("⚠️ No DataFrame found in your output.")
+                    st.warning("⚠️ No DataFrame or Figure found in your output.")
                 else:
-                    result_msg = _call_validator(
-                        v_module=v_module,
-                        user_df=user_output,
-                        expected_path=expected_path,
-                    )
+                    # Check if output is a matplotlib Figure
+                    output_class = getattr(user_output.__class__, "__name__", "")
+                    is_figure = output_class == "Figure"
+                    
+                    # For figure questions, pass the user_module to validator
+                    if is_figure:
+                        user_module = types.SimpleNamespace(**sandbox_env)
+                        result_msg = _call_validator(
+                            v_module=v_module,
+                            user_module=user_module,
+                        )
+                    else:
+                        result_msg = _call_validator(
+                            v_module=v_module,
+                            user_df=user_output,
+                            expected_path=expected_path,
+                        )
                     if "✅" in result_msg:
                         st.balloons()
                         st.success("🎉 Great job! Your final submission passed all tests.")
@@ -424,7 +455,10 @@ with col2:
                         st.error("❌ Not quite right yet. Try again.")
                     st.caption("Validator feedback:")
                     st.code(result_msg)
-                    st.dataframe(user_output, use_container_width=True)
+                    if is_figure:
+                        st.pyplot(user_output)
+                    else:
+                        st.dataframe(user_output, use_container_width=True)
 
             else:
                 user_module = types.SimpleNamespace(**sandbox_env)

@@ -1,66 +1,59 @@
 description = """
-A retail billing system applies discounts differently depending on the customer type.
-All discount calculators share common validation rules, but each customer type has its own discount logic.
+Finance requires a compact but complete statistical snapshot of customer spending behavior.
 
-Your task is to implement this using inheritance and validate inputs using built-in exceptions.
+### Task
+Given a pandas Series named `monthly_spend`, implement a function:
+```python
+summarize_spend(series) -> dict
+```
 
 ### Requirements
+You must compute the following statistics and return them in a dictionary:
+- `mean` - arithmetic mean
+- `median` - median value
+- `mode` - most frequent value (if multiple modes, return the smallest)
+- `std` - standard deviation
+- `variance` - variance
+- `min` - minimum value
+- `max` - maximum value
+- `Q1` - first quartile (25th percentile)
+- `Q3` - third quartile (75th percentile)
+- `IQR` - interquartile range (Q3 - Q1)
 
-Create a base class `DiscountCalculator` with:
+**Important**: Ignore missing values (NaN) when computing statistics.
 
-- `__init__(self, amount)` to store the amount
-- `validate(self)` method that:
-  - raises `TypeError` if `amount` is not an `int` or `float`
-  - raises `ValueError` if `amount <= 0`
-- `final_amount(self)` method that raises `NotImplementedError`
+**Input Format**: A pandas Series like `pd.Series([1200, 1500, 1800, 2000, ...])`
 
-Create two subclasses:
+**Sample Output**:
+```python
+{'mean': 1725.0, 'median': 1750.0, 'mode': 1500, 'std': 319.37, 
+ 'variance': 101999.99, 'min': 1200, 'max': 2200, 'Q1': 1550.0, 'Q3': 1925.0, 'IQR': 375.0}
+```
 
-`RegularCustomer(DiscountCalculator)`
-- `final_amount()` applies **5% discount**
-
-`PremiumCustomer(DiscountCalculator)`
-- `final_amount()` applies **15% discount**
-
-Each subclass must call `self.validate()` before calculating.
-
-Return the final payable amount rounded to **2 decimals**.
-
-### Example
-
-Input:
-customer = RegularCustomer(1000)
-customer.final_amount()
-
-Output:
-950.0
-
-Input:
-customer = PremiumCustomer(1000)
-customer.final_amount()
-
-Output:
-850.0
+### Return
+- A dictionary with all 10 required keys and their computed values
 """
 
 hint = """
-- Use `isinstance()` for type checking.
-- Call `self.validate()` before calculations.
+- Quartiles: `.quantile(0.25)` and `.quantile(0.75)`
+- Mode returns a Series; use `.iloc[0]` for single value
 """
 
 
-inital_sample_code = """# Write your solution here
+inital_sample_code = """import pandas as pd
 
-class DiscountCalculator:
+def summarize_spend(series):
+    \"\"\"
+    Compute comprehensive statistics for spending data.
+
+    Parameters:
+        series: pandas Series containing monthly spend values
+
+    Returns:
+        dict with keys: mean, median, mode, std, variance, min, max, Q1, Q3, IQR
+    \"\"\"
+    # Your code here
     pass
-
-class RegularCustomer(DiscountCalculator):
-    pass
-
-class PremiumCustomer(DiscountCalculator):
-    pass
-
-
 """
 
 

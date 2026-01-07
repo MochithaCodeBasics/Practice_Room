@@ -1,56 +1,51 @@
 description = """
-An e-commerce platform needs a flexible pricing function that can handle different
-types of charges and discounts during checkout.
+A retail bank wants to quickly understand relationships between customer age, income, 
+credit score, and monthly spend before building risk models.
 
-The base price of an order is always known, but additional costs like taxes, shipping,
-and packaging may vary. Optional discounts such as coupons or loyalty discounts may
-also apply.
+You are given a pandas DataFrame containing numeric columns:
+`age`, `annual_income`, `credit_score`, `monthly_spend`, and a categorical column `city_tier`.
 
-Your task is to build a reusable Python function that calculates the final payable
-amount using *args, **kwargs, and a lambda function.
+### Task
+Implement a function:
+```python
+create_pairplot(df, cols, hue=None) -> matplotlib.figure.Figure
+```
 
 ### Requirements
-- Define a function named `calculate_final_price`
-- Take a required argument `base_price`
-- Accept a flexible number of additional charges
-- Accept optional keyword-based percentage discounts
-- Apply all discounts sequentially on the running total
-- Return the final payable amount rounded to **2 decimal places**
+- Drop rows with missing values in `cols` or `hue` (if provided)
+- Use seaborn's `pairplot` function
+- Plot only the specified columns in `cols`
+- Return the matplotlib Figure object
 
-### Example
-
-Input:
-calculate_final_price(
-    1000,
-    50, 100,
-    coupon=10,
-    loyalty=5
-)
-
-Explanation:
-- Base price = 1000
-- Extra charges = 50 + 100 → 1150
-- Apply 10% discount → 1035
-- Apply 5% discount → 983.25
-
-Output:
-983.25
+### Return
+- A matplotlib Figure object from the seaborn pairplot
 """
 
 hint = """
-Think about how Python functions can accept a flexible number of inputs.
-Recall how *args and **kwargs behave inside a function.
-Consider how percentage-based discounts should affect a running total.
+- `sns.pairplot()` returns a PairGrid; access the figure via `.fig` attribute
 """
 
 
-inital_sample_code = """
-# Write your solution here
+inital_sample_code = """import seaborn as sns
+import matplotlib.pyplot as plt
 
-# Create a function named:
-# calculate_final_price
+def create_pairplot(df, cols, hue=None):
+    \"\"\"
+    Create a pairplot visualization for the specified columns.
 
-# The function should return the final payable amount
+    Parameters:
+        df: pandas DataFrame with customer data
+        cols: list of column names to include in pairplot
+        hue: optional categorical column for color coding
+
+    Returns:
+        matplotlib.figure.Figure object
+    \"\"\"
+    # Your code here
+    pass
+
+# Call the function and store in result
+result = create_pairplot(data, ['age', 'annual_income', 'credit_score', 'monthly_spend'], hue='city_tier')
 """
 
 

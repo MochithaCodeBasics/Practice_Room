@@ -1,79 +1,77 @@
 description = """
-A food delivery platform needs an API endpoint to calculate the final payable amount for a customer's order.
+An e-commerce company tested a new website design. Data collected:
 
-Each order contains multiple food items. The platform may optionally apply a service charge, 
-and a coupon discount may be applied to the total bill.
+**Control Group (Old Design):**
+- 5,000 visitors
+- 450 conversions (9.0% conversion rate)
 
-Your task is to build a **FastAPI POST endpoint** that accepts order details, validates the request 
-using **Pydantic BaseModel**, performs the necessary calculations, and returns a bill summary.
+**Treatment Group (New Design):**
+- 5,000 visitors  
+- 485 conversions (9.7% conversion rate)
+
+### Task
+Test if the new website design **significantly improves** the conversion rate.
+
+Implement a function:
+```python
+test_website_conversion() -> dict
+```
 
 ### Requirements
 
-- Create a FastAPI POST endpoint at **`/order/total`**
+1. **State Hypotheses Clearly:**
+   - Null hypothesis (H0)
+   - Alternative hypothesis (H1)
 
-- Define a Pydantic model **`OrderItem`** with:
-  - `name` (string)
-  - `quantity` (integer)
-  - `price` (float)
+2. **Choose Significance Level:**
+   - Select an appropriate α value (e.g., 0.05)
+   - Justify your choice
 
-- Define a Pydantic model **`OrderRequest`** with:
-  - `items` (list of `OrderItem`)
-  - `apply_service_charge` (boolean)
-  - `coupon_discount` (float)
+3. **Calculate Test Statistic:**
+   - Use a two-proportion z-test
+   - Formula: z = (p_new - p_old) / sqrt(p_pooled * (1 - p_pooled) * (1/n_old + 1/n_new))
+   - where p_pooled = (x_old + x_new) / (n_old + n_new)
 
-- Perform the following validations inside the API function:
-  - `items` list must not be empty
-  - `quantity` must be greater than `0`
-  - `price` must be greater than `0`
-  - `coupon_discount` must be between `0` and `100` (inclusive)
+4. **Calculate P-Value and Make Decision:**
+   - Since we're testing if new design is BETTER (one-tailed test)
+   - Compare p-value to significance level
 
-- If any validation fails, return: `{ "error": "Invalid input" }`
-
-- Calculate:
-  - `subtotal` as the sum of (quantity × price) for all items
-  - `service_charge` as 5% of subtotal if `apply_service_charge` is true
-  - `discount_amount` based on `coupon_discount` percentage
-  - `total` payable amount
-
-- Return all monetary values rounded to **2 decimal places**
-
-### Example
-
-Request:
-```json
+### Return
+A dictionary with the following structure:
+```python
 {
-  "items": [
-    {"name": "Pizza", "quantity": 2, "price": 12.50},
-    {"name": "Coke", "quantity": 3, "price": 2.00}
-  ],
-  "apply_service_charge": true,
-  "coupon_discount": 10
-}
-```
-
-Response:
-```json
-{
-  "subtotal": 31.00,
-  "service_charge": 1.55,
-  "discount_amount": 3.26,
-  "total": 29.29
+    'null_hypothesis': str,       # e.g., "p_new <= p_old"
+    'alternative_hypothesis': str, # e.g., "p_new > p_old"
+    'significance_level': float,   # e.g., 0.05
+    'test_statistic': float,       # z-score, rounded to 2 decimals
+    'p_value': float,              # rounded to 4 decimals
+    'decision': str                # "Reject H0" or "Fail to reject H0"
 }
 ```
 """
 
 hint = """
-- Define Pydantic models before the endpoint.
-- Final total = subtotal + service_charge - discount_amount
+- One-tailed upper test: p-value = `1 - scipy.stats.norm.cdf(z)`
 """
 
 
-inital_sample_code = """from fastapi import FastAPI
-from pydantic import BaseModel
-from typing import List
+inital_sample_code = """from scipy import stats
 
-app = FastAPI()
+def test_website_conversion():
+    \"\"\"
+    Perform a two-proportion z-test for website conversion improvement.
 
+    Returns:
+        dict with keys:
+            - null_hypothesis: str describing H0
+            - alternative_hypothesis: str describing H1
+            - significance_level: float (alpha value)
+            - test_statistic: float (z-score)
+            - p_value: float
+            - decision: str ("Reject H0" or "Fail to reject H0")
+    \"\"\"
+    # Your code here
+    pass
 """
 
 

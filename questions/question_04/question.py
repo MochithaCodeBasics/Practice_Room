@@ -1,65 +1,73 @@
 description = """
-A retail company wants to understand its monthly revenue trends to track business performance over time.
+An e-commerce company tracks customer interactions across three channels: Email, Social Media, 
+and Direct Website. Historical data shows:
 
-You are provided with a pandas DataFrame named `data` containing order transactions.
+**Channel Interaction Probabilities:**
+- 40% of customers interact via Email
+- 35% via Social Media  
+- 25% via Direct Website
 
-**Columns**:
-- `order_id` (string)
-- `order_date` (string, format `YYYY-MM-DD`)
-- `amount` (number)
+**Conversion Rates (given interaction with channel):**
+- Email: 12%
+- Social Media: 8%
+- Direct Website: 15%
 
-Your task is to compute monthly revenue metrics and visualize the trend.
+**Note:** Customers can interact with multiple channels independently.
+
+### Task
+Implement a function:
+```python
+calculate_marketing_probabilities() -> dict
+```
 
 ### Requirements
-- Convert `order_date` to datetime
-- Group the data by month (`YYYY-MM`)
-- Compute:
-  - `revenue` - total revenue per month
-  - `mom_growth_pct` - month-over-month revenue growth percentage
-- Round numeric values to **2 decimals**
-- **Create a line chart** showing the monthly revenue trend
-- Months should be sorted in ascending order
+Calculate the following:
+
+1. **Overall Conversion Probability**: 
+   The probability that a randomly selected customer converts (through any channel).
+   Use the law of total probability.
+
+2. **Bayes' Theorem Results**: 
+   If a customer converted, what's the probability they came from each channel?
+   Calculate for Email, Social Media, and Website.
+
+3. **At Least Two Channels Probability**: 
+   The probability that a customer interacts with at least 2 channels 
+   (given channel interactions are independent).
 
 ### Return
-- A DataFrame named `result` with columns: `month`, `revenue`, `mom_growth_pct`
-- A plot object named `plot` (matplotlib Axes) used to create the chart
-
-### Example
-
-If data contains orders from Jan-Mar 2024:
-- Jan total: 10000
-- Feb total: 12000 (20% growth)
-- Mar total: 15000 (25% growth)
-
-Output DataFrame:
-| month   | revenue | mom_growth_pct |
-|---------|---------|----------------|
-| 2024-01 | 10000.0 | NaN            |
-| 2024-02 | 12000.0 | 20.0           |
-| 2024-03 | 15000.0 | 25.0           |
+A dictionary with the following structure:
+```python
+{
+    'overall_conversion_prob': float,  # rounded to 2 decimals
+    'bayes_results': {
+        'Email': float,    # P(Email | Converted), rounded to 2 decimals
+        'Social': float,   # P(Social | Converted), rounded to 2 decimals
+        'Website': float   # P(Website | Converted), rounded to 2 decimals
+    },
+    'at_least_two_channels_prob': float  # rounded to 2 decimals
+}
+```
 """
 
 hint = """
-- Use `.pct_change()` for growth calculation.
-- The first month will have NaN for mom_growth_pct.
+- P(Convert) = P(Email)×P(Convert|Email) + P(Social)×P(Convert|Social) + P(Website)×P(Convert|Website)
+- P(Email|Convert) = P(Email)×P(Convert|Email) / P(Convert)
+- P(at least 2 channels) = P(E∩S) + P(E∩W) + P(S∩W) − 2×P(E∩S∩W), since channel interactions are independent
 """
 
+inital_sample_code = """def calculate_marketing_probabilities():
+    \"\"\"
+    Calculate marketing channel probabilities using Bayes' theorem.
 
-inital_sample_code = """import pandas as pd
-import matplotlib.pyplot as plt
-
-# Data is available in the `data` DataFrame
-df = data.copy()
-
-result = None  # Final DataFrame: month, revenue, mom_growth_pct
-
-# Create plot (plot must be a matplotlib Axes)
-fig, plot = plt.subplots()
-
-plot.set_xlabel("month")
-plot.set_ylabel("revenue")
-plot.set_title("Monthly Revenue Trend")
-plt.tight_layout()
+    Returns:
+        dict with keys:
+            - overall_conversion_prob: float (total probability of conversion)
+            - bayes_results: dict with Email, Social, Website posterior probabilities
+            - at_least_two_channels_prob: float (probability of 2+ channel interactions)
+    \"\"\"
+    # Your code here
+    pass
 """
 
 
