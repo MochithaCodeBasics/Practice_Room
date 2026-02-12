@@ -1,0 +1,8 @@
+id,name,base_image,description,created_at
+math_stats,Math & Stats practice,math-image,,
+python,Python practice,python-image,,
+nlp,NLP practice,nlp-image,,
+ml,Machine Learning practice,ml-image,,
+dl,Deep Learning practice,dl-image,,
+genai,GenAI practice,genai-image,,
+agentic,Agentic AI practice,agentic-image,,

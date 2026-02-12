@@ -35,7 +35,7 @@ hint = """
 """
 
 
-inital_sample_code = """import pandas as pd
+initial_sample_code = """import pandas as pd
 import matplotlib.pyplot as plt
 
 def plot_transactions_with_rolling_mean(df, window):
@@ -52,8 +52,12 @@ def plot_transactions_with_rolling_mean(df, window):
     # Your code here
     pass
 
-# Call the function and store in result
-result = plot_transactions_with_rolling_mean(data, window=5)
+# ==========================================================
+# Uncomment below to see the output
+# ==========================================================
+#if __name__ == "__main__":
+#    result = plot_transactions_with_rolling_mean(data, window=5)
+
 """
 
 
@@ -63,5 +67,6 @@ def get_description():
 def get_hint():
     return hint
 
-def get_inital_sample_code():
-    return inital_sample_code
+def get_initial_sample_code():
+    return initial_sample_code
+

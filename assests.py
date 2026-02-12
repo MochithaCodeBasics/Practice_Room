@@ -1,1 +1,0 @@
-cb_logo = "https://files.codebasics.io/v3/images-webp/CB-logo-1.svg"

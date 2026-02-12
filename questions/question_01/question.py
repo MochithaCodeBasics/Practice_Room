@@ -1,9 +1,7 @@
 description = """
-A retail bank wants to quickly understand relationships between customer age, income, 
-credit score, and monthly spend before building risk models.
+A retail bank wants to quickly understand relationships between customer age, income, credit score, and monthly spend before building risk models.
 
-You are given a pandas DataFrame containing numeric columns:
-`age`, `annual_income`, `credit_score`, `monthly_spend`, and a categorical column `city_tier`.
+You are given a pandas DataFrame containing numeric columns: `age`, `annual_income`, `credit_score`, `monthly_spend`, and a categorical column `city_tier`.
 
 ### Task
 Implement a function:
@@ -26,7 +24,7 @@ hint = """
 """
 
 
-inital_sample_code = """import seaborn as sns
+initial_sample_code = """import seaborn as sns
 import matplotlib.pyplot as plt
 
 def create_pairplot(df, cols, hue=None):
@@ -44,8 +42,12 @@ def create_pairplot(df, cols, hue=None):
     # Your code here
     pass
 
-# Call the function and store in result
-result = create_pairplot(data, ['age', 'annual_income', 'credit_score', 'monthly_spend'], hue='city_tier')
+# ==========================================================
+# Uncomment below to see the output
+# ==========================================================
+#if __name__ == "__main__":
+#     result = create_pairplot(data, ['age', 'annual_income', 'credit_score', 'monthly_spend'], hue='city_tier')
+
 """
 
 
@@ -55,5 +57,6 @@ def get_description():
 def get_hint():
     return hint
 
-def get_inital_sample_code():
-    return inital_sample_code
+def get_initial_sample_code():
+    return initial_sample_code
+

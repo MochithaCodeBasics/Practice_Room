@@ -1,0 +1,10 @@
+# NLP
+FROM practice-room-python:latest
+
+USER root
+COPY docker/requirements/nlp.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
+# Download spacy model
+RUN python -m spacy download en_core_web_sm
+
+USER runner

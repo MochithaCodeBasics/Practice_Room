@@ -1,0 +1,23 @@
+# Base Image for Python/Maths
+FROM python:3.10-slim
+
+# Create user
+RUN useradd -m -s /bin/bash -u 1000 runner
+WORKDIR /workspace
+
+# Install Base Deps
+COPY docker/requirements/python.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
+
+# Install NLP Deps
+COPY docker/requirements/nlp.txt /tmp/requirements-nlp.txt
+RUN pip install --no-cache-dir -r /tmp/requirements-nlp.txt && \
+    python -m spacy download en_core_web_sm
+
+# Cleanup
+RUN rm -f /usr/bin/wget /usr/bin/curl /usr/bin/nc 2>/dev/null || true
+
+USER runner
+ENV PYTHONUNBUFFERED=1
+ENV MPLBACKEND=Agg
+CMD ["python", "main.py"]

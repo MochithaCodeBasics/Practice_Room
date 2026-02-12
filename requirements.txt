@@ -2,7 +2,7 @@
 pandas>=2.0.0
 numpy>=1.25.0
 
-# Visualization (used in EOQ or advanced analytics)
+# Visualization
 matplotlib>=3.7.0
 seaborn>=0.12.0
 
@@ -13,25 +13,9 @@ scipy>=1.11.0
 streamlit>=1.31.0
 streamlit-ace>=0.1.1
 
-# Random data and generation utilities
-faker>=18.0.0
-random2>=1.0.1
-collections2>=0.3.0
+# PDF generation
+fpdf2>=2.7.0
 
-# Regex parsing and advanced text cleaning
-regex>=2023.12.25
-
-# File I/O and validation utilities
-openpyxl>=3.1.2
-python-dateutil>=2.8.2
-pytest>=7.3.0
-requests>=2.31.0
-
-# Optional timezone and reproducibility helpers
+# Timezone detection from browser
+streamlit-javascript>=0.1.5
 pytz>=2024.1
-
-# FastAPI and Pydantic (for API practice questions)
-fastapi>=0.109.0
-pydantic>=2.5.0
-httpx>=0.26.0
-uvicorn>=0.27.0

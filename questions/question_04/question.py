@@ -56,7 +56,7 @@ hint = """
 - P(at least 2 channels) = P(E∩S) + P(E∩W) + P(S∩W) − 2×P(E∩S∩W), since channel interactions are independent
 """
 
-inital_sample_code = """def calculate_marketing_probabilities():
+initial_sample_code = """def calculate_marketing_probabilities():
     \"\"\"
     Calculate marketing channel probabilities using Bayes' theorem.
 
@@ -68,6 +68,13 @@ inital_sample_code = """def calculate_marketing_probabilities():
     \"\"\"
     # Your code here
     pass
+
+# ==========================================================
+# Uncomment below to see the output
+# ==========================================================
+# if __name__ == "__main__":
+#     result = calculate_marketing_probabilities()
+#     print(result)
 """
 
 
@@ -77,5 +84,5 @@ def get_description():
 def get_hint():
     return hint
 
-def get_inital_sample_code():
-    return inital_sample_code
+def get_initial_sample_code():
+    return initial_sample_code

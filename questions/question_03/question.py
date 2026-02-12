@@ -40,7 +40,7 @@ hint = """
 """
 
 
-inital_sample_code = """import pandas as pd
+initial_sample_code = """import pandas as pd
 
 def summarize_spend(series):
     \"\"\"
@@ -54,6 +54,14 @@ def summarize_spend(series):
     \"\"\"
     # Your code here
     pass
+
+# ==========================================================
+# Uncomment below to see the output
+# ==========================================================
+# if __name__ == "__main__":
+#     test_data = pd.Series([1200, 1500, 1500, 1800, 2000, 2200])
+#     result = summarize_spend(test_data)
+#     print(result)
 """
 
 
@@ -63,5 +71,5 @@ def get_description():
 def get_hint():
     return hint
 
-def get_inital_sample_code():
-    return inital_sample_code
+def get_initial_sample_code():
+    return initial_sample_code

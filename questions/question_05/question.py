@@ -55,7 +55,7 @@ hint = """
 """
 
 
-inital_sample_code = """from scipy import stats
+initial_sample_code = """from scipy import stats
 
 def test_website_conversion():
     \"\"\"
@@ -72,6 +72,13 @@ def test_website_conversion():
     \"\"\"
     # Your code here
     pass
+
+# ==========================================================
+# Uncomment below to see the output
+# ==========================================================
+# if __name__ == "__main__":
+#     result = test_website_conversion()
+#     print(result)
 """
 
 
@@ -81,5 +88,5 @@ def get_description():
 def get_hint():
     return hint
 
-def get_inital_sample_code():
-    return inital_sample_code
+def get_initial_sample_code():
+    return initial_sample_code

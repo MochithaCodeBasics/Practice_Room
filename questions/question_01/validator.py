@@ -15,13 +15,13 @@ def validate(user_module) -> str:
     try:
         # Check if function exists
         if not hasattr(user_module, "create_pairplot"):
-            return "❌ Function `create_pairplot` is not defined."
+            return "[FAIL] Function `create_pairplot` is not defined."
 
         func = user_module.create_pairplot
 
         # Check if it's callable
         if not callable(func):
-            return "❌ `create_pairplot` is not callable."
+            return "[FAIL] `create_pairplot` is not callable."
 
         # Create test DataFrame
         np.random.seed(42)
@@ -41,26 +41,26 @@ def validate(user_module) -> str:
         try:
             from matplotlib.figure import Figure
             if not isinstance(result, Figure):
-                return f"❌ Expected matplotlib Figure, got {type(result).__name__}"
+                return f"[FAIL] Expected matplotlib Figure, got {type(result).__name__}"
         except ImportError:
-            return "⚠️ matplotlib is required for this question."
+            return "[INFO] matplotlib is required for this question."
 
         # Check if figure has axes (confirming pairplot was created)
         if not hasattr(result, 'axes') or len(result.axes) == 0:
-            return "❌ Figure has no axes. Pairplot may not have been created correctly."
+            return "[FAIL] Figure has no axes. Pairplot may not have been created correctly."
 
         # For a pairplot with n variables, we expect at least n*n subplots
         # Note: seaborn may add extra axes for legends/colorbar, so we check for >= 
         expected_axes = len(cols) * len(cols)
         actual_axes = len(result.axes)
         if actual_axes < expected_axes:
-            return f"❌ Expected at least {expected_axes} subplots for {len(cols)} columns, got {actual_axes}."
+            return f"[FAIL] Expected at least {expected_axes} subplots for {len(cols)} columns, got {actual_axes}."
 
         # Test Case 2: Pairplot with hue
         result_with_hue = func(test_df, ['age', 'annual_income'], hue='city_tier')
 
         if not isinstance(result_with_hue, Figure):
-            return f"❌ With hue parameter: Expected matplotlib Figure, got {type(result_with_hue).__name__}"
+            return f"[FAIL] With hue parameter: Expected matplotlib Figure, got {type(result_with_hue).__name__}"
 
         # Test Case 3: DataFrame with missing values
         test_df_with_nan = test_df.copy()
@@ -70,13 +70,13 @@ def validate(user_module) -> str:
         result_with_nan = func(test_df_with_nan, ['age', 'annual_income'])
         
         if not isinstance(result_with_nan, Figure):
-            return "❌ Function should handle missing values and still return a Figure."
+            return "[FAIL] Function should handle missing values and still return a Figure."
 
         # Close all figures to prevent memory leaks
         import matplotlib.pyplot as plt
         plt.close('all')
 
-        return "✅ Correct! Pairplot function works as expected."
+        return "[PASS] Correct! Pairplot function works as expected."
 
     except Exception as e:
-        return f"⚠️ Validation error: {str(e)}"
+        return f"[ERROR] Validation error: {str(e)}"
