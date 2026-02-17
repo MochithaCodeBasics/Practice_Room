@@ -1,173 +1,96 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
-import axios from "axios";
-import api from "@/services/api";
-import { User, AuthContextType } from "@/types";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
+import type { User, AuthContextType } from "@/types";
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const { data: session, status } = useSession();
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [showAuthPopup, setShowAuthPopup] = useState(false);
+
+  const loading = status === "loading";
+  const isAuthenticated = !!session?.user;
 
   useEffect(() => {
-    const stored = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-    setToken(stored);
-  }, []);
-
-  useEffect(() => {
-    const verifyToken = async () => {
-      const t = token ?? (typeof window !== "undefined" ? localStorage.getItem("token") : null);
-      if (t) {
-        try {
-          const response = await api.get("/v1/auth/me");
-          setUser(response.data);
-          setToken(t);
-        } catch (error) {
-          console.error("Token invalid", error);
-          setToken(null);
-          setUser(null);
-          if (typeof window !== "undefined") {
-            localStorage.removeItem("token");
-            localStorage.removeItem("username");
-            localStorage.removeItem("role");
-          }
-          delete axios.defaults.headers.common["Authorization"];
-        }
-      }
-      setLoading(false);
-    };
-    verifyToken();
-  }, [token]);
-
-  const login = async (username: string, password: string): Promise<boolean> => {
-    const params = new URLSearchParams();
-    params.append("username", username);
-    params.append("password", password);
-    try {
-      const response = await api.post("/v1/auth/login", params, {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    if (session?.user) {
+      setUser({
+        id: session.user.id,
+        name: session.user.name || undefined,
+        username: session.user.name || session.user.email || undefined,
+        email: session.user.email || undefined,
+        image: session.user.image || undefined,
+        role: session.user.role || "learner",
       });
-      const { access_token, role, username: returnedUsername, current_streak } = response.data;
-      setToken(access_token);
-      setUser({ username: returnedUsername, role, current_streak });
+
+      // Sync access token to localStorage for API interceptor
+      if (session.accessToken && typeof window !== "undefined") {
+        localStorage.setItem("token", session.accessToken);
+      }
+    } else {
+      setUser(null);
       if (typeof window !== "undefined") {
-        localStorage.setItem("token", access_token);
-        localStorage.setItem("username", returnedUsername);
-        localStorage.setItem("role", role);
+        localStorage.removeItem("token");
       }
-      axios.defaults.headers.common["Authorization"] = `Bearer ${access_token}`;
-      return true;
-    } catch (error) {
-      console.error("Login failed", error);
-      return false;
     }
-  };
+  }, [session]);
 
-  const adminLogin = async (username: string, password: string): Promise<boolean> => {
-    const params = new URLSearchParams();
-    params.append("username", username);
-    params.append("password", password);
-    try {
-      const response = await api.post("/v1/auth/admin/login", params, {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      });
-      const { access_token, role, username: returnedUsername, current_streak } = response.data;
-      setToken(access_token);
-      setUser({ username: returnedUsername, role, current_streak });
-      if (typeof window !== "undefined") {
-        localStorage.setItem("token", access_token);
-        localStorage.setItem("username", returnedUsername);
-        localStorage.setItem("role", role);
-      }
-      axios.defaults.headers.common["Authorization"] = `Bearer ${access_token}`;
-      return true;
-    } catch (error) {
-      console.error("Admin login failed", error);
-      return false;
-    }
-  };
-
-  const signup = async (username: string, email: string, password: string): Promise<boolean> => {
-    try {
-      await api.post("/v1/auth/signup", { username, email, password });
-      return true;
-    } catch (error) {
-      console.error("Signup failed", error);
-      return false;
-    }
-  };
-
-  const requestPasswordReset = async (email: string): Promise<boolean> => {
-    try {
-      await api.post("/v1/auth/request-password-reset", { email });
-      return true;
-    } catch (error) {
-      console.error("Password reset request failed", error);
-      return false;
-    }
-  };
-
-  const verifyPasswordReset = async (token: string, newPassword: string): Promise<boolean> => {
-    try {
-      await api.post("/v1/auth/verify-password-reset", {
-        token,
-        new_password: newPassword,
-      });
-      return true;
-    } catch (error) {
-      console.error("Password reset verification failed", error);
-      return false;
-    }
-  };
-
-  const logout = (): void => {
-    setToken(null);
-    setUser(null);
+  const logout = useCallback(() => {
     if (typeof window !== "undefined") {
       localStorage.removeItem("token");
-      localStorage.removeItem("username");
-      localStorage.removeItem("role");
     }
-    delete axios.defaults.headers.common["Authorization"];
-  };
+    nextAuthSignOut({ callbackUrl: "/" });
+  }, []);
 
-  const refreshUser = async (): Promise<void> => {
-    if (token) {
-      try {
-        const response = await api.get("/v1/auth/me");
-        setUser(response.data);
-      } catch (error: unknown) {
-        console.error("Manual refresh failed", error);
-        if (error instanceof Object && "response" in error) {
-          const axiosError = error as { response?: { status: number } };
-          if (axiosError.response?.status === 401) {
-            logout();
-          }
-        }
-      }
-    }
-  };
+  const openAuthPopup = useCallback(() => {
+    setShowAuthPopup(true);
+  }, []);
+
+  const refreshUser = useCallback(async () => {
+    // With Auth.js, session is managed automatically
+  }, []);
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        login,
-        adminLogin,
-        logout,
-        signup,
         loading,
+        isAuthenticated,
+        logout,
+        openAuthPopup,
         refreshUser,
-        requestPasswordReset,
-        verifyPasswordReset,
       }}
     >
       {children}
+      {showAuthPopup && (
+        <AuthPopupPortal
+          open={showAuthPopup}
+          onOpenChange={setShowAuthPopup}
+        />
+      )}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+function AuthPopupPortal({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+  const [AuthPopup, setAuthPopup] = useState<React.ComponentType<{ open: boolean; onOpenChange: (v: boolean) => void }> | null>(null);
+
+  useEffect(() => {
+    import("@/components/AuthPopup").then((mod) => {
+      setAuthPopup(() => mod.default);
+    });
+  }, []);
+
+  if (!AuthPopup) return null;
+  return <AuthPopup open={open} onOpenChange={onOpenChange} />;
+}
+
+export const useAuth = () => {
+  const ctx = useContext(AuthContext);
+  if (!ctx) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return ctx;
+};

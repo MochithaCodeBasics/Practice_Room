@@ -8,9 +8,10 @@ import { ModulesModule } from './modules/modules.module.js';
 import { NoCacheMiddleware } from './common/middleware/no-cache.middleware.js';
 import { AppController } from './app.controller.js';
 
-// TODO: Re-enable these modules once their DB tables and services are built
+// AuthModule disabled — OAuth with Codebasics replaces local auth
 // import { AuthModule } from './auth/auth.module.js';
 // import { QuestionsModule } from './questions/questions.module.js';
+// AdminModule disabled — AdminService needs migration to ModuleQuestion model (next phase)
 // import { AdminModule } from './admin/admin.module.js';
 import { ExecuteModule } from './execute/execute.module.js';
 import { ProgressModule } from './progress/progress.module.js';

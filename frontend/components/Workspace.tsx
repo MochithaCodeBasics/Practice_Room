@@ -10,6 +10,7 @@ import Layout from "@/components/Layout";
 import UserProfile from "@/components/UserProfile";
 import StreakIndicator from "@/components/StreakIndicator";
 import { PracticeRoomLogo } from "@/components/Branding";
+import AuthPopup from "@/components/AuthPopup";
 import { getQuestion, runCode, validateCode, verifyQuestion } from "@/services/api";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -44,7 +45,8 @@ interface SavedArtifact {
 }
 
 export default function Workspace({ questionId, onBack, onPrev, onNext, currentIndex = 0, totalQuestions = 0, initialQuestion }: WorkspaceProps) {
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser, isAuthenticated } = useAuth();
+  const [showAuthPopup, setShowAuthPopup] = useState<boolean>(false);
   const [question, setQuestion] = useState<QuestionDetail | null>(initialQuestion || null);
   const [code, setCode] = useState<string>(initialQuestion?.initial_code || "");
   const [output, setOutput] = useState<string>("");
@@ -95,6 +97,10 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
 
   const handleRun = async () => {
     if (!question) return;
+    if (!isAuthenticated) {
+      setShowAuthPopup(true);
+      return;
+    }
     setOutput("Running code...");
     try {
       const result = await runCode({ code, question_id: question.id, module_id: question.module_id });
@@ -247,8 +253,20 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
           <PracticeRoomLogo />
         </div>
         <div className="flex items-center gap-4">
-          <StreakIndicator />
-          <UserProfile />
+          {user ? (
+            <>
+              <StreakIndicator />
+              <UserProfile />
+            </>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setShowAuthPopup(true)}
+              className="px-4 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-bold text-xs"
+            >
+              Sign In
+            </button>
+          )}
         </div>
       </div>
 
@@ -553,6 +571,7 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
           </div>
         </div>
       )}
+      <AuthPopup open={showAuthPopup} onOpenChange={setShowAuthPopup} />
     </div>
   );
 }

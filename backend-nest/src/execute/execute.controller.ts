@@ -9,6 +9,7 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
+import { IsString } from 'class-validator';
 import type { Response } from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -16,12 +17,18 @@ import { ExecuteService } from './execute.service.js';
 import { DockerExecutorService } from './docker-executor.service.js';
 import { ProgressService } from '../progress/progress.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
-import { OptionalAuthGuard } from '../common/guards/optional-auth.guard.js';
+import { CodebasicsAuthGuard } from '../common/guards/codebasics-auth.guard.js';
+import { CodebasicsOptionalAuthGuard } from '../common/guards/codebasics-optional-auth.guard.js';
 import { CurrentUser } from '../common/decorators/current-user.decorator.js';
 
 class ExecutionRequestDto {
+  @IsString()
   code: string;
+
+  @IsString()
   question_id: string;
+
+  @IsString()
   module_id: string;
 }
 
@@ -35,7 +42,7 @@ export class ExecuteController {
   ) {}
 
   @Post('run')
-  @UseGuards(OptionalAuthGuard)
+  @UseGuards(CodebasicsAuthGuard)
   async runCode(
     @Body() dto: ExecutionRequestDto,
     @CurrentUser() user: any,
@@ -49,7 +56,7 @@ export class ExecuteController {
   }
 
   @Post('validate')
-  @UseGuards(OptionalAuthGuard)
+  @UseGuards(CodebasicsOptionalAuthGuard)
   async validateCode(
     @Body() dto: ExecutionRequestDto,
     @CurrentUser() user: any,

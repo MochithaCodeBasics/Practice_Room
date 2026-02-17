@@ -1,14 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import Layout from "@/components/Layout";
 import ModuleList from "@/components/ModuleList";
 import UserProfile from "@/components/UserProfile";
 import StreakIndicator from "@/components/StreakIndicator";
-import Link from "next/link";
+import AuthPopup from "@/components/AuthPopup";
 
 export default function HomePage() {
   const { user } = useAuth();
+  const [showAuthPopup, setShowAuthPopup] = useState(false);
 
   return (
     <Layout>
@@ -21,12 +23,13 @@ export default function HomePage() {
               <UserProfile />
             </>
           ) : (
-            <Link
-              href="/login"
+            <button
+              type="button"
+              onClick={() => setShowAuthPopup(true)}
               className="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-bold text-sm"
             >
               Sign In
-            </Link>
+            </button>
           )}
         </div>
       </div>
@@ -37,6 +40,7 @@ export default function HomePage() {
         </div>
         <ModuleList />
       </div>
+      <AuthPopup open={showAuthPopup} onOpenChange={setShowAuthPopup} />
     </Layout>
   );
 }

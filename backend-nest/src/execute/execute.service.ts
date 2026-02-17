@@ -9,10 +9,12 @@ import {
   DockerExecutorService,
   ExecutionResult,
 } from './docker-executor.service.js';
+import { Judge0Service } from './judge0.service.js';
 
 @Injectable()
 export class ExecuteService {
   private useDocker: boolean;
+  private useJudge0: boolean;
   private questionsDir: string;
   private timeout: number;
 
@@ -20,8 +22,10 @@ export class ExecuteService {
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly dockerExecutor: DockerExecutorService,
+    private readonly judge0Service: Judge0Service,
   ) {
     this.useDocker = this.config.get<boolean>('docker.useDocker')!;
+    this.useJudge0 = this.config.get<boolean>('judge0.enabled') ?? false;
     this.questionsDir = this.config.get<string>('questionsDir')!;
     this.timeout = this.config.get<number>('docker.timeout')!;
 
@@ -54,6 +58,31 @@ export class ExecuteService {
     const { imageName, envVars, networkEnabled, errorResult } =
       await this.resolveExecutionConfig(moduleId, currentUser);
     if (errorResult) return errorResult;
+
+    // Judge0 Execution
+    if (this.useJudge0 && this.judge0Service.isAvailable()) {
+      let finalCode = code;
+      const dataCsvPath = path.join(folderPath, 'data.csv');
+
+      // If data.csv exists, bundle it into the python script
+      if (fs.existsSync(dataCsvPath)) {
+        try {
+          // Escape triple quotes in CSV content to avoid syntax errors if any
+          const csvContent = fs.readFileSync(dataCsvPath, 'utf-8').replace(/'''/g, "\\'\\'\\'");
+          const setupCode = `
+import os
+if not os.path.exists('data.csv'):
+    with open('data.csv', 'w') as f:
+        f.write('''${csvContent}''')
+`;
+          finalCode = setupCode + '\n' + code;
+        } catch (e) {
+          console.error('Error bundling data.csv for Judge0:', e);
+        }
+      }
+
+      return this.judge0Service.runCode(finalCode);
+    }
 
     if (this.useDocker && this.dockerExecutor.isAvailable()) {
       return this.dockerExecutor.runCode(
@@ -231,14 +260,27 @@ except Exception as e:
     print(f"Validation Wrapper Error: {e}")
 `
           : `
-import sys, os, matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt, pandas as pd, traceback, warnings
+import sys, os, traceback, warnings
 warnings.simplefilter("ignore")
 sys.path.append(os.getcwd())
+
+try:
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    HAS_MPL = True
+except ImportError:
+    HAS_MPL = False
+
+try:
+    import pandas as pd
+    HAS_PD = True
+except ImportError:
+    HAS_PD = False
+
 global_ns = {"__name__": "__main__", "__file__": "user_code.py"}
 try:
-    if os.path.exists("data.csv"):
+    if HAS_PD and os.path.exists("data.csv"):
         try:
             loaded_df = pd.read_csv("data.csv")
             loaded_df.columns = loaded_df.columns.str.lower().str.strip()
@@ -254,13 +296,14 @@ try:
     with open("user_code.py", "r", encoding="utf-8") as f:
         user_source = f.read()
     exec(user_source, global_ns)
-    fignums = plt.get_fignums()
-    if fignums:
-        for i, num in enumerate(fignums):
-            fig = plt.figure(num)
-            fname = "output.png" if len(fignums) == 1 else f"output_{i+1}.png"
-            fig.savefig(fname, bbox_inches='tight')
-            plt.close(fig)
+    if HAS_MPL:
+        fignums = plt.get_fignums()
+        if fignums:
+            for i, num in enumerate(fignums):
+                fig = plt.figure(num)
+                fname = "output.png" if len(fignums) == 1 else f"output_{i+1}.png"
+                fig.savefig(fname, bbox_inches='tight')
+                plt.close(fig)
 except Exception as e:
     traceback.print_exc()
 `;

@@ -13,11 +13,11 @@ import {
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { AdminService } from './admin.service.js';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
+import { CodebasicsAuthGuard } from '../common/guards/codebasics-auth.guard.js';
 import { AdminGuard } from '../common/guards/admin.guard.js';
 
 @Controller('api/v1/admin')
-@UseGuards(JwtAuthGuard, AdminGuard)
+@UseGuards(CodebasicsAuthGuard, AdminGuard)
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 

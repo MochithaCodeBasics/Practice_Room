@@ -40,10 +40,13 @@ export interface ExecutionResult {
 }
 
 export interface User {
-  id?: number;
-  username: string;
-  role: string;
-  current_streak: number;
+  id?: string;
+  name?: string;
+  username?: string;
+  email?: string;
+  image?: string;
+  role?: string;
+  current_streak?: number;
   has_groq_api_key?: boolean;
   has_openai_api_key?: boolean;
   has_anthropic_api_key?: boolean;
@@ -56,13 +59,10 @@ export interface User {
 export interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (username: string, password: string) => Promise<boolean>;
-  adminLogin: (username: string, password: string) => Promise<boolean>;
+  isAuthenticated: boolean;
   logout: () => void;
-  signup: (username: string, email: string, password: string) => Promise<boolean>;
+  openAuthPopup: () => void;
   refreshUser: () => Promise<void>;
-  requestPasswordReset: (email: string) => Promise<boolean>;
-  verifyPasswordReset: (token: string, newPassword: string) => Promise<boolean>;
 }
 
 export interface Filters {

@@ -6,6 +6,10 @@ const nextConfig = {
   outputFileTracingRoot: path.join(__dirname),
   async rewrites() {
     return [
+      {
+        source: '/api/auth/:path*',
+        destination: '/api/auth/:path*',
+      },
       { source: '/api/:path*', destination: 'http://localhost:3001/api/:path*' },
     ];
   },

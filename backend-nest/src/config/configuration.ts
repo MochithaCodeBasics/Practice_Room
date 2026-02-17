@@ -19,6 +19,10 @@ export default () => ({
     username: process.env.DEFAULT_ADMIN_USERNAME || 'admin',
     password: process.env.DEFAULT_ADMIN_PASSWORD || '',
     email: process.env.DEFAULT_ADMIN_EMAIL || 'admin@example.com',
+    emails: (process.env.ADMIN_EMAILS || process.env.DEFAULT_ADMIN_EMAIL || 'admin@example.com')
+      .split(',')
+      .map((s) => s.trim().toLowerCase())
+      .filter(Boolean),
   },
   docker: {
     useDocker: process.env.USE_DOCKER_EXECUTOR !== 'false',
@@ -35,8 +39,9 @@ export default () => ({
       .map((s) => s.trim()),
   },
   questionsDir:
-    process.env.QUESTIONS_DIR ||
-    path.resolve(__dirname, '..', '..', '..', 'questions'),
+    process.env.QUESTIONS_DIR
+      ? path.resolve(process.env.QUESTIONS_DIR)
+      : path.resolve(__dirname, '..', '..', '..', 'questions'),
   smtp: {
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port: parseInt(process.env.SMTP_PORT ?? '587', 10),
@@ -44,6 +49,11 @@ export default () => ({
     password: process.env.SMTP_PASSWORD || '',
     fromEmail:
       process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER || '',
+  },
+  judge0: {
+    apiUrl: process.env.JUDGE0_API_URL || 'http://localhost:2358',
+    apiKey: process.env.JUDGE0_API_KEY || undefined,
+    enabled: process.env.USE_JUDGE0 === 'true',
   },
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
 });

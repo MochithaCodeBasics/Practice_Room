@@ -2,15 +2,30 @@ import {
   Injectable,
   CanActivate,
   ExecutionContext,
+  ForbiddenException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
-/**
- * Temporary stub — always allows access.
- * TODO: Restore admin-role check once auth is fully wired.
- */
 @Injectable()
 export class AdminGuard implements CanActivate {
-  canActivate(_context: ExecutionContext): boolean {
-    return true;
+  constructor(private readonly configService: ConfigService) {}
+
+  canActivate(context: ExecutionContext): boolean {
+    const request = context.switchToHttp().getRequest();
+    const user = request.user;
+
+    if (!user) {
+      throw new ForbiddenException('Access denied');
+    }
+
+    const adminEmails: string[] =
+      this.configService.get<string[]>('admin.emails') || [];
+    const userEmail = (user.email as string)?.toLowerCase();
+
+    if (userEmail && adminEmails.includes(userEmail)) {
+      return true;
+    }
+
+    throw new ForbiddenException('Admin access required');
   }
 }
