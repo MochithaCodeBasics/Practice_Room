@@ -17,8 +17,7 @@ router = APIRouter()
 
 @router.get("", response_model=List[Module])
 @router.get("/", response_model=List[Module])
-def read_modules(current_user: User = Depends(get_current_active_user)):
-    # SECURITY: Removed debug prints that exposed usernames
+def read_modules():
     try:
         with Session(engine) as session:
             statement = select(Module)

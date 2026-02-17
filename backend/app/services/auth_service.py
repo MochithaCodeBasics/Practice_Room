@@ -230,6 +230,31 @@ def revoke_token(token: str):
     except Exception:
         pass # If token is invalid/expired, nothing to revoke
 
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="api/v1/auth/login", auto_error=False)
+
+async def get_optional_current_user(token: str = Depends(oauth2_scheme_optional)):
+    """Return the current user if a valid token is present, otherwise return None."""
+    if not token:
+        return None
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        jti: str = payload.get("jti")
+        if jti:
+            from app.models import RevokedToken
+            with Session(engine) as session:
+                revoked = session.exec(select(RevokedToken).where(RevokedToken.jti == jti)).first()
+                if revoked:
+                    return None
+        username: str = payload.get("sub")
+        if username is None:
+            return None
+        user = get_user(username)
+        if user is None or user.disabled:
+            return None
+        return user
+    except JWTError:
+        return None
+
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,

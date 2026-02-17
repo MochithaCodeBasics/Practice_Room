@@ -7,6 +7,7 @@ import uuid
 import shutil
 import sys
 from pathlib import Path
+from typing import Optional
 from ..models import ExecutionRequest, ExecutionResult, User
 
 # SECURITY: Import Docker executor for secure execution
@@ -26,7 +27,7 @@ class ExecutionService:
         
         print(f"DEBUG: ExecutionService initialized. use_docker={self.use_docker}, docker_available={self.docker_available}")
 
-    async def run_code(self, request: ExecutionRequest, question_data: dict, current_user: User) -> ExecutionResult:
+    async def run_code(self, request: ExecutionRequest, question_data: dict, current_user: Optional[User] = None) -> ExecutionResult:
         if self.use_docker and self.docker_available:
              # Determine image based on module
              # We need to query the module table. 
@@ -51,25 +52,25 @@ class ExecutionService:
 
              # Pass LLM API KEYS if available
              env_vars = {}
-             if current_user.groq_api_key:
-                 env_vars["GROQ_API_KEY"] = current_user.groq_api_key.strip()
-             if current_user.openai_api_key:
-                 env_vars["OPENAI_API_KEY"] = current_user.openai_api_key.strip()
-             if current_user.anthropic_api_key:
-                 env_vars["ANTHROPIC_API_KEY"] = current_user.anthropic_api_key.strip()
-             
-             env_vars["DEFAULT_LLM_PROVIDER"] = current_user.default_llm_provider or "groq"
+             if current_user:
+                 if current_user.groq_api_key:
+                     env_vars["GROQ_API_KEY"] = current_user.groq_api_key.strip()
+                 if current_user.openai_api_key:
+                     env_vars["OPENAI_API_KEY"] = current_user.openai_api_key.strip()
+                 if current_user.anthropic_api_key:
+                     env_vars["ANTHROPIC_API_KEY"] = current_user.anthropic_api_key.strip()
+                 env_vars["DEFAULT_LLM_PROVIDER"] = current_user.default_llm_provider or "groq"
 
              # SECURITY: Enable network ONLY for GenAI and Agentic modules
              is_ai_module = any(keyword in image_name.lower() for keyword in ["genai", "agentic", "nlp"])
              network_enabled = is_ai_module
-             
+
              if is_ai_module:
                  # Check if at least one key is configured
-                 has_any_key = any([current_user.groq_api_key, current_user.openai_api_key, current_user.anthropic_api_key])
+                 has_any_key = current_user and any([current_user.groq_api_key, current_user.openai_api_key, current_user.anthropic_api_key])
                  if not has_any_key:
                     return ExecutionResult(
-                        stdout="", 
+                        stdout="",
                         stderr="No service keys configured. Please go to Environment Settings and enter a provider key (Groq, OpenAI, or Anthropic) to use advanced features.",
                         status="error"
                     )
@@ -89,7 +90,7 @@ class ExecutionService:
             return await self._run_code_local_async(request, question_data, current_user)
 
 
-    async def _run_code_local_async(self, request: ExecutionRequest, question_data: dict, current_user: User) -> ExecutionResult:
+    async def _run_code_local_async(self, request: ExecutionRequest, question_data: dict, current_user: Optional[User] = None) -> ExecutionResult:
         code = request.code
         
         # Create a temp dir for this run
@@ -213,15 +214,15 @@ except Exception as e:
                     errors="replace"
                 )
 
-            # Inject keys for local run (NEW)
-            if current_user.groq_api_key:
-                env["GROQ_API_KEY"] = current_user.groq_api_key.strip()
-            if current_user.openai_api_key:
-                env["OPENAI_API_KEY"] = current_user.openai_api_key.strip()
-            if current_user.anthropic_api_key:
-                env["ANTHROPIC_API_KEY"] = current_user.anthropic_api_key.strip()
-            
-            env["DEFAULT_LLM_PROVIDER"] = current_user.default_llm_provider or "groq"
+            # Inject keys for local run
+            if current_user:
+                if current_user.groq_api_key:
+                    env["GROQ_API_KEY"] = current_user.groq_api_key.strip()
+                if current_user.openai_api_key:
+                    env["OPENAI_API_KEY"] = current_user.openai_api_key.strip()
+                if current_user.anthropic_api_key:
+                    env["ANTHROPIC_API_KEY"] = current_user.anthropic_api_key.strip()
+                env["DEFAULT_LLM_PROVIDER"] = current_user.default_llm_provider or "groq"
 
             loop = asyncio.get_running_loop()
             try:
@@ -273,7 +274,7 @@ except Exception as e:
     # Keeping old synchronous method commented out or removed
     # def _run_code_local(self, ...): ...
 
-    async def validate_code(self, request: ExecutionRequest, question_data: dict, current_user: User) -> ExecutionResult:
+    async def validate_code(self, request: ExecutionRequest, question_data: dict, current_user: Optional[User] = None) -> ExecutionResult:
         if self.use_docker and self.docker_available:
              # Look up image same as run_code
              from sqlmodel import Session
@@ -292,14 +293,14 @@ except Exception as e:
 
              # Pass LLM API KEYS if available
              env_vars = {}
-             if current_user.groq_api_key:
-                 env_vars["GROQ_API_KEY"] = current_user.groq_api_key.strip()
-             if current_user.openai_api_key:
-                 env_vars["OPENAI_API_KEY"] = current_user.openai_api_key.strip()
-             if current_user.anthropic_api_key:
-                 env_vars["ANTHROPIC_API_KEY"] = current_user.anthropic_api_key.strip()
-
-             env_vars["DEFAULT_LLM_PROVIDER"] = current_user.default_llm_provider or "groq"
+             if current_user:
+                 if current_user.groq_api_key:
+                     env_vars["GROQ_API_KEY"] = current_user.groq_api_key.strip()
+                 if current_user.openai_api_key:
+                     env_vars["OPENAI_API_KEY"] = current_user.openai_api_key.strip()
+                 if current_user.anthropic_api_key:
+                     env_vars["ANTHROPIC_API_KEY"] = current_user.anthropic_api_key.strip()
+                 env_vars["DEFAULT_LLM_PROVIDER"] = current_user.default_llm_provider or "groq"
 
              # SECURITY: Enable network ONLY for GenAI and Agentic modules
              is_ai_module = any(keyword in image_name.lower() for keyword in ["genai", "agentic", "nlp"])
@@ -307,10 +308,10 @@ except Exception as e:
 
              if is_ai_module:
                  # Check if at least one key is configured
-                 has_any_key = any([current_user.groq_api_key, current_user.openai_api_key, current_user.anthropic_api_key])
+                 has_any_key = current_user and any([current_user.groq_api_key, current_user.openai_api_key, current_user.anthropic_api_key])
                  if not has_any_key:
                      return ExecutionResult(
-                         stdout="", 
+                         stdout="",
                          stderr="No service keys configured.",
                          status="error"
                      )
@@ -328,7 +329,7 @@ except Exception as e:
             # Fallback to local execution
             return await self._validate_code_local_async(request, question_data, current_user)
 
-    async def _validate_code_local_async(self, request: ExecutionRequest, question_data: dict, current_user: User) -> ExecutionResult:
+    async def _validate_code_local_async(self, request: ExecutionRequest, question_data: dict, current_user: Optional[User] = None) -> ExecutionResult:
 
         code = request.code
         run_id = str(uuid.uuid4())
@@ -431,15 +432,15 @@ except Exception as e:
                     errors="replace"
                 )
 
-            # Inject keys for local validation (NEW)
-            if current_user.groq_api_key:
-                env["GROQ_API_KEY"] = current_user.groq_api_key.strip()
-            if current_user.openai_api_key:
-                env["OPENAI_API_KEY"] = current_user.openai_api_key.strip()
-            if current_user.anthropic_api_key:
-                env["ANTHROPIC_API_KEY"] = current_user.anthropic_api_key.strip()
-            
-            env["DEFAULT_LLM_PROVIDER"] = current_user.default_llm_provider or "groq"
+            # Inject keys for local validation
+            if current_user:
+                if current_user.groq_api_key:
+                    env["GROQ_API_KEY"] = current_user.groq_api_key.strip()
+                if current_user.openai_api_key:
+                    env["OPENAI_API_KEY"] = current_user.openai_api_key.strip()
+                if current_user.anthropic_api_key:
+                    env["ANTHROPIC_API_KEY"] = current_user.anthropic_api_key.strip()
+                env["DEFAULT_LLM_PROVIDER"] = current_user.default_llm_provider or "groq"
 
             loop = asyncio.get_running_loop()
             try:

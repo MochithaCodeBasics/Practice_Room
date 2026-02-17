@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "exclude": [
+    "node_modules",
+    "test",
+    "dist",
+    "**/*spec.ts",
+    "src/auth/**",
+    "src/questions/**",
+    "src/admin/**",
+    "src/execute/**",
+    "src/progress/**",
+    "src/email/**",
+    "src/common/guards/jwt-auth.guard.ts",
+    "src/common/guards/optional-auth.guard.ts"
+  ]
+}
