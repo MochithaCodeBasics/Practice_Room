@@ -24,23 +24,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         image: session.user.image || undefined,
         role: session.user.role || "learner",
       });
-
-      // Sync access token to localStorage for API interceptor
-      if (session.accessToken && typeof window !== "undefined") {
-        localStorage.setItem("token", session.accessToken);
-      }
     } else {
       setUser(null);
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("token");
-      }
     }
   }, [session]);
 
   const logout = useCallback(() => {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("token");
-    }
     nextAuthSignOut({ callbackUrl: "/" });
   }, []);
 

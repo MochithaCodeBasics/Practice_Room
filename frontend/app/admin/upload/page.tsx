@@ -24,15 +24,9 @@ export default function AdminUploadPage() {
     module_id: preSelectedModule || "",
     tags: "",
     topic: "",
-  });
-  const [files, setFiles] = useState<{
-    question_py: File | null;
-    validator_py: File | null;
-    data_files: File[];
-  }>({
-    question_py: null,
-    validator_py: null,
-    data_files: [],
+    question_text: "",
+    validator_text: "",
+    sample_data: "",
   });
 
   useEffect(() => {
@@ -54,29 +48,15 @@ export default function AdminUploadPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, files: selectedFiles } = e.target;
-    if (!selectedFiles) return;
-    if (name === "data_files") {
-      setFiles((prev) => ({ ...prev, data_files: Array.from(selectedFiles) }));
-    } else {
-      setFiles((prev) => ({ ...prev, [name]: selectedFiles[0] }));
-    }
-  };
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setStatus({ type: "", message: "" });
-    const submitData = new FormData();
-    Object.keys(formData).forEach((key) => submitData.append(key, formData[key as keyof typeof formData]));
-    if (files.question_py) submitData.append("question_py", files.question_py);
-    if (files.validator_py) submitData.append("validator_py", files.validator_py);
-    if (files.data_files?.length > 0) {
-      files.data_files.forEach((file) => submitData.append("data_files", file));
-    }
     try {
-      await api.post("/v1/admin/questions", submitData, { headers: { "Content-Type": "multipart/form-data" } });
+      await api.post("/v1/admin/questions", {
+        ...formData,
+        difficulty: formData.difficulty.toLowerCase(),
+      });
       setStatus({ type: "success", message: "Question created successfully!" });
     } catch (error: any) {
       console.error(error);
@@ -135,7 +115,31 @@ export default function AdminUploadPage() {
                   <option>Hard</option>
                 </select>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 md:col-span-2">
+                <Label>question.py Content</Label>
+                <textarea
+                  name="question_text"
+                  value={formData.question_text}
+                  onChange={(e) => setFormData({ ...formData, question_text: e.target.value })}
+                  required
+                  rows={10}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  placeholder={'description = """..."""\n\ninitial_sample_code = """..."""\n\nhint = """..."""'}
+                />
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <Label>validator.py Content</Label>
+                <textarea
+                  name="validator_text"
+                  value={formData.validator_text}
+                  onChange={(e) => setFormData({ ...formData, validator_text: e.target.value })}
+                  required
+                  rows={10}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  placeholder={"def validate(user_code_module):\n    ..."}
+                />
+              </div>
+              <div className="space-y-2 md:col-span-2">
                 <Label>Topic</Label>
                 <Input name="topic" value={formData.topic} onChange={handleTextChange} placeholder="e.g. Statistics" className="w-full" />
               </div>
@@ -147,39 +151,20 @@ export default function AdminUploadPage() {
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <Card className="border-gray-100">
-            <CardHeader>
-              <CardTitle className="text-lg">question.py</CardTitle>
-              <p className="text-xs text-gray-500">Defines the problem statement and stub.</p>
-            </CardHeader>
-            <CardContent>
-              <div className="border-2 border-dashed border-gray-200 rounded-lg p-8 flex flex-col items-center justify-center text-center hover:border-indigo-300 transition-colors">
-                <Input type="file" name="question_py" accept=".py" onChange={handleFileChange} required className="cursor-pointer" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="border-gray-100">
-            <CardHeader>
-              <CardTitle className="text-lg">validator.py</CardTitle>
-              <p className="text-xs text-gray-500">Logic to validate the user solution.</p>
-            </CardHeader>
-            <CardContent>
-              <div className="border-2 border-dashed border-gray-200 rounded-lg p-8 flex flex-col items-center justify-center text-center hover:border-indigo-300 transition-colors">
-                <Input type="file" name="validator_py" accept=".py" onChange={handleFileChange} required className="cursor-pointer" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
         <Card className="border-gray-100">
           <CardHeader>
-            <CardTitle className="text-lg border-b pb-2">Data Files (Optional)</CardTitle>
+            <CardTitle className="text-lg border-b pb-2">Sample Data (Optional)</CardTitle>
           </CardHeader>
           <CardContent>
-            <Label className="block mb-2">Upload Files (CSV, TXT, etc.)</Label>
-            <Input type="file" name="data_files" multiple onChange={handleFileChange} className="cursor-pointer" />
-            <p className="text-xs text-gray-400 mt-1">Select one or more files.</p>
+            <Label className="block mb-2">Paste sample data text</Label>
+            <textarea
+              name="sample_data"
+              value={formData.sample_data}
+              onChange={(e) => setFormData({ ...formData, sample_data: e.target.value })}
+              rows={6}
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              placeholder="customer_id,age,income,credit_score,monthly_spend..."
+            />
           </CardContent>
         </Card>
 

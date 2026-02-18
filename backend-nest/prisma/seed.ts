@@ -82,43 +82,56 @@ function parseCSV(content: string): Record<string, string>[] {
 // ─── Module seed data ────────────────────────────────────────────────────────
 
 interface ModuleSeed {
-  id: string;
+  key: string;
   name: string;
   description?: string;
 }
 
 const MODULES: ModuleSeed[] = [
   {
-    id: 'python',
+    key: 'python',
     name: 'Python',
     description: 'Master Python with hands-on coding challenges',
   },
 ];
 
+const seededModuleIds = new Map<string, number>();
+
 // ─── Seed modules ────────────────────────────────────────────────────────────
 
 async function seedModules() {
   console.log('Seeding modules...');
+  seededModuleIds.clear();
 
   for (const mod of MODULES) {
     const slug = slugify(mod.name);
 
     await prisma.module.upsert({
-      where: { id: mod.id },
+      where: { slug },
       update: {
         name: mod.name,
         slug,
         description: mod.description ?? null,
       },
       create: {
-        id: mod.id,
         name: mod.name,
         slug,
         description: mod.description ?? null,
       },
     });
 
-    console.log(`  ✓ Module "${mod.name}" (id: ${mod.id}, slug: ${slug})`);
+    const moduleRecord = await prisma.module.findUnique({
+      where: { slug },
+      select: { id: true },
+    });
+    if (!moduleRecord) {
+      throw new Error(`Failed to resolve module id for slug "${slug}"`);
+    }
+    seededModuleIds.set(mod.key, moduleRecord.id);
+
+    console.log(
+      `  ✓ Module "${mod.name}" (key: ${mod.key}, id: ${moduleRecord.id}, slug: ${slug})`,
+    );
   }
 
   console.log(`Seeded ${MODULES.length} module(s)\n`);
@@ -148,32 +161,36 @@ async function seedQuestions() {
   let skipped = 0;
 
   for (const row of rows) {
-    const id = row['id'];
+    const legacyQuestionId = row['id'];
     const folderName = row['folder_name'];
     const title = row['title'];
     const difficulty = (row['difficulty'] || 'easy').toLowerCase() as 'easy' | 'medium' | 'hard';
     const tags = row['tags'] || null;
     const active = row['active'] !== 'False';
     const topic = row['topic'] || 'General';
-    const moduleId = row['module_id'];
+    const moduleKey = row['module_id'];
 
-    if (!id || !folderName || !title || !moduleId) {
+    if (!folderName || !title || !moduleKey) {
       console.log(`  ⚠ Skipping row — missing required fields: ${JSON.stringify(row)}`);
       skipped++;
       continue;
     }
 
     // Only seed questions belonging to seeded modules
-    const seededModuleIds = MODULES.map((m) => m.id);
-    if (!seededModuleIds.includes(moduleId)) {
-      console.log(`  ⊘ Skipping "${id}" — module "${moduleId}" not seeded`);
+    const moduleId = seededModuleIds.get(moduleKey);
+    if (!moduleId) {
+      console.log(
+        `  ⊘ Skipping "${legacyQuestionId || title}" — module "${moduleKey}" not seeded`,
+      );
       skipped++;
       continue;
     }
 
     const questionDir = path.join(questionsDir, folderName);
     if (!fs.existsSync(questionDir)) {
-      console.log(`  ⚠ Skipping "${id}" — folder not found: ${questionDir}`);
+      console.log(
+        `  ⚠ Skipping "${legacyQuestionId || title}" — folder not found: ${questionDir}`,
+      );
       skipped++;
       continue;
     }
@@ -212,7 +229,7 @@ async function seedQuestions() {
     const slug = slugify(title);
 
     await prisma.moduleQuestion.upsert({
-      where: { id },
+      where: { uq_mq_module_slug: { module_id: moduleId, slug } },
       update: {
         module_id: moduleId,
         slug,
@@ -230,7 +247,6 @@ async function seedQuestions() {
         is_active: active,
       },
       create: {
-        id,
         module_id: moduleId,
         slug,
         folder_name: folderName,
@@ -248,7 +264,9 @@ async function seedQuestions() {
       },
     });
 
-    console.log(`  ✓ [${moduleId}] ${id} — "${title}" (${difficulty})`);
+    console.log(
+      `  ✓ [module:${moduleKey}#${moduleId}] ${legacyQuestionId || slug} — "${title}" (${difficulty})`,
+    );
     seeded++;
   }
 

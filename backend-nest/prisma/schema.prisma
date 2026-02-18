@@ -11,7 +11,7 @@ datasource db {
 // ─── Table 1: modules ───────────────────────────────────────────────────────
 
 model Module {
-  id          String   @id @db.VarChar(50)
+  id          Int      @id @default(autoincrement()) @db.UnsignedInt
   name        String   @db.VarChar(255)
   slug        String   @unique @db.VarChar(100)
   description String?  @db.Text
@@ -34,8 +34,8 @@ enum Difficulty {
 }
 
 model ModuleQuestion {
-  id           String     @id @db.VarChar(50)
-  module_id    String     @map("module_id") @db.VarChar(50)
+  id           Int        @id @default(autoincrement()) @db.UnsignedInt
+  module_id    Int        @map("module_id") @db.UnsignedInt
   slug         String     @db.VarChar(150)
   folder_name  String     @map("folder_name") @db.VarChar(100)
   title        String     @db.VarChar(500)
@@ -71,7 +71,7 @@ enum ImportStatus {
 
 model ModuleQuestionImport {
   id              Int          @id @default(autoincrement())
-  module_id       String       @map("module_id") @db.VarChar(50)
+  module_id       Int          @map("module_id") @db.UnsignedInt
   file_name       String       @map("file_name") @db.VarChar(255)
   file_path       String       @map("file_path") @db.VarChar(500)
   status          ImportStatus @default(pending)
@@ -95,28 +95,28 @@ model ModuleQuestionImport {
 // ─── Table 4: users ─────────────────────────────────────────────────────────
 
 model User {
-  id                    Int       @id @default(autoincrement())
-  username              String    @unique @db.VarChar(50)
-  email                 String    @unique @db.VarChar(255)
-  hashed_password       String    @db.VarChar(255)
-  role                  String    @default("learner") @db.VarChar(20)
-  disabled              Boolean   @default(false)
-  
-  groq_api_key          String?   @db.VarChar(255)
-  openai_api_key        String?   @db.VarChar(255)
-  anthropic_api_key     String?   @db.VarChar(255)
+  id              Int     @id @default(autoincrement())
+  username        String  @unique @db.VarChar(50)
+  email           String  @unique @db.VarChar(255)
+  hashed_password String  @db.VarChar(255)
+  role            String  @default("learner") @db.VarChar(20)
+  disabled        Boolean @default(false)
 
-  has_groq_api_key      Boolean   @default(false)
-  has_openai_api_key    Boolean   @default(false)
-  has_anthropic_api_key Boolean   @default(false)
+  groq_api_key      String? @db.VarChar(255)
+  openai_api_key    String? @db.VarChar(255)
+  anthropic_api_key String? @db.VarChar(255)
 
-  default_llm_provider  String    @default("groq") @db.VarChar(20)
+  has_groq_api_key      Boolean @default(false)
+  has_openai_api_key    Boolean @default(false)
+  has_anthropic_api_key Boolean @default(false)
 
-  current_streak        Int       @default(0) @map("current_streak")
-  last_completed_at     DateTime? @map("last_completed_at")
+  default_llm_provider String @default("groq") @db.VarChar(20)
 
-  created_at            DateTime  @default(now()) @map("created_at")
-  updated_at            DateTime  @default(now()) @updatedAt @map("updated_at")
+  current_streak    Int       @default(0) @map("current_streak")
+  last_completed_at DateTime? @map("last_completed_at")
+
+  created_at DateTime @default(now()) @map("created_at")
+  updated_at DateTime @default(now()) @updatedAt @map("updated_at")
 
   progress     UserProgress[]
   reset_tokens PasswordResetToken[]

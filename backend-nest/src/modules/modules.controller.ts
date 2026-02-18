@@ -25,6 +25,14 @@ export class ModulesController {
     return this.modulesService.findAll();
   }
 
+  @Get('questions')
+  async findAllQuestions(
+    @Query('difficulty') difficulty?: string,
+    @Query('module_id') moduleId?: string,
+  ) {
+    return this.modulesService.findAllQuestions({ difficulty, module_id: moduleId });
+  }
+
   @Get(':slug/questions')
   async findQuestions(
     @Param('slug') slug: string,

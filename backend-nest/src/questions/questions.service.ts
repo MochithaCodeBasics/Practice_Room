@@ -5,6 +5,21 @@ import * as path from 'path';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { ProgressService } from '../progress/progress.service.js';
 
+function toPositiveInt(value: string): number | null {
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed <= 0) return null;
+  return parsed;
+}
+
+function normalizeDifficulty(value?: string): 'easy' | 'medium' | 'hard' | null {
+  if (!value) return null;
+  const normalized = value.toLowerCase().trim();
+  if (normalized === 'easy' || normalized === 'medium' || normalized === 'hard') {
+    return normalized;
+  }
+  return null;
+}
+
 @Injectable()
 export class QuestionsService {
   private questionsDir: string;
@@ -28,16 +43,17 @@ export class QuestionsService {
       : { completed: new Set<string>(), attempted: new Set<string>() };
 
     const where: any = {};
-    if (difficulty) where.difficulty = difficulty;
+    const normalizedDifficulty = normalizeDifficulty(difficulty);
+    if (normalizedDifficulty) where.difficulty = normalizedDifficulty;
 
-    const questions = await this.prisma.question.findMany({ where });
+    const questions = await this.prisma.moduleQuestion.findMany({ where });
 
     const result: any[] = [];
     for (const q of questions) {
       // Hide unverified from non-admins
       if (!q.is_verified && userRole !== 'admin') continue;
 
-      const qid = q.id.trim();
+      const qid = String(q.id);
       const isCompleted = userProgress.completed.has(qid);
       const isAttempted = userProgress.attempted.has(qid);
 
@@ -47,10 +63,10 @@ export class QuestionsService {
       if (status === 'todo' && (isCompleted || isAttempted)) continue;
 
       result.push({
-        id: q.id,
+        id: String(q.id),
         folder_name: q.folder_name,
         title: q.title,
-        module_id: q.module_id,
+        module_id: String(q.module_id),
         difficulty: q.difficulty,
         topic: q.topic,
         tags: q.tags,
@@ -69,39 +85,49 @@ export class QuestionsService {
     username?: string,
     userRole?: string,
   ) {
-    const question = await this.prisma.question.findUnique({
-      where: { id: questionId },
+    const parsedQuestionId = toPositiveInt(questionId);
+    if (!parsedQuestionId) return null;
+
+    const question = await this.prisma.moduleQuestion.findUnique({
+      where: { id: parsedQuestionId },
     });
     if (!question) return null;
 
     const folderPath = path.join(this.questionsDir, question.folder_name);
-    if (!fs.existsSync(folderPath)) return null;
+    const hasFolder = fs.existsSync(folderPath);
 
     // Read files from disk
     const qFile = path.join(folderPath, 'question.py');
     const vFile = path.join(folderPath, 'validator.py');
 
-    const qText = fs.existsSync(qFile)
+    const qText = hasFolder && fs.existsSync(qFile)
       ? fs.readFileSync(qFile, 'utf-8')
       : '';
-    const vText = fs.existsSync(vFile)
+    const vText = hasFolder && fs.existsSync(vFile)
       ? fs.readFileSync(vFile, 'utf-8')
       : '';
 
-    // Extract metadata from question.py using triple-quote parser
+    // Prefer DB fields; fallback to file parsing for legacy questions.
     const description =
-      this.extractStr(qText, 'description') || 'Description not found.';
+      question.question_py ||
+      this.extractStr(qText, 'description') ||
+      'Description not found.';
     let initialCode =
+      question.initial_code ||
       this.extractStr(qText, 'initial_sample_code') ||
       this.extractStr(qText, 'inital_sample_code') ||
       '# No starting code provided.';
-    const hint = this.extractStr(qText, 'hint')?.trim() || null;
+    const hint =
+      question.hint ||
+      this.extractStr(qText, 'hint')?.trim() ||
+      null;
 
     // Get sample data
-    const sampleData = this.getSampleData(folderPath, question.folder_name);
+    const sampleData =
+      question.sample_data || this.getSampleData(folderPath, question.folder_name);
 
     // List data files
-    const dataFiles = fs.existsSync(folderPath)
+    const dataFiles = hasFolder
       ? fs
           .readdirSync(folderPath)
           .filter(
@@ -124,25 +150,25 @@ export class QuestionsService {
     if (username && shouldLoadProgress) {
       const savedCode = await this.progressService.getUserCode(
         username,
-        questionId,
+        String(question.id),
       );
       if (savedCode) {
         initialCode = savedCode;
       }
     }
 
-    const qid = question.id.trim();
+    const qid = String(question.id);
     return {
-      id: question.id,
+      id: String(question.id),
       folder_name: question.folder_name,
       title: question.title,
-      module_id: question.module_id,
+      module_id: String(question.module_id),
       difficulty: question.difficulty,
       topic: question.topic,
       tags: question.tags,
       question_py: description.trim(),
       initial_code: initialCode,
-      validator_py: vText,
+      validator_py: question.validator_py || vText,
       hint,
       sample_data: sampleData || '',
       data_files: dataFiles,

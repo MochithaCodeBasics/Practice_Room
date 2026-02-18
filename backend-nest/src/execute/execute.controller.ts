@@ -9,7 +9,8 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsInt, IsString, Min } from 'class-validator';
 import type { Response } from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -25,11 +26,15 @@ class ExecutionRequestDto {
   @IsString()
   code: string;
 
-  @IsString()
-  question_id: string;
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  question_id: number;
 
-  @IsString()
-  module_id: string;
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  module_id: number;
 }
 
 @Controller('api/execute')
@@ -47,10 +52,13 @@ export class ExecuteController {
     @Body() dto: ExecutionRequestDto,
     @CurrentUser() user: any,
   ) {
+    const questionId = String(dto.question_id);
+    const moduleId = String(dto.module_id);
+
     return this.executeService.runCode(
       dto.code,
-      dto.question_id,
-      dto.module_id,
+      questionId,
+      moduleId,
       user,
     );
   }
@@ -61,10 +69,13 @@ export class ExecuteController {
     @Body() dto: ExecutionRequestDto,
     @CurrentUser() user: any,
   ) {
+    const questionId = String(dto.question_id);
+    const moduleId = String(dto.module_id);
+
     const result = await this.executeService.validateCode(
       dto.code,
-      dto.question_id,
-      dto.module_id,
+      questionId,
+      moduleId,
       user,
     );
 
@@ -80,7 +91,7 @@ export class ExecuteController {
       if (isPass) {
         await this.progressService.markCompleted(
           user.username,
-          dto.question_id,
+          questionId,
           dto.code,
         );
         // Fetch updated streak
@@ -93,7 +104,7 @@ export class ExecuteController {
       } else {
         await this.progressService.markAttempted(
           user.username,
-          dto.question_id,
+          questionId,
           dto.code,
         );
         result.current_streak = user.current_streak;

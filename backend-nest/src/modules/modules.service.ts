@@ -14,6 +14,20 @@ function slugify(text: string): string {
     .replace(/^-|-$/g, '');
 }
 
+function toPositiveInt(value: string): number | null {
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed <= 0) return null;
+  return parsed;
+}
+
+function normalizeDifficulty(value: string): 'easy' | 'medium' | 'hard' | null {
+  const normalized = value.toLowerCase().trim();
+  if (normalized === 'easy' || normalized === 'medium' || normalized === 'hard') {
+    return normalized;
+  }
+  return null;
+}
+
 @Injectable()
 export class ModulesService {
   constructor(private readonly prisma: PrismaService) { }
@@ -33,6 +47,39 @@ export class ModulesService {
     return mod;
   }
 
+  async findAllQuestions(filters?: { difficulty?: string; module_id?: string }) {
+    const where: Record<string, any> = { is_active: true };
+
+    if (filters?.difficulty) {
+      const difficulty = normalizeDifficulty(filters.difficulty);
+      if (difficulty) {
+        where.difficulty = difficulty;
+      }
+    }
+    if (filters?.module_id) {
+      const moduleId = toPositiveInt(filters.module_id);
+      if (moduleId) {
+        where.module_id = moduleId;
+      }
+    }
+
+    return this.prisma.moduleQuestion.findMany({
+      where,
+      orderBy: [{ created_at: 'desc' }, { title: 'asc' }],
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        module_id: true,
+        difficulty: true,
+        topic: true,
+        tags: true,
+        is_verified: true,
+        created_at: true,
+      },
+    });
+  }
+
   async findQuestionsBySlug(
     slug: string,
     filters?: { difficulty?: string; topic?: string; search?: string },
@@ -45,7 +92,10 @@ export class ModulesService {
     };
 
     if (filters?.difficulty) {
-      where.difficulty = filters.difficulty.toLowerCase();
+      const difficulty = normalizeDifficulty(filters.difficulty);
+      if (difficulty) {
+        where.difficulty = difficulty;
+      }
     }
     if (filters?.topic) {
       where.topic = filters.topic;
@@ -88,10 +138,9 @@ export class ModulesService {
     return question;
   }
 
-  async create(data: { id: string; name: string; description?: string }) {
+  async create(data: { name: string; description?: string }) {
     return this.prisma.module.create({
       data: {
-        id: data.id,
         name: data.name,
         slug: slugify(data.name),
         description: data.description || null,
@@ -100,7 +149,12 @@ export class ModulesService {
   }
 
   async update(moduleId: string, data: { name?: string; description?: string }) {
-    const existing = await this.prisma.module.findUnique({ where: { id: moduleId } });
+    const parsedModuleId = toPositiveInt(moduleId);
+    if (!parsedModuleId) {
+      throw new HttpException('Invalid module ID', HttpStatus.BAD_REQUEST);
+    }
+
+    const existing = await this.prisma.module.findUnique({ where: { id: parsedModuleId } });
     if (!existing) {
       throw new HttpException('Module not found', HttpStatus.NOT_FOUND);
     }
@@ -113,18 +167,23 @@ export class ModulesService {
     if (data.description !== undefined) updateData.description = data.description;
 
     return this.prisma.module.update({
-      where: { id: moduleId },
+      where: { id: parsedModuleId },
       data: updateData,
     });
   }
 
   async remove(moduleId: string) {
-    const existing = await this.prisma.module.findUnique({ where: { id: moduleId } });
+    const parsedModuleId = toPositiveInt(moduleId);
+    if (!parsedModuleId) {
+      throw new HttpException('Invalid module ID', HttpStatus.BAD_REQUEST);
+    }
+
+    const existing = await this.prisma.module.findUnique({ where: { id: parsedModuleId } });
     if (!existing) {
       throw new HttpException('Module not found', HttpStatus.NOT_FOUND);
     }
 
     // FK cascade will handle deleting related module_questions
-    await this.prisma.module.delete({ where: { id: moduleId } });
+    await this.prisma.module.delete({ where: { id: parsedModuleId } });
   }
 }

@@ -11,7 +11,7 @@ interface CachedUser {
 }
 
 const TOKEN_CACHE = new Map<string, CachedUser>();
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+const CACHE_TTL_MS = 48 * 60 * 60 * 1000; // 48 hours
 
 @Injectable()
 export class CodebasicsOptionalAuthGuard implements CanActivate {
@@ -41,7 +41,8 @@ export class CodebasicsOptionalAuthGuard implements CanActivate {
 
     // Validate token against Codebasics API
     try {
-      const response = await fetch('https://codebasics.io/api/user', {
+      const baseUrl = process.env.CB_OAUTH_BASE_URL?.replace(/\/$/, '') || 'https://codebasics.io';
+      const response = await fetch(`${baseUrl}/api/user`, {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: 'application/json',

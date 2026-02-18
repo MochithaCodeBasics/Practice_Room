@@ -4,6 +4,36 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { PrismaService } from '../prisma/prisma.service.js';
 
+function toPositiveInt(value: string): number | null {
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed <= 0) return null;
+  return parsed;
+}
+
+function normalizeDifficulty(
+  value: string,
+): 'easy' | 'medium' | 'hard' | null {
+  const normalized = value.toLowerCase().trim();
+  if (
+    normalized === 'easy' ||
+    normalized === 'medium' ||
+    normalized === 'hard'
+  ) {
+    return normalized;
+  }
+  return null;
+}
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/[\s_]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
 @Injectable()
 export class AdminService {
   private questionsDir: string;
@@ -13,6 +43,72 @@ export class AdminService {
     private readonly config: ConfigService,
   ) {
     this.questionsDir = this.config.get<string>('questionsDir')!;
+  }
+
+  private getTemplatePath(type: 'question' | 'validator') {
+    const templatesDir = path.join(this.questionsDir, 'templates');
+    const fileName =
+      type === 'question' ? 'question_template.py' : 'validator_template.py';
+    return {
+      fileName,
+      fullPath: path.join(templatesDir, fileName),
+    };
+  }
+
+  async getTemplate(type: 'question' | 'validator') {
+    const { fileName, fullPath } = this.getTemplatePath(type);
+    if (!fs.existsSync(fullPath)) {
+      throw new HttpException(
+        `Template not found: ${fileName}`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return {
+      type,
+      file_name: fileName,
+      content: fs.readFileSync(fullPath, 'utf-8'),
+    };
+  }
+
+  async getAllTemplates() {
+    const [question, validator] = await Promise.all([
+      this.getTemplate('question'),
+      this.getTemplate('validator'),
+    ]);
+
+    return {
+      templates: [question, validator],
+    };
+  }
+
+  private extractPyVar(content: string, varName: string): string | null {
+    const regex = new RegExp(
+      `${varName}\\s*=\\s*(?:"""([\\s\\S]*?)"""|'''([\\s\\S]*?)''')`,
+    );
+    const match = content.match(regex);
+    if (!match) return null;
+    return (match[1] ?? match[2] ?? '').trim();
+  }
+
+  private parseQuestionPy(content: string): {
+    description: string | null;
+    initialCode: string | null;
+    hint: string | null;
+  } {
+    return {
+      description: this.extractPyVar(content, 'description'),
+      initialCode:
+        this.extractPyVar(content, 'initial_sample_code') ??
+        this.extractPyVar(content, 'inital_sample_code'),
+      hint: this.extractPyVar(content, 'hint'),
+    };
+  }
+
+  private toUtf8(file?: Express.Multer.File, inline?: string): string | null {
+    if (file?.buffer) return file.buffer.toString('utf-8');
+    if (inline) return inline;
+    return null;
   }
 
   async createQuestion(data: {
@@ -29,160 +125,142 @@ export class AdminService {
     dataFileContent?: string;
     dataFileName?: string;
   }) {
-    const maxRetries = 3;
-
-    for (let attempt = 0; attempt < maxRetries; attempt++) {
-      try {
-        // Determine next ID
-        const existingQuestions = await this.prisma.question.findMany({
-          select: { id: true },
-        });
-
-        let maxNum = 0;
-        for (const q of existingQuestions) {
-          const match = q.id.match(/\d+/);
-          if (match) {
-            const num = parseInt(match[0]);
-            if (num > maxNum) maxNum = num;
-          }
-        }
-
-        const newIdNum = maxNum + 1;
-        const newId = `q${newIdNum}`;
-        const folderName = `question_${String(newIdNum).padStart(2, '0')}`;
-        const folderPath = path.join(this.questionsDir, folderName);
-
-        if (fs.existsSync(folderPath)) {
-          throw new HttpException(
-            `Directory ${folderName} already exists but DB record missing.`,
-            HttpStatus.INTERNAL_SERVER_ERROR,
-          );
-        }
-
-        fs.mkdirSync(folderPath, { recursive: true });
-
-        try {
-          // Save question.py
-          if (data.questionPyFile) {
-            fs.writeFileSync(
-              path.join(folderPath, 'question.py'),
-              data.questionPyFile.buffer,
-            );
-          } else if (data.questionPyContent) {
-            fs.writeFileSync(
-              path.join(folderPath, 'question.py'),
-              data.questionPyContent,
-              'utf-8',
-            );
-          }
-
-          // Save validator.py
-          if (data.validatorPyFile) {
-            fs.writeFileSync(
-              path.join(folderPath, 'validator.py'),
-              data.validatorPyFile.buffer,
-            );
-          } else if (data.validatorPyContent) {
-            fs.writeFileSync(
-              path.join(folderPath, 'validator.py'),
-              data.validatorPyContent,
-              'utf-8',
-            );
-          }
-
-          // Save data files
-          if (data.dataFiles) {
-            for (const file of data.dataFiles) {
-              if (file.originalname) {
-                const safeName = path.basename(file.originalname);
-                fs.writeFileSync(
-                  path.join(folderPath, safeName),
-                  file.buffer,
-                );
-              }
-            }
-          }
-
-          // Save inline data file
-          if (data.dataFileContent && data.dataFileName) {
-            const safeName = path.basename(data.dataFileName);
-            fs.writeFileSync(
-              path.join(folderPath, safeName),
-              data.dataFileContent,
-              'utf-8',
-            );
-          }
-        } catch (e: any) {
-          // Cleanup on failure
-          if (fs.existsSync(folderPath)) {
-            fs.rmSync(folderPath, { recursive: true, force: true });
-          }
-          throw new HttpException(
-            `Failed to save files: ${e.message}`,
-            HttpStatus.INTERNAL_SERVER_ERROR,
-          );
-        }
-
-        // Save to DB
-        await this.prisma.question.create({
-          data: {
-            id: newId,
-            folder_name: folderName,
-            title: data.title,
-            difficulty: data.difficulty,
-            module_id: data.module_id,
-            topic: data.topic || 'General',
-            tags: data.tags || '',
-          },
-        });
-
-        return {
-          message: 'Question created successfully',
-          id: newId,
-          folder: folderName,
-        };
-      } catch (e: any) {
-        if (e.code === 'P2002' && attempt < maxRetries - 1) {
-          // Prisma unique constraint violation — retry
-          await new Promise((r) =>
-            setTimeout(r, 100 + Math.random() * 200),
-          );
-          continue;
-        }
-        throw e;
-      }
+    const title = data.title?.trim();
+    if (!title) {
+      throw new HttpException('Question title is required', HttpStatus.BAD_REQUEST);
     }
 
-    throw new HttpException(
-      'Could not generate unique Question ID after retries.',
-      HttpStatus.INTERNAL_SERVER_ERROR,
+    const moduleId = toPositiveInt(data.module_id);
+    if (!moduleId) {
+      throw new HttpException('Invalid module_id', HttpStatus.BAD_REQUEST);
+    }
+
+    const module = await this.prisma.module.findUnique({ where: { id: moduleId } });
+    if (!module) {
+      throw new HttpException('Module not found', HttpStatus.BAD_REQUEST);
+    }
+
+    const difficulty = normalizeDifficulty(data.difficulty);
+    if (!difficulty) {
+      throw new HttpException('Invalid difficulty', HttpStatus.BAD_REQUEST);
+    }
+
+    const questionPyContent = this.toUtf8(
+      data.questionPyFile,
+      data.questionPyContent,
     );
+    const validatorPyContent = this.toUtf8(
+      data.validatorPyFile,
+      data.validatorPyContent,
+    );
+
+    if (!questionPyContent) {
+      throw new HttpException(
+        'question.py file content is required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    if (!validatorPyContent) {
+      throw new HttpException(
+        'validator.py file content is required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const parsed = questionPyContent
+      ? this.parseQuestionPy(questionPyContent)
+      : { description: null, initialCode: null, hint: null };
+    let sampleData = data.dataFileContent ?? null;
+    if (!sampleData && data.dataFiles?.length) {
+      for (const file of data.dataFiles) {
+        const safeName = (file.originalname || '').toLowerCase();
+        if (safeName.endsWith('.csv') || safeName.endsWith('.txt')) {
+          sampleData = file.buffer.toString('utf-8');
+          break;
+        }
+      }
+    }
+    const folderName = `db_${slugify(title)}_${Date.now()}`.slice(0, 100);
+
+    try {
+      const created = await this.prisma.moduleQuestion.create({
+        data: {
+          module_id: moduleId,
+          slug: slugify(title),
+          folder_name: folderName,
+          title,
+          difficulty,
+          topic: data.topic || 'General',
+          tags: data.tags || '',
+          question_py: parsed.description,
+          initial_code: parsed.initialCode,
+          hint: parsed.hint,
+          validator_py: validatorPyContent,
+          sample_data: sampleData,
+        },
+      });
+
+      return {
+        message: 'Question created successfully',
+        id: String(created.id),
+        folder: null,
+      };
+    } catch (e: any) {
+      if (e?.code === 'P2002') {
+        throw new HttpException(
+          'A question with the same title/slug already exists in this module',
+          HttpStatus.CONFLICT,
+        );
+      }
+      if (e?.code === 'P2003') {
+        throw new HttpException(
+          'Invalid module reference',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      throw new HttpException(
+        e?.message || 'Failed to create question',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async getQuestions() {
+    return this.prisma.moduleQuestion.findMany({
+      orderBy: [{ created_at: 'desc' }, { title: 'asc' }],
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        module_id: true,
+        difficulty: true,
+        topic: true,
+        tags: true,
+        is_verified: true,
+        created_at: true,
+      },
+    });
   }
 
   async deleteQuestion(questionId: string) {
-    const question = await this.prisma.question.findUnique({
-      where: { id: questionId },
+    const parsedQuestionId = toPositiveInt(questionId);
+    if (!parsedQuestionId) {
+      throw new HttpException('Invalid question ID', HttpStatus.BAD_REQUEST);
+    }
+
+    const question = await this.prisma.moduleQuestion.findUnique({
+      where: { id: parsedQuestionId },
     });
     if (!question) {
       throw new HttpException('Question not found', HttpStatus.NOT_FOUND);
     }
 
-    const folderPath = path.join(this.questionsDir, question.folder_name);
-
     // Delete progress records first
     await this.prisma.userProgress.deleteMany({
-      where: { question_id: questionId },
+      where: { question_id: String(parsedQuestionId) },
     });
 
-    await this.prisma.question.delete({ where: { id: questionId } });
-
-    if (fs.existsSync(folderPath)) {
-      try {
-        fs.rmSync(folderPath, { recursive: true, force: true });
-      } catch (e) {
-        console.error(`Error deleting directory ${folderPath}:`, e);
-      }
-    }
+    await this.prisma.moduleQuestion.delete({ where: { id: parsedQuestionId } });
   }
 
   async updateQuestion(
@@ -197,8 +275,13 @@ export class AdminService {
       dataFiles?: Express.Multer.File[];
     },
   ) {
-    const question = await this.prisma.question.findUnique({
-      where: { id: questionId },
+    const parsedQuestionId = toPositiveInt(questionId);
+    if (!parsedQuestionId) {
+      throw new HttpException('Invalid question ID', HttpStatus.BAD_REQUEST);
+    }
+
+    const question = await this.prisma.moduleQuestion.findUnique({
+      where: { id: parsedQuestionId },
     });
     if (!question) {
       throw new HttpException('Question not found', HttpStatus.NOT_FOUND);
@@ -209,24 +292,38 @@ export class AdminService {
     // Update metadata
     const updateData: any = {};
     if (data.title !== undefined) updateData.title = data.title;
-    if (data.difficulty !== undefined)
-      updateData.difficulty = data.difficulty;
+    if (data.difficulty !== undefined) {
+      const difficulty = normalizeDifficulty(data.difficulty);
+      if (!difficulty) {
+        throw new HttpException('Invalid difficulty', HttpStatus.BAD_REQUEST);
+      }
+      updateData.difficulty = difficulty;
+    }
     if (data.topic !== undefined) updateData.topic = data.topic;
     if (data.tags !== undefined) updateData.tags = data.tags;
 
     // Replace files if provided
     try {
       if (data.questionPyFile?.originalname) {
+        const questionPyContent = data.questionPyFile.buffer.toString('utf-8');
         fs.writeFileSync(
           path.join(folderPath, 'question.py'),
-          data.questionPyFile.buffer,
+          questionPyContent,
+          'utf-8',
         );
+        const parsed = this.parseQuestionPy(questionPyContent);
+        updateData.question_py = parsed.description;
+        updateData.initial_code = parsed.initialCode;
+        updateData.hint = parsed.hint;
       }
       if (data.validatorPyFile?.originalname) {
+        const validatorContent = data.validatorPyFile.buffer.toString('utf-8');
         fs.writeFileSync(
           path.join(folderPath, 'validator.py'),
-          data.validatorPyFile.buffer,
+          validatorContent,
+          'utf-8',
         );
+        updateData.validator_py = validatorContent;
       }
       if (data.dataFiles) {
         for (const file of data.dataFiles) {
@@ -236,6 +333,9 @@ export class AdminService {
               path.join(folderPath, safeName),
               file.buffer,
             );
+            if (!updateData.sample_data && (safeName.endsWith('.csv') || safeName.endsWith('.txt'))) {
+              updateData.sample_data = file.buffer.toString('utf-8');
+            }
           }
         }
       }
@@ -246,30 +346,35 @@ export class AdminService {
       );
     }
 
-    await this.prisma.question.update({
-      where: { id: questionId },
+    await this.prisma.moduleQuestion.update({
+      where: { id: parsedQuestionId },
       data: updateData,
     });
 
-    return { message: 'Question updated successfully', id: questionId };
+    return { message: 'Question updated successfully', id: String(parsedQuestionId) };
   }
 
   async verifyQuestion(questionId: string, verified: boolean) {
-    const question = await this.prisma.question.findUnique({
-      where: { id: questionId },
+    const parsedQuestionId = toPositiveInt(questionId);
+    if (!parsedQuestionId) {
+      throw new HttpException('Invalid question ID', HttpStatus.BAD_REQUEST);
+    }
+
+    const question = await this.prisma.moduleQuestion.findUnique({
+      where: { id: parsedQuestionId },
     });
     if (!question) {
       throw new HttpException('Question not found', HttpStatus.NOT_FOUND);
     }
 
-    await this.prisma.question.update({
-      where: { id: questionId },
+    await this.prisma.moduleQuestion.update({
+      where: { id: parsedQuestionId },
       data: { is_verified: verified },
     });
 
     return {
       message: `Question verification status set to ${verified}`,
-      id: questionId,
+      id: String(parsedQuestionId),
       is_verified: verified,
     };
   }

@@ -21,6 +21,18 @@ export class AdminGuard implements CanActivate {
     const adminEmails: string[] =
       this.configService.get<string[]>('admin.emails') || [];
     const userEmail = (user.email as string)?.toLowerCase();
+    const roleCandidates = [
+      user.role,
+      user.role_name,
+      user.roleName,
+    ]
+      .map((r) => (typeof r === 'string' ? r.toLowerCase() : ''))
+      .filter(Boolean);
+    const isAdminRole = roleCandidates.includes('admin');
+
+    if (isAdminRole) {
+      return true;
+    }
 
     if (userEmail && adminEmails.includes(userEmail)) {
       return true;

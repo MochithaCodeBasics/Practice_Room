@@ -21,6 +21,7 @@ interface QuestionListProps {
 export default function QuestionList({ moduleId, onSelectQuestion, filters, searchTerm }: QuestionListProps) {
   const [questions, setQuestions] = useState<QuestionRead[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const { user } = useAuth();
   const router = useRouter();
 
@@ -52,14 +53,18 @@ export default function QuestionList({ moduleId, onSelectQuestion, filters, sear
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    if (typeof window !== "undefined" && window.confirm("Are you sure? This will delete the question permanently.")) {
-      try {
-        await deleteQuestion(id);
-        setQuestions((q) => q.filter((ques) => ques.id !== id));
-      } catch (err) {
-        console.error("Delete failed", err);
-        alert("Failed to delete question");
-      }
+    if (pendingDeleteId !== id) {
+      setPendingDeleteId(id);
+      return;
+    }
+
+    try {
+      await deleteQuestion(id);
+      setQuestions((q) => q.filter((ques) => ques.id !== id));
+      setPendingDeleteId(null);
+    } catch (err) {
+      console.error("Delete failed", err);
+      alert("Failed to delete question");
     }
   };
 
@@ -166,10 +171,25 @@ export default function QuestionList({ moduleId, onSelectQuestion, filters, sear
                       size="sm"
                       className="text-[10px] font-bold uppercase h-auto py-1.5 px-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50"
                       onClick={(e) => handleDelete(e, q.id)}
-                      title="Delete Question"
+                      title={pendingDeleteId === q.id ? "Confirm delete" : "Delete Question"}
                     >
-                      <Trash2 size={12} className="mr-1 inline" /> Delete
+                      <Trash2 size={12} className="mr-1 inline" /> {pendingDeleteId === q.id ? "Confirm" : "Delete"}
                     </Button>
+                    {pendingDeleteId === q.id && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="text-[10px] font-bold uppercase h-auto py-1.5 px-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPendingDeleteId(null);
+                        }}
+                        title="Cancel delete"
+                      >
+                        Cancel
+                      </Button>
+                    )}
                   </>
                 )}
               </CardFooter>

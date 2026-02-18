@@ -54,6 +54,7 @@ export default () => ({
     apiUrl: process.env.JUDGE0_API_URL || 'http://localhost:2358',
     apiKey: process.env.JUDGE0_API_KEY || undefined,
     enabled: process.env.USE_JUDGE0 === 'true',
+    pythonLanguageId: process.env.JUDGE0_PYTHON_LANGUAGE_ID || undefined,
   },
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
 });

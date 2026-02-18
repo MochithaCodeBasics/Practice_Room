@@ -7,11 +7,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       name: "Codebasics",
       type: "oauth",
       authorization: {
-        url: `${process.env.CODEBASICS_BASE_URL}/oauth/authorize`,
-        params: {
-          scope: "read-user",
-          response_type: "code",
-        },
+        url: `${process.env.CODEBASICS_BASE_URL}/oauth/authorize?scope=read-user&response_type=code`,
       },
       token: `${process.env.CODEBASICS_BASE_URL}/oauth/token`,
       userinfo: `${process.env.CODEBASICS_BASE_URL}/api/user`,
@@ -36,19 +32,28 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.expiresAt = account.expires_at;
       }
       if (profile) {
-        token.codebasicsProfile = profile;
+        const p = profile as Record<string, unknown>;
+        token.userId = (p.id as number)?.toString();
+        token.userRole = p.role_name as string;
+        token.userEmail = p.email as string;
+        token.userName = (p.full_name as string) || (p.name as string);
+        token.userImage = p.avatar as string;
       }
       return token;
     },
     async session({ session, token }) {
       session.accessToken = token.accessToken as string;
-      if (token.codebasicsProfile) {
-        const profile = token.codebasicsProfile as Record<string, unknown>;
-        session.user.id = (profile.id as number)?.toString() || session.user.id;
-        session.user.role = profile.role_name as string;
-      }
+      session.user.id = (token.userId as string) || session.user.id;
+      session.user.role = (token.userRole as string) || session.user.role;
+      session.user.email = (token.userEmail as string) || session.user.email;
+      session.user.name = (token.userName as string) || session.user.name;
+      session.user.image = (token.userImage as string) || session.user.image;
       return session;
     },
+  },
+  session: {
+    strategy: "jwt",
+    maxAge: 48 * 60 * 60, // 48 hours
   },
   pages: {
     signIn: "/",

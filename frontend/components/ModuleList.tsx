@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import type { Module } from "@/types";
 
 const SORT_ORDER_IDS = ["python", "math_stats", "ml", "dl", "nlp", "genai", "agentic"];
+const ENABLE_MODULE_MANAGEMENT = false;
 
 function slugify(text: string): string {
   return text
@@ -60,6 +61,7 @@ export default function ModuleList() {
   }, []);
 
   const handleEdit = (e: React.MouseEvent, module: Module) => {
+    if (!ENABLE_MODULE_MANAGEMENT) return;
     e.preventDefault();
     e.stopPropagation();
     const cleanName = module.name.replace(/practice/gi, "").trim();
@@ -77,6 +79,7 @@ export default function ModuleList() {
 
   const handleCreate = async (e: FormEvent) => {
     e.preventDefault();
+    if (!ENABLE_MODULE_MANAGEMENT) return;
     try {
       if (isEditing) {
         const updated = await updateModule(newModule.id, { name: newModule.name } as Partial<Module>);
@@ -97,7 +100,7 @@ export default function ModuleList() {
 
   return (
     <div>
-      {user?.role === "admin" && (
+      {user?.role === "admin" && ENABLE_MODULE_MANAGEMENT && (
         <div className="flex justify-end mb-4">
           <Button onClick={() => setShowCreateModal(true)} className="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 shadow-lg font-bold text-sm">
             + Create Module
@@ -157,7 +160,7 @@ export default function ModuleList() {
             href={`/modules/${module.slug}`}
             className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-1 transition-all duration-300 cursor-pointer group relative block"
           >
-            {user?.role === "admin" && (
+            {user?.role === "admin" && ENABLE_MODULE_MANAGEMENT && (
               <Button
                 type="button"
                 variant="ghost"

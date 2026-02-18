@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { spawn } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as os from 'os';
 import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from '../prisma/prisma.service.js';
 import {
@@ -11,8 +12,15 @@ import {
 } from './docker-executor.service.js';
 import { Judge0Service } from './judge0.service.js';
 
+function toPositiveInt(value: string): number | null {
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed <= 0) return null;
+  return parsed;
+}
+
 @Injectable()
 export class ExecuteService {
+  private readonly logger = new Logger(ExecuteService.name);
   private useDocker: boolean;
   private useJudge0: boolean;
   private questionsDir: string;
@@ -42,8 +50,18 @@ export class ExecuteService {
     moduleId: string,
     currentUser?: any,
   ): Promise<ExecutionResult> {
+    const parsedQuestionId = toPositiveInt(questionId);
+    if (!parsedQuestionId) {
+      return {
+        stdout: '',
+        stderr: 'Invalid question id',
+        artifacts: [],
+        status: 'error',
+      };
+    }
+
     const question = await this.prisma.moduleQuestion.findUnique({
-      where: { id: questionId },
+      where: { id: parsedQuestionId },
     });
     if (!question) {
       return {
@@ -54,7 +72,7 @@ export class ExecuteService {
       };
     }
 
-    const folderPath = path.join(this.questionsDir, question.folder_name);
+    const folderPath = this.ensureQuestionWorkspace(question);
     const { imageName, envVars, networkEnabled, errorResult } =
       await this.resolveExecutionConfig(moduleId, currentUser);
     if (errorResult) return errorResult;
@@ -81,7 +99,14 @@ if not os.path.exists('data.csv'):
         }
       }
 
-      return this.judge0Service.runCode(finalCode);
+      const judge0Result = await this.judge0Service.runCode(finalCode);
+      if (!this.shouldFallbackFromJudge0(judge0Result)) {
+        return judge0Result;
+      }
+
+      this.logger.warn(
+        'Judge0 runtime environment error detected; falling back to Docker/local executor.',
+      );
     }
 
     if (this.useDocker && this.dockerExecutor.isAvailable()) {
@@ -97,14 +122,36 @@ if not os.path.exists('data.csv'):
     return this.runLocal(code, folderPath, envVars, false);
   }
 
+  private shouldFallbackFromJudge0(result: ExecutionResult): boolean {
+    if (result.status === 'success') return false;
+
+    const stderr = (result.stderr || '').toLowerCase();
+    return (
+      stderr.includes('rosetta error') ||
+      stderr.includes('caught fatal signal 5') ||
+      stderr.includes('/box/script.py') ||
+      stderr.includes('execution environment error')
+    );
+  }
+
   async validateCode(
     code: string,
     questionId: string,
     moduleId: string,
     currentUser?: any,
   ): Promise<ExecutionResult> {
+    const parsedQuestionId = toPositiveInt(questionId);
+    if (!parsedQuestionId) {
+      return {
+        stdout: '',
+        stderr: 'Invalid question id',
+        artifacts: [],
+        status: 'error',
+      };
+    }
+
     const question = await this.prisma.moduleQuestion.findUnique({
-      where: { id: questionId },
+      where: { id: parsedQuestionId },
     });
     if (!question) {
       return {
@@ -115,7 +162,7 @@ if not os.path.exists('data.csv'):
       };
     }
 
-    const folderPath = path.join(this.questionsDir, question.folder_name);
+    const folderPath = this.ensureQuestionWorkspace(question);
     const { imageName, envVars, networkEnabled, errorResult } =
       await this.resolveExecutionConfig(moduleId, currentUser);
     if (errorResult) return errorResult;
@@ -143,14 +190,29 @@ if not os.path.exists('data.csv'):
     errorResult?: ExecutionResult;
   }> {
     let imageName = 'practice-room-python:latest';
+    const envVars: Record<string, string> = {};
+
     if (moduleId) {
+      const parsedModuleId = toPositiveInt(moduleId);
+      if (!parsedModuleId) {
+        return {
+          imageName,
+          envVars,
+          networkEnabled: false,
+          errorResult: {
+            stdout: '',
+            stderr: 'Invalid module id',
+            artifacts: [],
+            status: 'error',
+          },
+        };
+      }
       const mod = await this.prisma.module.findUnique({
-        where: { id: moduleId },
+        where: { id: parsedModuleId },
       });
       // if (mod?.base_image) imageName = mod.base_image;
     }
 
-    const envVars: Record<string, string> = {};
     if (currentUser) {
       if (currentUser.groq_api_key)
         envVars.GROQ_API_KEY = currentUser.groq_api_key.trim();
@@ -190,6 +252,56 @@ if not os.path.exists('data.csv'):
     }
 
     return { imageName, envVars, networkEnabled };
+  }
+
+  private ensureQuestionWorkspace(question: {
+    id: number;
+    folder_name: string;
+    question_py: string | null;
+    initial_code: string | null;
+    hint: string | null;
+    validator_py: string | null;
+    sample_data: string | null;
+  }): string {
+    const diskPath = path.join(this.questionsDir, question.folder_name);
+    if (fs.existsSync(diskPath)) {
+      return diskPath;
+    }
+
+    const fallbackDir = path.join(
+      os.tmpdir(),
+      'practice-room-db-questions',
+      String(question.id),
+    );
+    fs.mkdirSync(fallbackDir, { recursive: true });
+
+    const questionPyPath = path.join(fallbackDir, 'question.py');
+    if (!fs.existsSync(questionPyPath)) {
+      const rendered = [
+        `description = """\n${question.question_py || ''}\n"""`,
+        `initial_sample_code = """\n${question.initial_code || ''}\n"""`,
+        `hint = """\n${question.hint || ''}\n"""`,
+      ].join('\n\n');
+      fs.writeFileSync(questionPyPath, rendered, 'utf-8');
+    }
+
+    const validatorPyPath = path.join(fallbackDir, 'validator.py');
+    if (!fs.existsSync(validatorPyPath)) {
+      fs.writeFileSync(
+        validatorPyPath,
+        question.validator_py || 'def validate(user_code_module):\n    return "[FAIL] validator missing"',
+        'utf-8',
+      );
+    }
+
+    if (question.sample_data) {
+      const sampleDataPath = path.join(fallbackDir, 'data.csv');
+      if (!fs.existsSync(sampleDataPath)) {
+        fs.writeFileSync(sampleDataPath, question.sample_data, 'utf-8');
+      }
+    }
+
+    return fallbackDir;
   }
 
   private runLocal(

@@ -10,6 +10,8 @@ export class Judge0Service {
     private readonly logger = new Logger(Judge0Service.name);
     private apiUrl: string;
     private apiKey: string | undefined;
+    private cachedPythonLanguageId: number | null = null;
+    private configuredPythonLanguageId: number | null = null;
 
     constructor(
         private readonly configService: ConfigService,
@@ -17,19 +19,27 @@ export class Judge0Service {
     ) {
         this.apiUrl = this.configService.get<string>('judge0.apiUrl', 'http://localhost:2358');
         this.apiKey = this.configService.get<string>('judge0.apiKey'); // Optional if self-hosted
+        const configured = this.configService.get<string>('judge0.pythonLanguageId');
+        const parsed = configured ? Number(configured) : NaN;
+        if (Number.isInteger(parsed) && parsed > 0) {
+            this.configuredPythonLanguageId = parsed;
+            this.logger.log(`Using configured Judge0 Python language_id=${parsed}`);
+        }
     }
 
     async runCode(
         code: string,
-        languageId: number = 71, // 71 is Python (3.8.1) in Judge0
+        languageId?: number,
         stdin?: string,
     ): Promise<ExecutionResult> {
         try {
+            const resolvedLanguageId = languageId ?? await this.getPythonLanguageId();
+
             // Prepare submission payload
             // base64 encoding is recommended for source_code and stdin/stdout
             const payload = {
                 source_code: Buffer.from(code).toString('base64'),
-                language_id: languageId,
+                language_id: resolvedLanguageId,
                 stdin: stdin ? Buffer.from(stdin).toString('base64') : undefined,
                 wait: true, // Wait for the result
             };
@@ -85,6 +95,41 @@ export class Judge0Service {
                 status: 'error',
             };
         }
+    }
+
+    private async getPythonLanguageId(): Promise<number> {
+        if (this.configuredPythonLanguageId) return this.configuredPythonLanguageId;
+        if (this.cachedPythonLanguageId) return this.cachedPythonLanguageId;
+
+        try {
+            const headers: Record<string, string> = {};
+            if (this.apiKey) {
+                headers['X-Auth-Token'] = this.apiKey;
+            }
+
+            const response = await lastValueFrom(
+                this.httpService.get(`${this.apiUrl}/languages`, { headers }),
+            );
+
+            const languages = Array.isArray(response.data) ? response.data : [];
+            const python3 = languages.find(
+                (l: any) =>
+                    typeof l?.name === 'string' &&
+                    l.name.toLowerCase().includes('python') &&
+                    l.name.toLowerCase().includes('(3'),
+            );
+
+            if (python3?.id) {
+                this.cachedPythonLanguageId = Number(python3.id);
+                this.logger.log(`Resolved Judge0 Python language_id=${this.cachedPythonLanguageId}`);
+                return this.cachedPythonLanguageId;
+            }
+        } catch (error: any) {
+            this.logger.warn(`Failed to auto-detect Judge0 Python language: ${error.message}`);
+        }
+
+        // Fallback for older Judge0 CE builds.
+        return 71;
     }
 
     isAvailable(): boolean {
