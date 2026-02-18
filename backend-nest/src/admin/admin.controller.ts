@@ -155,4 +155,12 @@ export class AdminController {
   ) {
     return this.adminService.verifyQuestion(questionId, body.verified);
   }
+
+  @Post('questions/:questionId/activate')
+  async setQuestionActive(
+    @Param('questionId') questionId: string,
+    @Body() body: { active: boolean },
+  ) {
+    return this.adminService.setQuestionActive(questionId, body.active);
+  }
 }

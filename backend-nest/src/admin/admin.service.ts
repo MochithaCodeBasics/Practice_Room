@@ -237,6 +237,7 @@ export class AdminService {
         topic: true,
         tags: true,
         is_verified: true,
+        is_active: true,
         created_at: true,
       },
     });
@@ -376,6 +377,31 @@ export class AdminService {
       message: `Question verification status set to ${verified}`,
       id: String(parsedQuestionId),
       is_verified: verified,
+    };
+  }
+
+  async setQuestionActive(questionId: string, active: boolean) {
+    const parsedQuestionId = toPositiveInt(questionId);
+    if (!parsedQuestionId) {
+      throw new HttpException('Invalid question ID', HttpStatus.BAD_REQUEST);
+    }
+
+    const question = await this.prisma.moduleQuestion.findUnique({
+      where: { id: parsedQuestionId },
+    });
+    if (!question) {
+      throw new HttpException('Question not found', HttpStatus.NOT_FOUND);
+    }
+
+    await this.prisma.moduleQuestion.update({
+      where: { id: parsedQuestionId },
+      data: { is_active: active },
+    });
+
+    return {
+      message: `Question active status set to ${active}`,
+      id: String(parsedQuestionId),
+      is_active: active,
     };
   }
 }

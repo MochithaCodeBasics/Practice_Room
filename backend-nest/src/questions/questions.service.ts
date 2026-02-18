@@ -42,7 +42,7 @@ export class QuestionsService {
       ? await this.progressService.getProgress(username)
       : { completed: new Set<string>(), attempted: new Set<string>() };
 
-    const where: any = {};
+    const where: any = { is_active: true };
     const normalizedDifficulty = normalizeDifficulty(difficulty);
     if (normalizedDifficulty) where.difficulty = normalizedDifficulty;
 
@@ -92,6 +92,7 @@ export class QuestionsService {
       where: { id: parsedQuestionId },
     });
     if (!question) return null;
+    if (!question.is_active && userRole !== 'admin') return null;
 
     const folderPath = path.join(this.questionsDir, question.folder_name);
     const hasFolder = fs.existsSync(folderPath);

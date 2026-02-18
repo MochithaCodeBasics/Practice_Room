@@ -6,7 +6,7 @@ import api from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Pencil, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Pencil, Trash2, ChevronLeft, ChevronRight, CheckCircle, Power } from "lucide-react";
 import type { QuestionRead, Module } from "@/types";
 
 const PAGE_SIZE = 20;
@@ -25,7 +25,7 @@ export default function AdminQuestionsPage() {
     const fetchData = async () => {
       try {
         const [questionsRes, modulesRes] = await Promise.all([
-          api.get<QuestionRead[]>("/modules/questions"),
+          api.get<QuestionRead[]>("/v1/admin/questions"),
           api.get<Module[]>("/modules/"),
         ]);
         setQuestions(questionsRes.data);
@@ -39,11 +39,11 @@ export default function AdminQuestionsPage() {
     fetchData();
   }, []);
 
-  const moduleMap = new Map(modules.map((m) => [m.id, m.name]));
+  const moduleMap = new Map(modules.map((m) => [String(m.id), m.name]));
 
   const filtered = useMemo(() => {
     return questions.filter((q) => {
-      const matchesModule = !filterModule || q.module_id === filterModule;
+      const matchesModule = !filterModule || String(q.module_id) === filterModule;
       const matchesDifficulty =
         !filterDifficulty || q.difficulty.toLowerCase() === filterDifficulty;
       return matchesModule && matchesDifficulty;
@@ -61,7 +61,7 @@ export default function AdminQuestionsPage() {
     setCurrentPage(1);
   }, [filterModule, filterDifficulty]);
 
-  const handleDelete = async (id: string, title: string) => {
+  const handleDelete = async (id: string) => {
     if (pendingDeleteId !== id) {
       setPendingDeleteId(id);
       return;
@@ -76,18 +76,33 @@ export default function AdminQuestionsPage() {
     }
   };
 
-  const handleVerify = async (id: string, currentStatus: boolean) => {
+  const handleMarkVerified = async (id: string) => {
     try {
       await api.post(`/v1/admin/questions/${id}/verify`, {
-        verified: !currentStatus,
+        verified: true,
       });
       setQuestions((prev) =>
         prev.map((q) =>
-          q.id === id ? { ...q, is_verified: !currentStatus } : q
+          q.id === id ? { ...q, is_verified: true } : q
         )
       );
     } catch (err) {
-      console.error("Failed to update verification", err);
+      console.error("Failed to verify question", err);
+    }
+  };
+
+  const handleActivation = async (id: string, currentStatus: boolean) => {
+    try {
+      await api.post(`/v1/admin/questions/${id}/activate`, {
+        active: !currentStatus,
+      });
+      setQuestions((prev) =>
+        prev.map((q) =>
+          q.id === id ? { ...q, is_active: !currentStatus } : q
+        )
+      );
+    } catch (err) {
+      console.error("Failed to update activation", err);
     }
   };
 
@@ -118,7 +133,7 @@ export default function AdminQuestionsPage() {
         >
           <option value="">All Modules</option>
           {modules.map((m) => (
-            <option key={m.id} value={m.id}>
+            <option key={m.id} value={String(m.id)}>
               {m.name}
             </option>
           ))}
@@ -195,7 +210,7 @@ export default function AdminQuestionsPage() {
                     </td>
                     <td className="px-4 py-3 hidden md:table-cell">
                       <span className="text-xs text-gray-500">
-                        {moduleMap.get(q.module_id) || q.module_id}
+                        {moduleMap.get(String(q.module_id)) || q.module_id}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-center">
@@ -213,18 +228,10 @@ export default function AdminQuestionsPage() {
                       </Badge>
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <button
-                        type="button"
-                        onClick={() => handleVerify(q.id, !!q.is_verified)}
-                        title={
-                          q.is_verified
-                            ? "Click to unverify"
-                            : "Click to verify"
-                        }
-                      >
+                      <div className="flex flex-col items-center gap-1">
                         <Badge
                           variant="outline"
-                          className={`text-[10px] font-bold uppercase cursor-pointer ${
+                          className={`text-[10px] font-bold uppercase ${
                             q.is_verified
                               ? "bg-green-50 text-green-700 border-green-100"
                               : "bg-red-50 text-red-700 border-red-100"
@@ -232,10 +239,42 @@ export default function AdminQuestionsPage() {
                         >
                           {q.is_verified ? "Verified" : "Unverified"}
                         </Badge>
-                      </button>
+                        <Badge
+                          variant="outline"
+                          className={`text-[10px] font-bold uppercase ${
+                            q.is_active
+                              ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                              : "bg-slate-100 text-slate-600 border-slate-200"
+                          }`}
+                        >
+                          {q.is_active ? "Active" : "Inactive"}
+                        </Badge>
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <div className="flex items-center justify-end gap-1">
+                      <div className="flex items-center justify-end gap-1 flex-wrap">
+                        {!q.is_verified && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 px-2 text-[11px] text-gray-500 hover:text-green-700 hover:bg-green-50"
+                            onClick={() => handleMarkVerified(q.id)}
+                            title="Mark as verified"
+                          >
+                            <CheckCircle size={13} className="mr-1" />
+                            Verify
+                          </Button>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 px-2 text-[11px] text-gray-500 hover:text-emerald-700 hover:bg-emerald-50"
+                          onClick={() => handleActivation(q.id, !!q.is_active)}
+                          title={q.is_active ? "Inactivate" : "Activate"}
+                        >
+                          <Power size={13} className="mr-1" />
+                          {q.is_active ? "Inactivate" : "Activate"}
+                        </Button>
                         <Button
                           variant="ghost"
                           size="sm"
@@ -249,7 +288,7 @@ export default function AdminQuestionsPage() {
                           variant="ghost"
                           size="sm"
                           className="h-8 w-8 p-0 text-gray-400 hover:text-red-600 hover:bg-red-50"
-                          onClick={() => handleDelete(q.id, q.title)}
+                          onClick={() => handleDelete(q.id)}
                           title={
                             pendingDeleteId === q.id
                               ? `Confirm delete "${q.title}"`

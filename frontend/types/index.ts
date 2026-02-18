@@ -17,6 +17,7 @@ export interface QuestionRead {
   topic?: string;
   tags?: string;
   is_verified?: boolean;
+  is_active?: boolean;
   is_completed: boolean;
   is_attempted: boolean;
 }
