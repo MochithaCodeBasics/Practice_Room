@@ -44,6 +44,44 @@ interface SavedArtifact {
   filename: string;
 }
 
+function getOutputLineTone(line: string): "error" | "warning" | "success" | "default" {
+  const text = line.toLowerCase();
+
+  if (
+    text.includes("error") ||
+    text.includes("traceback") ||
+    text.includes("exception") ||
+    text.includes("failed") ||
+    text.includes("quota exceeded") ||
+    text.includes("rate limited")
+  ) {
+    return "error";
+  }
+
+  if (text.includes("warning") || text.includes("system notice")) {
+    return "warning";
+  }
+
+  if (text.includes("[pass]") || text.includes("correct!") || text.includes("verified")) {
+    return "success";
+  }
+
+  return "default";
+}
+
+function getOutputLineClass(tone: "error" | "warning" | "success" | "default"): string {
+  if (tone === "error") {
+    return "bg-rose-900/40 text-rose-200 border-l-2 border-rose-500 px-2 py-1 rounded-sm";
+  }
+  if (tone === "warning") {
+    return "bg-amber-900/30 text-amber-100 border-l-2 border-amber-400 px-2 py-1 rounded-sm";
+  }
+  if (tone === "success") {
+    return "bg-emerald-900/30 text-emerald-200 border-l-2 border-emerald-500 px-2 py-1 rounded-sm";
+  }
+  return "text-slate-300";
+}
+
 export default function Workspace({ questionId, onBack, onPrev, onNext, currentIndex = 0, totalQuestions = 0, initialQuestion }: WorkspaceProps) {
   const { user, refreshUser, isAuthenticated } = useAuth();
   const [showAuthPopup, setShowAuthPopup] = useState<boolean>(false);
@@ -399,29 +437,6 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
                       <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Python</span>
                     </div>
                     <div className="flex items-center gap-2 pr-2">
-                      <DropdownMenu open={isDownloadMenuOpen} onOpenChange={setIsDownloadMenuOpen}>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={!isValidationPassed}
-                            title={!isValidationPassed ? "Pass validation to unlock download" : "Download solution"}
-                            className={`h-7 text-[10px] uppercase font-bold tracking-wider ${!isValidationPassed ? "opacity-50" : "bg-white border-slate-200 text-slate-600"}`}
-                          >
-                            {!isValidationPassed ? <Lock size={10} className="mr-1.5" /> : <Download size={10} className="mr-1.5" />}
-                            Download
-                            <ChevronDown size={10} className="ml-1.5" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
-                          <DropdownMenuItem onClick={handleDownloadPy}>
-                            <FileCode size={14} className="mr-2 text-blue-500" /> Download as .py
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={handleDownloadPdf}>
-                            <FileText size={14} className="mr-2 text-red-500" /> Preview & Save PDF
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
                       <div className="w-px h-4 bg-slate-300 mx-1" />
                       <Button type="button" variant="secondary" size="sm" onClick={handleRun} className="h-7 text-[10px] uppercase font-bold tracking-wider bg-white border-slate-200 text-slate-600 hover:bg-slate-50">
                         Run Code
@@ -473,7 +488,21 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
                         <img src={`/api/execute/runs/${item.runId}/${item.filename}`} alt="Output" className="max-w-full h-auto" />
                       </div>
                     ))}
-                    <pre className="whitespace-pre-wrap text-xs">{output}</pre>
+                    <div className="text-xs space-y-1">
+                      {(output || "")
+                        .split("\n")
+                        .map((line, idx) => {
+                          const tone = getOutputLineTone(line);
+                          return (
+                            <div
+                              key={`${idx}-${line.slice(0, 16)}`}
+                              className={`whitespace-pre-wrap break-words ${getOutputLineClass(tone)}`}
+                            >
+                              {line || " "}
+                            </div>
+                          );
+                        })}
+                    </div>
                   </div>
                 </div>
               </ResizablePanel>

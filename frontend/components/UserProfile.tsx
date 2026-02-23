@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import api from "@/services/api";
 import { Button } from "@/components/ui/button";
@@ -23,10 +22,8 @@ interface UserStats {
 
 export default function UserProfile() {
   const { user, logout } = useAuth();
-  const { data: session } = useSession();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [showDebug, setShowDebug] = useState(false);
   const [userStats, setUserStats] = useState<UserStats>({ completed: 0, attempted: 0, todo: 0 });
 
   useEffect(() => {
@@ -115,21 +112,6 @@ export default function UserProfile() {
           </div>
         )}
 
-        <div className="px-4 py-2 border-t border-gray-100">
-          <button
-            type="button"
-            className="text-xs text-gray-400 hover:text-gray-600 font-mono"
-            onClick={() => setShowDebug(!showDebug)}
-          >
-            {showDebug ? "Hide" : "Show"} Auth Response
-          </button>
-          {showDebug && (
-            <pre className="mt-2 p-2 bg-gray-100 rounded text-[10px] text-gray-600 max-h-48 overflow-auto font-mono whitespace-pre-wrap break-all">
-              {JSON.stringify(session, null, 2)}
-            </pre>
-          )}
-        </div>
-
         <div className="p-2 border-t border-gray-100 bg-gray-50 flex flex-col gap-1">
           {user.role === "admin" && (
             <DropdownMenuItem asChild>
@@ -143,16 +125,6 @@ export default function UserProfile() {
               </Button>
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full text-xs font-bold border-gray-200 hover:bg-white cursor-pointer justify-center"
-              onClick={() => router.push("/settings")}
-            >
-              Environment Settings
-            </Button>
-          </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Button
               variant="destructive"
