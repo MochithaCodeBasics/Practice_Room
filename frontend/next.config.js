@@ -3,6 +3,7 @@ const backendBaseUrl = process.env.BACKEND_URL || 'http://localhost:3001';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone',
   reactStrictMode: true,
   outputFileTracingRoot: path.join(__dirname),
   async rewrites() {

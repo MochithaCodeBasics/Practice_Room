@@ -1,0 +1,153 @@
+x-logging:
+  &default-logging
+  logging:
+    driver: json-file
+    options:
+      max-size: 50M
+
+services:
+  # ── Frontend (Next.js) ────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+        NEXT_PUBLIC_CB_IMAGE_PREFIX: ${NEXT_PUBLIC_CB_IMAGE_PREFIX:-https://beta-images.codebasics.io/filters:format(webp)/fit-in/50x50}
+    ports:
+      - "3000:3000"
+    environment:
+      - BACKEND_URL=http://backend:3001
+      - AUTH_SECRET=${AUTH_SECRET}
+      - AUTH_CODEBASICS_ID=${AUTH_CODEBASICS_ID}
+      - AUTH_CODEBASICS_SECRET=${AUTH_CODEBASICS_SECRET}
+      - CODEBASICS_BASE_URL=${CODEBASICS_BASE_URL:-https://beta.codebasics.io}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      - NEXT_PUBLIC_CB_IMAGE_PREFIX=${NEXT_PUBLIC_CB_IMAGE_PREFIX:-https://beta-images.codebasics.io/filters:format(webp)/fit-in/50x50}
+    depends_on:
+      backend:
+        condition: service_healthy
+    <<: *default-logging
+    restart: unless-stopped
+
+  # ── Backend (NestJS) ──────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "3001:3001"
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+      - PORT=3001
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT:-3306}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME:-practice_room}
+      - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
+      - JWT_EXPIRATION_MINUTES=${JWT_EXPIRATION_MINUTES:-1440}
+      - DEFAULT_ADMIN_USERNAME=${DEFAULT_ADMIN_USERNAME:-admin}
+      - DEFAULT_ADMIN_PASSWORD=${DEFAULT_ADMIN_PASSWORD:-YourSecurePassword123!}
+      - DEFAULT_ADMIN_EMAIL=${DEFAULT_ADMIN_EMAIL:-admin@yourdomain.com}
+      - CORS_ORIGINS=http://localhost:3000
+      - USE_DOCKER_EXECUTOR=false
+      - USE_JUDGE0=true
+      - JUDGE0_API_URL=http://judge0-server:2358
+      - QUESTIONS_DIR=/app/questions
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+      - SMTP_HOST=${SMTP_HOST:-}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER:-}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-}
+      - SMTP_FROM_EMAIL=${SMTP_FROM_EMAIL:-}
+      - CB_OAUTH_CLIENT_ID=${CB_OAUTH_CLIENT_ID:-}
+      - CB_OAUTH_CLIENT_SECRET=${CB_OAUTH_CLIENT_SECRET:-}
+      - CB_OAUTH_BASE_URL=${CB_OAUTH_BASE_URL:-https://beta.codebasics.io}
+    volumes:
+      - ./questions:/app/questions:ro
+      - backend-runs:/app/runs
+    depends_on:
+      judge0-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/api"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    <<: *default-logging
+    restart: unless-stopped
+
+  # ── Judge0 Server ─────────────────────────────────────────────────────────
+  judge0-server:
+    image: judge0/judge0-python-libs:local
+    build:
+      context: ./judge0
+      dockerfile: Dockerfile.python-libs
+    volumes:
+      - ./judge0/judge0.conf:/judge0.conf:ro
+    ports:
+      - "2358:2358"
+    privileged: true
+    depends_on:
+      judge0-db:
+        condition: service_healthy
+      judge0-redis:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:2358/languages"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+    <<: *default-logging
+    restart: unless-stopped
+
+  # ── Judge0 Worker ─────────────────────────────────────────────────────────
+  judge0-worker:
+    image: judge0/judge0-python-libs:local
+    build:
+      context: ./judge0
+      dockerfile: Dockerfile.python-libs
+    command: ["./scripts/workers"]
+    volumes:
+      - ./judge0/judge0.conf:/judge0.conf:ro
+    privileged: true
+    depends_on:
+      judge0-db:
+        condition: service_healthy
+      judge0-redis:
+        condition: service_started
+    <<: *default-logging
+    restart: unless-stopped
+
+  # ── Judge0 PostgreSQL ─────────────────────────────────────────────────────
+  judge0-db:
+    image: postgres:16.2
+    env_file: ./judge0/judge0.conf
+    volumes:
+      - judge0-postgres-data:/var/lib/postgresql/data/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U judge0 -d judge0"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    <<: *default-logging
+    restart: unless-stopped
+
+  # ── Judge0 Redis ──────────────────────────────────────────────────────────
+  judge0-redis:
+    image: redis:7.2.4
+    command:
+      [
+        "bash",
+        "-c",
+        'docker-entrypoint.sh --appendonly no --requirepass "$$REDIS_PASSWORD"',
+      ]
+    env_file: ./judge0/judge0.conf
+    <<: *default-logging
+    restart: unless-stopped
+
+volumes:
+  judge0-postgres-data:
+  backend-runs:

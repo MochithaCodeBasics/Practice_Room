@@ -8,43 +8,37 @@ A full-stack Python learning platform with an interactive code editor, progress 
 
 For a detailed guide, see [INSTRUCTION_GUIDE.md](./INSTRUCTION_GUIDE.md).
 
-### 1. Judge0 Setup (Code Execution)
+### Docker Setup (recommended)
 
 ```bash
-cd judge0
-docker-compose up -d
+# 1. Configure environment
+cp .env.docker.example .env.docker
+# Edit .env.docker with your database and auth credentials
+
+# 2. Set Judge0 passwords
+# Edit judge0/judge0.conf — set REDIS_PASSWORD and POSTGRES_PASSWORD
+
+# 3. Build and start everything
+docker compose --env-file .env.docker up --build
+
+# 4. Seed database (first run only)
+docker compose --env-file .env.docker exec backend npx prisma db seed
 ```
 
-### 2. Backend Setup (NestJS)
+### Local Development Setup
 
 ```bash
-cd backend
+# 1. Start Judge0
+cd judge0 && docker-compose up -d && cd ..
 
-npm install
-
-# Configure environment
-cp .env.example .env
-# Edit .env to match your local DB credentials
-
-# Run database migrations
-npx prisma migrate dev
-
-# Seed database with modules and questions
-npx prisma db seed
-
-# Start server (port 3001)
+# 2. Start Backend
+cd backend && npm install && cp .env.example .env
+# Edit backend/.env with your DB credentials
+npx prisma migrate dev && npx prisma db seed
 npm run start:dev
-```
 
-### 3. Frontend Setup (Next.js)
-
-```bash
-cd frontend
-
-npm install
-
-# Start dev server (port 3000)
-npm run dev
+# 3. Start Frontend (in a new terminal)
+cd frontend && npm install && npm run dev
 ```
 
 Visit **http://localhost:3000** to access the application.
@@ -59,6 +53,7 @@ Practice_Room/
 ├── backend/           # NestJS API (port 3001)
 ├── judge0/            # Judge0 code execution engine (port 2358)
 ├── questions/         # Question data, validators, and datasets
+├── docker-compose.yml # Docker orchestration for all services
 └── INSTRUCTION_GUIDE.md
 ```
 
@@ -66,14 +61,16 @@ Practice_Room/
 
 ## Configuration
 
+### Docker Setup
+All configuration is in `.env.docker` (copy from `.env.docker.example`). See [INSTRUCTION_GUIDE.md](./INSTRUCTION_GUIDE.md) for a full variable reference.
+
+### Local Setup
 The `backend/.env` file controls the backend configuration. Key variables:
 
 - **Database**: `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`
-- **Security**: `JWT_SECRET`
+- **Security**: `SECRET_KEY`
 - **Judge0**: `JUDGE0_API_URL` (default: `http://localhost:2358`)
 - **App**: `PORT` (default: `3001`)
-
-Ensure your **MariaDB** server is running before starting the backend.
 
 ---
 
