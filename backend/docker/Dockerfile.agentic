@@ -1,8 +1,0 @@
-# Agentic AI
-FROM practice-room-python:latest
-
-USER root
-COPY docker/requirements/agentic.txt /tmp/requirements.txt
-RUN pip install --no-cache-dir -r /tmp/requirements.txt
-
-USER runner

@@ -20,7 +20,7 @@ The backend handles API requests, authentication, and communication with the dat
 
 1.  **Navigate to the backend directory:**
     ```bash
-    cd backend-nest
+    cd backend
     ```
 
 2.  **Install dependencies:**

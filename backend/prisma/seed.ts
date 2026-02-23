@@ -142,7 +142,7 @@ async function seedModules() {
 async function seedQuestions() {
   console.log('Seeding questions...');
 
-  // Resolve paths: seed is run from backend-nest root via `npx prisma db seed`
+  // Resolve paths: seed is run from backend root via `npx prisma db seed`
   const projectRoot = process.cwd();
   const questionsDir = path.resolve(projectRoot, '..', 'questions');
   const csvPath = path.join(questionsDir, 'master_question_list.csv');

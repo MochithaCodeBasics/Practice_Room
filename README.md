@@ -1,18 +1,14 @@
 # Practice Room
 
-A full-stack Python learning platform with an interactive code editor, progress tracking, and admin question management. The platform leverages **NestJS** for a robust backend, **Next.js** for a dynamic frontend, and **Judge0** for secure, sandboxed code execution.
-
-This is a **Practice Zone** building project designed to help users master coding concepts through hands-on challenges.
+A full-stack Python learning platform with an interactive code editor, progress tracking, and admin question management. Built with **NestJS** (backend), **Next.js** (frontend), and **Judge0** (sandboxed code execution).
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
-Follow these simple instructions to get the project up and running. For a detailed guide, see [INSTRUCTION_GUIDE.md](./INSTRUCTION_GUIDE.md).
+For a detailed guide, see [INSTRUCTION_GUIDE.md](./INSTRUCTION_GUIDE.md).
 
 ### 1. Judge0 Setup (Code Execution)
-
-Start the code execution engine first using Docker.
 
 ```bash
 cd judge0
@@ -21,39 +17,33 @@ docker-compose up -d
 
 ### 2. Backend Setup (NestJS)
 
-Configure the backend, run migrations, and seed the database.
-
 ```bash
-cd backend-nest
+cd backend
 
-# Install dependencies
 npm install
 
-# Configure Environment
+# Configure environment
 cp .env.example .env
-# Edit .env to match your local DB credentials and settings
+# Edit .env to match your local DB credentials
 
-# Run Database Migrations
+# Run database migrations
 npx prisma migrate dev
 
-# Seed Database
+# Seed database with modules and questions
 npx prisma db seed
 
-# Start Backend Server (Runs on port 3001)
+# Start server (port 3001)
 npm run start:dev
 ```
 
 ### 3. Frontend Setup (Next.js)
 
-Start the user interface.
-
 ```bash
 cd frontend
 
-# Install dependencies
 npm install
 
-# Start Frontend Server (Runs on port 3000)
+# Start dev server (port 3000)
 npm run dev
 ```
 
@@ -61,9 +51,22 @@ Visit **http://localhost:3000** to access the application.
 
 ---
 
-## 🛠 Configuration details
+## Project Structure
 
-The `backend-nest/.env` file controls the backend configuration. Key variables include:
+```
+Practice_Room/
+├── frontend/          # Next.js app (port 3000)
+├── backend/           # NestJS API (port 3001)
+├── judge0/            # Judge0 code execution engine (port 2358)
+├── questions/         # Question data, validators, and datasets
+└── INSTRUCTION_GUIDE.md
+```
+
+---
+
+## Configuration
+
+The `backend/.env` file controls the backend configuration. Key variables:
 
 - **Database**: `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`
 - **Security**: `JWT_SECRET`
@@ -74,13 +77,15 @@ Ensure your **MariaDB** server is running before starting the backend.
 
 ---
 
-## 💡 Project Ideation
+## Key Features
 
-**Practice Room** allows learners to:
-- Solve coding problems in an interactive editor (Monaco Editor).
-- Get instant feedback via test case validation.
-- Track progress across different modules (e.g., Python, Data Science).
+**Learners:**
+- Solve coding problems in an interactive Monaco editor
+- **Run Code** to test solutions (no submission saved)
+- **Submit & Validate** to validate against test cases and track progress (requires authentication)
+- Track completion status and streaks across modules
 
-**Admins** can:
-- Manage questions and modules via a dedicated admin panel.
-- Update test cases and problem descriptions.
+**Admins:**
+- Manage questions and modules via a dedicated admin panel
+- Upload/edit problem descriptions, validators, and datasets
+- Verify questions after validation

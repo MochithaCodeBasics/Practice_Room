@@ -175,6 +175,10 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
 
   const handleValidate = async () => {
     if (!question) return;
+    if (!isAuthenticated) {
+      setShowAuthPopup(true);
+      return;
+    }
     setOutput((prev) => prev + "\n\n--- Validating ---\n");
     try {
       const result = await validateCode({ code, question_id: question.id, module_id: question.module_id });

@@ -95,7 +95,7 @@ export default function QuestionList({ moduleId, onSelectQuestion, filters, sear
             <Card
               key={q.id}
               onClick={() => onSelectQuestion(q.id)}
-              className="hover:shadow-md hover:shadow-indigo-500/5 hover:border-indigo-500/30 hover:scale-[1.005] transition-all duration-200 cursor-pointer relative group overflow-hidden border-l-4 border-l-transparent hover:border-l-indigo-600"
+              className={`hover:shadow-md hover:shadow-indigo-500/5 hover:border-indigo-500/30 hover:scale-[1.005] transition-all duration-200 cursor-pointer relative group overflow-hidden border-l-4 ${q.is_completed ? "border-l-emerald-500" : "border-l-transparent hover:border-l-indigo-600"}`}
             >
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between mb-1">
