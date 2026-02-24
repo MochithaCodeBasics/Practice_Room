@@ -57,4 +57,7 @@ export default () => ({
     pythonLanguageId: process.env.JUDGE0_PYTHON_LANGUAGE_ID || undefined,
   },
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
+  codebasics: {
+    oauthBaseUrl: (process.env.CB_OAUTH_BASE_URL || 'https://beta.codebasics.io').replace(/\/$/, ''),
+  },
 });

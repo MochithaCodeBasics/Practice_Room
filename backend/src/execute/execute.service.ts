@@ -1,15 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { spawn } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
-import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from '../prisma/prisma.service.js';
-import {
-  DockerExecutorService,
-  ExecutionResult,
-} from './docker-executor.service.js';
+import { ExecutionResult } from './docker-executor.service.js';
 import { Judge0Service } from './judge0.service.js';
 
 function toPositiveInt(value: string): number | null {
@@ -21,27 +16,16 @@ function toPositiveInt(value: string): number | null {
 @Injectable()
 export class ExecuteService {
   private readonly logger = new Logger(ExecuteService.name);
-  private useDocker: boolean;
   private useJudge0: boolean;
   private questionsDir: string;
-  private timeout: number;
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
-    private readonly dockerExecutor: DockerExecutorService,
     private readonly judge0Service: Judge0Service,
   ) {
-    this.useDocker = this.config.get<boolean>('docker.useDocker')!;
     this.useJudge0 = this.config.get<boolean>('judge0.enabled') ?? false;
     this.questionsDir = this.config.get<string>('questionsDir')!;
-    this.timeout = this.config.get<number>('docker.timeout')!;
-
-    if (this.useDocker && !this.dockerExecutor.isAvailable()) {
-      console.warn(
-        'Docker execution requested but Docker is not available. Falling back to local execution.',
-      );
-    }
   }
 
   async runCode(
@@ -73,65 +57,37 @@ export class ExecuteService {
     }
 
     const folderPath = this.ensureQuestionWorkspace(question);
-    const { imageName, envVars, networkEnabled, errorResult } =
-      await this.resolveExecutionConfig(moduleId, currentUser);
+    const { errorResult } = await this.resolveExecutionConfig(moduleId, currentUser);
     if (errorResult) return errorResult;
 
-    // Judge0 Execution
-    if (this.useJudge0 && this.judge0Service.isAvailable()) {
-      let finalCode = code;
-      const dataCsvPath = path.join(folderPath, 'data.csv');
+    if (!this.useJudge0 || !this.judge0Service.isAvailable()) {
+      return {
+        stdout: '',
+        stderr: 'Code execution is unavailable. Judge0 is not configured or unreachable.',
+        artifacts: [],
+        status: 'error',
+      };
+    }
 
-      // If data.csv exists, bundle it into the python script
-      if (fs.existsSync(dataCsvPath)) {
-        try {
-          // Escape triple quotes in CSV content to avoid syntax errors if any
-          const csvContent = fs.readFileSync(dataCsvPath, 'utf-8').replace(/'''/g, "\\'\\'\\'");
-          const setupCode = `
+    let finalCode = code;
+    const dataCsvPath = path.join(folderPath, 'data.csv');
+
+    if (fs.existsSync(dataCsvPath)) {
+      try {
+        const csvContent = fs.readFileSync(dataCsvPath, 'utf-8').replace(/'''/g, "\\'\\'\\'");
+        const setupCode = `
 import os
 if not os.path.exists('data.csv'):
     with open('data.csv', 'w') as f:
         f.write('''${csvContent}''')
 `;
-          finalCode = setupCode + '\n' + code;
-        } catch (e) {
-          console.error('Error bundling data.csv for Judge0:', e);
-        }
+        finalCode = setupCode + '\n' + code;
+      } catch (e) {
+        this.logger.error('Error bundling data.csv for Judge0:', e);
       }
-
-      const judge0Result = await this.judge0Service.runCode(finalCode);
-      if (!this.shouldFallbackFromJudge0(judge0Result)) {
-        return judge0Result;
-      }
-
-      this.logger.warn(
-        'Judge0 runtime environment error detected; falling back to Docker/local executor.',
-      );
     }
 
-    if (this.useDocker && this.dockerExecutor.isAvailable()) {
-      return this.dockerExecutor.runCode(
-        code,
-        folderPath,
-        imageName,
-        envVars,
-        networkEnabled,
-      );
-    }
-
-    return this.runLocal(code, folderPath, envVars, false);
-  }
-
-  private shouldFallbackFromJudge0(result: ExecutionResult): boolean {
-    if (result.status === 'success') return false;
-
-    const stderr = (result.stderr || '').toLowerCase();
-    return (
-      stderr.includes('rosetta error') ||
-      stderr.includes('caught fatal signal 5') ||
-      stderr.includes('/box/script.py') ||
-      stderr.includes('execution environment error')
-    );
+    return this.judge0Service.runCode(finalCode);
   }
 
   async validateCode(
@@ -163,21 +119,79 @@ if not os.path.exists('data.csv'):
     }
 
     const folderPath = this.ensureQuestionWorkspace(question);
-    const { imageName, envVars, networkEnabled, errorResult } =
-      await this.resolveExecutionConfig(moduleId, currentUser);
+    const { errorResult } = await this.resolveExecutionConfig(moduleId, currentUser);
     if (errorResult) return errorResult;
 
-    if (this.useDocker && this.dockerExecutor.isAvailable()) {
-      return this.dockerExecutor.validateCode(
-        code,
-        folderPath,
-        imageName,
-        envVars,
-        networkEnabled,
-      );
+    if (!this.useJudge0 || !this.judge0Service.isAvailable()) {
+      return {
+        stdout: '',
+        stderr: 'Code validation is unavailable. Judge0 is not configured or unreachable.',
+        artifacts: [],
+        status: 'error',
+      };
     }
 
-    return this.runLocal(code, folderPath, envVars, true);
+    const combinedScript = this.buildJudge0ValidateScript(code, folderPath);
+    return this.judge0Service.runCode(combinedScript);
+  }
+
+  /**
+   * Builds a self-contained Python script for Judge0 that simulates the
+   * local validation environment: embeds data.csv, user code, and validator.py
+   * as base64 strings and runs validator.validate(user_code_module).
+   */
+  private buildJudge0ValidateScript(userCode: string, questionFolderPath: string): string {
+    const validatorPath = path.join(questionFolderPath, 'validator.py');
+    const validatorCode = fs.existsSync(validatorPath)
+      ? fs.readFileSync(validatorPath, 'utf-8')
+      : 'def validate(user_code_module):\n    return "[FAIL] validator missing"';
+
+    const dataCsvPath = path.join(questionFolderPath, 'data.csv');
+    let csvContent: string | null = null;
+    if (fs.existsSync(dataCsvPath)) {
+      try {
+        csvContent = fs.readFileSync(dataCsvPath, 'utf-8');
+      } catch (e) {
+        this.logger.error('Error reading data.csv for Judge0 validation:', String(e));
+      }
+    }
+
+    const userCodeB64 = Buffer.from(userCode).toString('base64');
+    const validatorCodeB64 = Buffer.from(validatorCode).toString('base64');
+
+    const csvSetupBlock = csvContent
+      ? `
+try:
+    import io as _io, pandas as _pd, base64 as _b64, builtins as _builtins
+    _df = _pd.read_csv(_io.StringIO(_b64.b64decode('${Buffer.from(csvContent).toString('base64')}').decode('utf-8')))
+    _df.columns = _df.columns.str.lower().str.strip()
+    _builtins.data = _df
+    _builtins.df = _df
+except Exception:
+    pass
+`
+      : '';
+
+    return `import sys, types, builtins, warnings, base64
+warnings.simplefilter("ignore")
+${csvSetupBlock}
+_user_code = types.ModuleType("user_code")
+if hasattr(builtins, "data"):
+    _user_code.data = builtins.data
+    _user_code.df = builtins.df
+exec(base64.b64decode('${userCodeB64}').decode('utf-8'), _user_code.__dict__)
+sys.modules["user_code"] = _user_code
+
+_validator = types.ModuleType("validator")
+exec(base64.b64decode('${validatorCodeB64}').decode('utf-8'), _validator.__dict__)
+sys.modules["validator"] = _validator
+
+try:
+    result = _validator.validate(_user_code)
+    print(result)
+except Exception as e:
+    print(f"Validation Wrapper Error: {e}")
+`;
   }
 
   private async resolveExecutionConfig(
@@ -189,7 +203,7 @@ if not os.path.exists('data.csv'):
     networkEnabled: boolean;
     errorResult?: ExecutionResult;
   }> {
-    let imageName = 'practice-room-python:latest';
+    const imageName = 'practice-room-python:latest';
     const envVars: Record<string, string> = {};
 
     if (moduleId) {
@@ -207,10 +221,6 @@ if not os.path.exists('data.csv'):
           },
         };
       }
-      const mod = await this.prisma.module.findUnique({
-        where: { id: parsedModuleId },
-      });
-      // if (mod?.base_image) imageName = mod.base_image;
     }
 
     if (currentUser) {
@@ -302,197 +312,5 @@ if not os.path.exists('data.csv'):
     }
 
     return fallbackDir;
-  }
-
-  private runLocal(
-    code: string,
-    questionFolderPath: string,
-    envVars: Record<string, string>,
-    isValidation: boolean,
-  ): Promise<ExecutionResult> {
-    return new Promise((resolve) => {
-      const runId = uuidv4();
-      const runsDir = this.dockerExecutor.getRunsDir();
-      const workDir = path.join(runsDir, runId);
-      fs.mkdirSync(workDir, { recursive: true });
-
-      try {
-        // Write user code
-        fs.writeFileSync(path.join(workDir, 'user_code.py'), code, 'utf-8');
-
-        // Copy data files
-        if (fs.existsSync(questionFolderPath)) {
-          for (const f of fs.readdirSync(questionFolderPath)) {
-            if (
-              (f.endsWith('.csv') ||
-                f.endsWith('.txt') ||
-                f.endsWith('.json') ||
-                f.endsWith('.py')) &&
-              f !== 'master_question_list.csv'
-            ) {
-              fs.copyFileSync(
-                path.join(questionFolderPath, f),
-                path.join(workDir, f),
-              );
-            }
-          }
-        }
-
-        // Copy _env.py
-        const envFile = path.join(this.questionsDir, '_env.py');
-        if (fs.existsSync(envFile)) {
-          fs.copyFileSync(envFile, path.join(workDir, '_env.py'));
-        }
-
-        // Write driver
-        const driverFile = isValidation
-          ? 'validate_driver.py'
-          : 'main.py';
-        const driverCode = isValidation
-          ? `
-import sys, os, builtins, pandas as pd, warnings
-warnings.simplefilter("ignore")
-sys.path.append(os.getcwd())
-if os.path.exists("data.csv"):
-    try:
-        loaded_df = pd.read_csv("data.csv")
-        loaded_df.columns = loaded_df.columns.str.lower().str.strip()
-        builtins.data = loaded_df
-        builtins.df = loaded_df
-    except: pass
-try:
-    from _env import get_llm
-    builtins.get_llm = get_llm
-except: pass
-import validator, user_code
-try:
-    result = validator.validate(user_code)
-    print(result)
-except Exception as e:
-    print(f"Validation Wrapper Error: {e}")
-`
-          : `
-import sys, os, traceback, warnings
-warnings.simplefilter("ignore")
-sys.path.append(os.getcwd())
-
-try:
-    import matplotlib
-    matplotlib.use('Agg')
-    import matplotlib.pyplot as plt
-    HAS_MPL = True
-except ImportError:
-    HAS_MPL = False
-
-try:
-    import pandas as pd
-    HAS_PD = True
-except ImportError:
-    HAS_PD = False
-
-global_ns = {"__name__": "__main__", "__file__": "user_code.py"}
-try:
-    if HAS_PD and os.path.exists("data.csv"):
-        try:
-            loaded_df = pd.read_csv("data.csv")
-            loaded_df.columns = loaded_df.columns.str.lower().str.strip()
-            global_ns["data"] = loaded_df
-            global_ns["df"] = loaded_df
-        except: pass
-    try:
-        from _env import get_llm
-        import builtins
-        builtins.get_llm = get_llm
-        global_ns["get_llm"] = get_llm
-    except: pass
-    with open("user_code.py", "r", encoding="utf-8") as f:
-        user_source = f.read()
-    exec(user_source, global_ns)
-    if HAS_MPL:
-        fignums = plt.get_fignums()
-        if fignums:
-            for i, num in enumerate(fignums):
-                fig = plt.figure(num)
-                fname = "output.png" if len(fignums) == 1 else f"output_{i+1}.png"
-                fig.savefig(fname, bbox_inches='tight')
-                plt.close(fig)
-except Exception as e:
-    traceback.print_exc()
-`;
-        fs.writeFileSync(
-          path.join(workDir, driverFile),
-          driverCode,
-          'utf-8',
-        );
-
-        // Spawn Python process
-        const env = { ...process.env, PYTHONIOENCODING: 'utf-8', ...envVars };
-        const proc = spawn('python3', [driverFile], {
-          cwd: workDir,
-          env,
-          timeout: this.timeout * 1000,
-        });
-
-        let stdout = '';
-        let stderr = '';
-
-        proc.stdout.on('data', (data: Buffer) => {
-          stdout += data.toString('utf-8');
-        });
-        proc.stderr.on('data', (data: Buffer) => {
-          stderr += data.toString('utf-8');
-        });
-
-        proc.on('close', (exitCode: number | null) => {
-          // Collect artifacts
-          const artifacts: string[] = [];
-          if (fs.existsSync(workDir)) {
-            for (const f of fs.readdirSync(workDir)) {
-              if (f.startsWith('output') && f.endsWith('.png')) {
-                artifacts.push(f);
-              }
-            }
-            artifacts.sort();
-          }
-
-          // Truncate
-          const MAX = 50000;
-          if (stdout.length > MAX)
-            stdout =
-              stdout.substring(0, MAX) +
-              '\n... [Output truncated]';
-          if (stderr.length > MAX)
-            stderr =
-              stderr.substring(0, MAX) +
-              '\n... [Error output truncated]';
-
-          resolve({
-            stdout,
-            stderr,
-            artifacts,
-            status: exitCode === 0 ? 'success' : 'error',
-            run_id: runId,
-          });
-        });
-
-        proc.on('error', (err: Error) => {
-          resolve({
-            stdout: '',
-            stderr: `Execution failed: ${err.message}`,
-            artifacts: [],
-            status: 'error',
-            run_id: runId,
-          });
-        });
-      } catch (e: any) {
-        resolve({
-          stdout: '',
-          stderr: `Backend Execution Error: ${e.message}`,
-          artifacts: [],
-          status: 'error',
-          run_id: runId,
-        });
-      }
-    });
   }
 }

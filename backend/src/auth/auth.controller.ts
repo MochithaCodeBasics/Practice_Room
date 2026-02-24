@@ -23,13 +23,14 @@ import {
   PasswordResetVerifyDto,
 } from './dto/password-reset.dto.js';
 import { UserSettingsDto } from './dto/user-settings.dto.js';
+import { ChangePasswordDto } from './dto/change-password.dto.js';
 
 @Controller('api/v1/auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly emailService: EmailService,
-  ) {}
+  ) { }
 
   @Post('login')
   @Throttle({ default: { limit: 5, ttl: 60000 } })
@@ -97,6 +98,20 @@ export class AuthController {
     return this.authService.updateSettings(user.id, dto);
   }
 
+  @Put('change-password')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async changePassword(
+    @CurrentUser() user: any,
+    @Body() dto: ChangePasswordDto,
+  ) {
+    return this.authService.changePassword(
+      user.id,
+      dto.current_password,
+      dto.new_password,
+    );
+  }
+
   @Post('logout')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
@@ -120,7 +135,7 @@ export class AuthController {
     // Send welcome email in background (fire-and-forget)
     this.emailService
       .sendWelcomeEmail(dto.email, dto.username)
-      .catch(() => {});
+      .catch(() => { });
 
     return user;
   }
@@ -135,7 +150,7 @@ export class AuthController {
       // Send email in background
       this.emailService
         .sendPasswordResetEmail(dto.email, result.username, result.token)
-        .catch(() => {});
+        .catch(() => { });
     }
 
     // Always return success to prevent email enumeration

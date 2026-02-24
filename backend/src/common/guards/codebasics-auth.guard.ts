@@ -5,18 +5,28 @@ import {
   UnauthorizedException,
   Logger,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
+import { PrismaService } from '../../prisma/prisma.service.js';
 
-interface CachedUser {
-  data: Record<string, unknown>;
+interface CachedToken {
+  email: string;
+  cbId: string;
   expiresAt: number;
 }
 
-const TOKEN_CACHE = new Map<string, CachedUser>();
+const TOKEN_CACHE = new Map<string, CachedToken>();
 const CACHE_TTL_MS = 48 * 60 * 60 * 1000; // 48 hours
 
 @Injectable()
 export class CodebasicsAuthGuard implements CanActivate {
   private readonly logger = new Logger(CodebasicsAuthGuard.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly config: ConfigService,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
@@ -31,42 +41,67 @@ export class CodebasicsAuthGuard implements CanActivate {
       throw new UnauthorizedException('Authentication required');
     }
 
-    // Check cache first
+    let email: string;
+    let cbId: string;
+
+    // Check cache first (stores email + cbId, not raw external user data)
     const cached = TOKEN_CACHE.get(token);
     if (cached && cached.expiresAt > Date.now()) {
-      request.user = cached.data;
-      return true;
-    }
+      email = cached.email;
+      cbId = cached.cbId;
+    } else {
+      // Validate token against Codebasics API
+      try {
+        const baseUrl = this.config.get<string>('codebasics.oauthBaseUrl')!;
+        const response = await fetch(`${baseUrl}/api/user`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json',
+          },
+        });
 
-    // Validate token against Codebasics API
-    try {
-      const baseUrl = process.env.CB_OAUTH_BASE_URL?.replace(/\/$/, '') || 'https://codebasics.io';
-      const response = await fetch(`${baseUrl}/api/user`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
-        },
-      });
+        if (!response.ok) {
+          TOKEN_CACHE.delete(token);
+          throw new UnauthorizedException('Invalid or expired token');
+        }
 
-      if (!response.ok) {
-        TOKEN_CACHE.delete(token);
-        throw new UnauthorizedException('Invalid or expired token');
+        const userData = await response.json();
+        email = userData.email as string;
+        cbId = String(userData.id ?? '');
+
+        if (!email) {
+          throw new UnauthorizedException('Could not retrieve email from Codebasics API');
+        }
+
+        TOKEN_CACHE.set(token, { email, cbId, expiresAt: Date.now() + CACHE_TTL_MS });
+      } catch (error) {
+        if (error instanceof UnauthorizedException) throw error;
+        this.logger.error('Failed to validate token with Codebasics API', error);
+        throw new UnauthorizedException('Authentication failed');
       }
-
-      const userData = await response.json();
-
-      // Cache the validated user
-      TOKEN_CACHE.set(token, {
-        data: userData,
-        expiresAt: Date.now() + CACHE_TTL_MS,
-      });
-
-      request.user = userData;
-      return true;
-    } catch (error) {
-      if (error instanceof UnauthorizedException) throw error;
-      this.logger.error('Failed to validate token with Codebasics API', error);
-      throw new UnauthorizedException('Authentication failed');
     }
+
+    // Find or auto-provision a local record for this Codebasics account
+    let localUser = await this.prisma.user.findUnique({ where: { email } });
+
+    if (!localUser) {
+      // Derive a stable username from the Codebasics user ID
+      const username = (`cb_${cbId || email.split('@')[0]}`).substring(0, 50);
+      // Generate an unusable dummy password (Codebasics users authenticate via OAuth only)
+      const dummyHash = await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 4);
+
+      localUser = await this.prisma.user.upsert({
+        where: { email },
+        create: { username, email, hashed_password: dummyHash, role: 'learner' },
+        update: {},
+      });
+    }
+
+    if (localUser.disabled) {
+      throw new UnauthorizedException('Account is disabled');
+    }
+
+    request.user = localUser;
+    return true;
   }
 }

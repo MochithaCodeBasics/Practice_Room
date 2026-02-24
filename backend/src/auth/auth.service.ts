@@ -19,7 +19,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly config: ConfigService,
     private readonly progressService: ProgressService,
-  ) {}
+  ) { }
 
   async validateUser(usernameOrEmail: string, password: string) {
     const user = await this.prisma.user.findFirst({
@@ -253,6 +253,57 @@ export class AuthService {
     ]);
 
     return true;
+  }
+
+  async changePassword(
+    userId: number,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<{ message: string }> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    // Verify current password
+    const isCurrentValid = await bcrypt.compare(
+      currentPassword,
+      user.hashed_password,
+    );
+    if (!isCurrentValid) {
+      throw new HttpException(
+        'Current password is incorrect',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    // Password strength validation
+    if (newPassword.length < 8) {
+      throw new HttpException(
+        'New password must be at least 8 characters long',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    // Prevent reusing the same password
+    const isSamePassword = await bcrypt.compare(
+      newPassword,
+      user.hashed_password,
+    );
+    if (isSamePassword) {
+      throw new HttpException(
+        'New password must be different from current password',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { hashed_password: hashedPassword },
+    });
+
+    return { message: 'Password changed successfully' };
   }
 
   sanitizeUser(user: any) {
