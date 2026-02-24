@@ -35,55 +35,72 @@ export class Judge0Service {
         try {
             const resolvedLanguageId = languageId ?? await this.getPythonLanguageId();
 
-            // Prepare submission payload
-            // base64 encoding is recommended for source_code and stdin/stdout
             const payload = {
                 source_code: Buffer.from(code).toString('base64'),
                 language_id: resolvedLanguageId,
                 stdin: stdin ? Buffer.from(stdin).toString('base64') : undefined,
-                wait: true, // Wait for the result
             };
 
-            const headers: any = {
-                'Content-Type': 'application/json',
-            };
-
+            const headers: Record<string, string> = { 'Content-Type': 'application/json' };
             if (this.apiKey) {
                 headers['X-Auth-Token'] = this.apiKey;
             }
 
-            this.logger.log(`Submitting code to Judge0 at ${this.apiUrl}/submissions?base64_encoded=true&wait=true`);
-
-            const response = await lastValueFrom(
+            // Step 1: Submit asynchronously (no wait=true — avoids ECONNRESET on long-running submissions)
+            this.logger.log(`Submitting code to Judge0 at ${this.apiUrl}/submissions`);
+            const submitResponse = await lastValueFrom(
                 this.httpService.post(
-                    `${this.apiUrl}/submissions?base64_encoded=true&wait=true`,
+                    `${this.apiUrl}/submissions?base64_encoded=true`,
                     payload,
-                    { headers }
+                    { headers },
                 )
             );
 
-            const result = response.data;
+            const token: string = submitResponse.data?.token;
+            if (!token) {
+                throw new Error('Judge0 did not return a submission token');
+            }
 
-            // Decode output
-            const stdout = result.stdout ? Buffer.from(result.stdout, 'base64').toString('utf-8') : '';
-            const stderr = result.stderr ? Buffer.from(result.stderr, 'base64').toString('utf-8') : '';
-            const compileOutput = result.compile_output ? Buffer.from(result.compile_output, 'base64').toString('utf-8') : '';
-            const message = result.message ? Buffer.from(result.message, 'base64').toString('utf-8') : '';
+            // Step 2: Poll until status.id >= 3 (finished)
+            const POLL_INTERVAL_MS = 500;
+            const MAX_WAIT_MS = 30_000;
+            const deadline = Date.now() + MAX_WAIT_MS;
 
-            const finalStderr = [stderr, compileOutput, message].filter(Boolean).join('\n');
+            while (Date.now() < deadline) {
+                await new Promise(resolve => setTimeout(resolve, POLL_INTERVAL_MS));
 
-            // Status ID 3 means "Accepted"
-            const status = result.status?.id === 3 ? 'success' : 'error';
+                const pollResponse = await lastValueFrom(
+                    this.httpService.get(
+                        `${this.apiUrl}/submissions/${token}?base64_encoded=true`,
+                        { headers },
+                    )
+                );
 
-            // If there's a runtime error (status.id != 3), we treat it as an error
-            // Note: stdout might still have some output even on error
+                const result = pollResponse.data;
+                const statusId: number = result.status?.id ?? 0;
+
+                // 1 = In Queue, 2 = Processing — keep waiting
+                if (statusId <= 2) continue;
+
+                // Finished — decode and return
+                const stdout = result.stdout ? Buffer.from(result.stdout, 'base64').toString('utf-8') : '';
+                const stderr = result.stderr ? Buffer.from(result.stderr, 'base64').toString('utf-8') : '';
+                const compileOutput = result.compile_output ? Buffer.from(result.compile_output, 'base64').toString('utf-8') : '';
+                const message = result.message ? Buffer.from(result.message, 'base64').toString('utf-8') : '';
+
+                const finalStderr = [stderr, compileOutput, message].filter(Boolean).join('\n');
+
+                // Status ID 3 = Accepted (success), anything else = error
+                const status = statusId === 3 ? 'success' : 'error';
+
+                return { stdout, stderr: finalStderr, artifacts: [], status, run_id: token };
+            }
 
             return {
-                stdout,
-                stderr: finalStderr,
-                artifacts: [], // Judge0 doesn't support file artifacts in the basic version easily
-                status,
-                run_id: result.token,
+                stdout: '',
+                stderr: 'Execution timed out waiting for Judge0 result (30s)',
+                artifacts: [],
+                status: 'error',
             };
 
         } catch (error: any) {

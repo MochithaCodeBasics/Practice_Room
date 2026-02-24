@@ -9,7 +9,7 @@ import { HttpModule } from '@nestjs/axios';
 import { CodebasicsAuthGuard } from '../common/guards/codebasics-auth.guard.js';
 
 @Module({
-  imports: [ProgressModule, PrismaModule, HttpModule],
+  imports: [ProgressModule, PrismaModule, HttpModule.register({ timeout: 10_000 })],
   controllers: [ExecuteController],
   providers: [ExecuteService, DockerExecutorService, Judge0Service, CodebasicsAuthGuard],
   exports: [ExecuteService],

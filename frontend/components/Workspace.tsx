@@ -140,6 +140,7 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
       return;
     }
     setOutput("Running code...");
+    setSavedArtifacts([]);
     try {
       const result = await runCode({ code, question_id: question.id, module_id: question.module_id });
       setRunResult(result);
@@ -179,12 +180,13 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
       setShowAuthPopup(true);
       return;
     }
-    setOutput((prev) => prev + "\n\n--- Validating ---\n");
+    setOutput("Validating...");
+    setSavedArtifacts([]);
     try {
       const result = await validateCode({ code, question_id: question.id, module_id: question.module_id });
       setRunResult(result);
       const text = (result.stdout || "") + (result.stderr ? "\nVALIDATION ERROR:\n" + result.stderr : "");
-      setOutput((prev) => prev + `\nValidation Result:\n${text}`);
+      setOutput(`Validation Result:\n${text}`);
       if (result.artifacts && result.artifacts.length > 0) {
         setSavedArtifacts(result.artifacts.map((a) => ({ runId: result.run_id || "", filename: a })));
       }
@@ -198,7 +200,7 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
       }
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Unknown error";
-      setOutput((prev) => prev + `\nError during validation: ${message}`);
+      setOutput(`Error during validation: ${message}`);
     }
   };
 

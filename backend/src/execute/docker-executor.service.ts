@@ -168,6 +168,101 @@ export class DockerExecutorService implements OnModuleInit {
     );
   }
 
+  /**
+   * Runs a self-contained Python script directly in a Docker container.
+   * No driver scripts, no question folder — the code must be fully prepared
+   * (e.g. via buildRunScript in ExecuteService).
+   */
+  async runScript(code: string, imageName: string): Promise<ExecutionResult> {
+    if (!this.docker) {
+      return {
+        stdout: '',
+        stderr: 'Docker is not available. Code execution disabled.',
+        artifacts: [],
+        status: 'error',
+      };
+    }
+
+    const runId = uuidv4();
+    const workDir = path.join(this.runsDir, runId);
+    fs.mkdirSync(workDir, { recursive: true });
+
+    try {
+      fs.writeFileSync(path.join(workDir, 'script.py'), code, 'utf-8');
+
+      const memBytes = this.parseMemoryLimit(this.memoryLimit);
+
+      const container = await this.docker.createContainer({
+        Image: imageName,
+        Cmd: ['python', '-W', 'ignore', 'script.py'],
+        Env: ['PYTHONWARNINGS=ignore', 'PYTHONIOENCODING=utf-8'],
+        HostConfig: {
+          Binds: [`${workDir}:/workspace:rw`],
+          Memory: memBytes,
+          MemorySwap: memBytes,
+          CpuPeriod: 100000,
+          CpuQuota: 50000,
+          NetworkMode: 'none',
+        },
+        WorkingDir: '/workspace',
+        User: 'runner',
+      });
+
+      await container.start();
+
+      let exitCode = 1;
+      try {
+        const waitResult = await Promise.race([
+          container.wait(),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('timeout')), this.timeout * 1000),
+          ),
+        ]);
+        exitCode = (waitResult as any).StatusCode ?? 1;
+      } catch {
+        try { await container.kill(); } catch {}
+        return {
+          stdout: '',
+          stderr: `Execution timed out after ${this.timeout} seconds`,
+          artifacts: [],
+          status: 'error',
+          run_id: runId,
+        };
+      }
+
+      const stdoutBuf = await container.logs({ stdout: true, stderr: false });
+      const stderrBuf = await container.logs({ stdout: false, stderr: true });
+
+      let stdout = this.stripDockerHeaders(stdoutBuf);
+      let stderr = this.stripDockerHeaders(stderrBuf);
+
+      try { await container.remove({ force: true }); } catch {}
+
+      const MAX = 50000;
+      if (stdout.length > MAX) stdout = stdout.substring(0, MAX) + '\n... [Output truncated]';
+      if (stderr.length > MAX) stderr = stderr.substring(0, MAX) + '\n... [Error truncated]';
+
+      return { stdout, stderr, artifacts: [], status: exitCode === 0 ? 'success' : 'error', run_id: runId };
+    } catch (e: any) {
+      if (e.statusCode === 404) {
+        return {
+          stdout: '',
+          stderr: `Docker image not found: ${imageName}. Build it with: docker build -t ${imageName} -f backend/Dockerfile.python-executor backend/`,
+          artifacts: [],
+          status: 'error',
+          run_id: runId,
+        };
+      }
+      return {
+        stdout: '',
+        stderr: `Docker execution error: ${e.message}`,
+        artifacts: [],
+        status: 'error',
+        run_id: runId,
+      };
+    }
+  }
+
   async validateCode(
     code: string,
     questionFolderPath: string,
