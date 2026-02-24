@@ -1,7 +1,9 @@
 description = """
-A retail bank wants to quickly understand relationships between customer age, income, credit score, and monthly spend before building risk models.
+A retail bank wants to quickly understand relationships between customer age, income, 
+credit score, and monthly spend before building risk models.
 
-You are given a pandas DataFrame containing numeric columns: `age`, `annual_income`, `credit_score`, `monthly_spend`, and a categorical column `city_tier`.
+You are given a pandas DataFrame containing numeric columns:
+`age`, `annual_income`, `credit_score`, `monthly_spend`, and a categorical column `city_tier`.
 
 ### Task
 Implement a function:
@@ -19,16 +21,13 @@ create_pairplot(df, cols, hue=None) -> matplotlib.figure.Figure
 - A matplotlib Figure object from the seaborn pairplot
 """
 
-hint = """
-- `sns.pairplot()` returns a PairGrid; access the figure via `.fig` attribute
-"""
-
+hint = """- `sns.pairplot()` returns a PairGrid; access the figure via `.fig` attribute"""
 
 initial_sample_code = """import seaborn as sns
 import matplotlib.pyplot as plt
 
 def create_pairplot(df, cols, hue=None):
-    \"\"\"
+    '''
     Create a pairplot visualization for the specified columns.
 
     Parameters:
@@ -38,7 +37,7 @@ def create_pairplot(df, cols, hue=None):
 
     Returns:
         matplotlib.figure.Figure object
-    \"\"\"
+    '''
     # Your code here
     pass
 
@@ -46,17 +45,4 @@ def create_pairplot(df, cols, hue=None):
 # Uncomment below to see the output
 # ==========================================================
 #if __name__ == "__main__":
-#     result = create_pairplot(data, ['age', 'annual_income', 'credit_score', 'monthly_spend'], hue='city_tier')
-
-"""
-
-
-def get_description():
-    return description
-
-def get_hint():
-    return hint
-
-def get_initial_sample_code():
-    return initial_sample_code
-
+#     result = create_pairplot(data, ['age', 'annual_income', 'credit_score', 'monthly_spend'], hue='city_tier')"""

@@ -1,4 +1,4 @@
-description = """
+description = """### Task
 A retail company wants to understand its monthly revenue trends to track business performance over time.
 
 You are provided with a pandas DataFrame named `data` containing order transactions.
@@ -38,13 +38,19 @@ Output DataFrame:
 | 2024-01 | 10000.0 | NaN            |
 | 2024-02 | 12000.0 | 20.0           |
 | 2024-03 | 15000.0 | 25.0           |
+
+### Expected Outputs (script-style)
+- `monthly_revenue`: pandas DataFrame with columns `month`, `revenue`, `mom_growth_pct`
+- `plot`: matplotlib Axes containing the line chart
+- `result`: matplotlib Figure object (for display)
+
+### Return
+The function should return the result as specified in the task.
+
 """
 
-hint = """
-- Use `.pct_change()` for growth calculation.
-- The first month will have NaN for mom_growth_pct.
-"""
-
+hint = """- Use `.pct_change()` for growth calculation.
+- The first month will have NaN for mom_growth_pct."""
 
 initial_sample_code = """import pandas as pd
 import matplotlib.pyplot as plt
@@ -63,15 +69,4 @@ plot.set_title("Monthly Revenue Trend")
 plt.tight_layout()
 
 # Assign fig to result to display the graph
-result = fig
-"""
-
-
-def get_description():
-    return description
-
-def get_hint():
-    return hint
-
-def get_initial_sample_code():
-    return initial_sample_code
+result = fig"""

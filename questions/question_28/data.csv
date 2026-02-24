@@ -1,0 +1,51 @@
+text,category
+"I was charged twice for my subscription last month. Please refund the extra amount.",Billing
+"My account password reset is not working. I'm not receiving the email.",Account
+"The app keeps crashing when I try to upload files larger than 10MB.",Technical
+"Can you update my billing address? I moved to a new location.",Billing
+"How do I change my username? The settings page doesn't have that option.",Account
+"Getting error 500 when trying to access the dashboard since yesterday.",Technical
+"I need an invoice for my last 3 months of payments for tax purposes.",Billing
+"I accidentally deleted my account. Is there any way to recover it?",Account
+"The search feature is extremely slow and sometimes returns no results.",Technical
+"Please cancel my subscription. I no longer need the service.",Billing
+"How do I enable two-factor authentication for my account?",Account
+"Integration with Slack is not working. Notifications are not being sent.",Technical
+"I was promised a discount but charged full price. Please check.",Billing
+"I want to merge my two accounts into one. How can I do this?",Account
+"The export to PDF feature generates corrupted files.",Technical
+"My credit card was declined but the card is valid. Please help.",Billing
+"I need to update my email address associated with this account.",Account
+"API rate limiting is too aggressive. We need higher limits for our use case.",Technical
+"Can I get a refund for the unused portion of my annual subscription?",Billing
+"My profile picture is not uploading. It shows an error every time.",Account
+"The mobile app is not syncing with the web version.",Technical
+"I have a coupon code but it's not being accepted at checkout.",Billing
+"I forgot the answer to my security question. How do I reset it?",Account
+"The real-time collaboration feature has significant lag.",Technical
+"When is my next billing date? I can't find it in my account.",Billing
+"I want to delete all my data permanently. How do I request this?",Account
+"The dark mode theme has contrast issues making text hard to read.",Technical
+"My team member was charged individually but we have a team plan.",Billing
+"I can't log in using SSO. It redirects me to an error page.",Account
+"Video playback in the app stutters and freezes frequently.",Technical
+"Please provide a detailed breakdown of my billing history.",Billing
+"How do I transfer ownership of my account to someone else?",Account
+"The notification sounds are not playing on the desktop app.",Technical
+"I upgraded my plan but still see the old features only.",Billing
+"My account shows as inactive but I never deactivated it.",Account
+"The calendar integration is showing events in the wrong timezone.",Technical
+"Is there a student discount available for the premium plan?",Billing
+"I can't access my account from a new device. It asks for verification.",Account
+"The report generation feature times out for large datasets.",Technical
+"I need a pro-rated invoice for the plan change I made mid-cycle.",Billing
+"My display name is showing special characters incorrectly.",Account
+"The file preview is not working for certain document types.",Technical
+"Can I switch from monthly to annual billing to save money?",Billing
+"I want to add a team member but the invite email is not being received.",Account
+"The web app is not loading properly in Safari browser.",Technical
+"I disputed a charge with my bank. Please don't suspend my account.",Billing
+"How do I set up account recovery options?",Account
+"The auto-save feature is not working. I lost my work.",Technical
+"My enterprise invoice is missing the PO number we provided.",Billing
+"I need to change the primary admin of our organization account.",Account

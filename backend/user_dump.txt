@@ -1,0 +1,6 @@
+Settings Admin Username: admin
+Total users: 3
+
+ID: 1, Username: admin, Role: admin, Email: admin@example.com
+ID: 3, Username: Mochitha, Role: learner, Email: 02mochitha@gmail.com
+ID: 4, Username: Emil Aibak, Role: learner, Email: 13emilaibak@gmail.com

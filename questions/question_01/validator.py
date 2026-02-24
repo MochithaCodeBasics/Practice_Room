@@ -15,13 +15,13 @@ def validate(user_module) -> str:
     try:
         # Check if function exists
         if not hasattr(user_module, "create_pairplot"):
-            return "[FAIL] Function `create_pairplot` is not defined."
+            return "❌ Function `create_pairplot` is not defined."
 
         func = user_module.create_pairplot
 
         # Check if it's callable
         if not callable(func):
-            return "[FAIL] `create_pairplot` is not callable."
+            return "❌ `create_pairplot` is not callable."
 
         # Create test DataFrame
         np.random.seed(42)
@@ -41,26 +41,26 @@ def validate(user_module) -> str:
         try:
             from matplotlib.figure import Figure
             if not isinstance(result, Figure):
-                return f"[FAIL] Expected matplotlib Figure, got {type(result).__name__}"
+                return f"❌ Expected matplotlib Figure, got {type(result).__name__}"
         except ImportError:
-            return "[INFO] matplotlib is required for this question."
+            return "⚠️ matplotlib is required for this question."
 
         # Check if figure has axes (confirming pairplot was created)
         if not hasattr(result, 'axes') or len(result.axes) == 0:
-            return "[FAIL] Figure has no axes. Pairplot may not have been created correctly."
+            return "❌ Figure has no axes. Pairplot may not have been created correctly."
 
         # For a pairplot with n variables, we expect at least n*n subplots
         # Note: seaborn may add extra axes for legends/colorbar, so we check for >= 
         expected_axes = len(cols) * len(cols)
         actual_axes = len(result.axes)
         if actual_axes < expected_axes:
-            return f"[FAIL] Expected at least {expected_axes} subplots for {len(cols)} columns, got {actual_axes}."
+            return f"❌ Expected at least {expected_axes} subplots for {len(cols)} columns, got {actual_axes}."
 
         # Test Case 2: Pairplot with hue
         result_with_hue = func(test_df, ['age', 'annual_income'], hue='city_tier')
 
         if not isinstance(result_with_hue, Figure):
-            return f"[FAIL] With hue parameter: Expected matplotlib Figure, got {type(result_with_hue).__name__}"
+            return f"❌ With hue parameter: Expected matplotlib Figure, got {type(result_with_hue).__name__}"
 
         # Test Case 3: DataFrame with missing values
         test_df_with_nan = test_df.copy()
@@ -70,13 +70,50 @@ def validate(user_module) -> str:
         result_with_nan = func(test_df_with_nan, ['age', 'annual_income'])
         
         if not isinstance(result_with_nan, Figure):
-            return "[FAIL] Function should handle missing values and still return a Figure."
+            return "❌ Function should handle missing values and still return a Figure."
 
         # Close all figures to prevent memory leaks
         import matplotlib.pyplot as plt
         plt.close('all')
 
-        return "[PASS] Correct! Pairplot function works as expected."
+        # -------------------------------------------------
+        # Hidden Test Case 4: Only 2 columns (smaller grid)
+        # -------------------------------------------------
+        result_two_cols = func(test_df, ['monthly_spend', 'credit_score'])
+
+        if not isinstance(result_two_cols, Figure):
+            return f"❌ Hidden test: Expected matplotlib Figure for 2 columns, got {type(result_two_cols).__name__}"
+
+        expected_axes_2 = 2 * 2
+        actual_axes_2 = len(result_two_cols.axes)
+        if actual_axes_2 < expected_axes_2:
+            return f"❌ Hidden test: Expected at least {expected_axes_2} subplots for 2 columns, got {actual_axes_2}."
+
+        plt.close('all')
+
+        # -------------------------------------------------
+        # Hidden Test Case 5: Completely different DataFrame
+        # -------------------------------------------------
+        hidden_df = pd.DataFrame({
+            'height': [160, 170, 175, 180, 165, 172],
+            'weight': [55, 70, 78, 85, 60, 68],
+            'bmi': [21.5, 24.2, 25.5, 26.2, 22.0, 23.0],
+            'group': ['A', 'B', 'A', 'B', 'A', 'B']
+        })
+
+        result_hidden = func(hidden_df, ['height', 'weight', 'bmi'], hue='group')
+
+        if not isinstance(result_hidden, Figure):
+            return f"❌ Hidden test: Expected matplotlib Figure for new DataFrame, got {type(result_hidden).__name__}"
+
+        expected_axes_h = 3 * 3
+        actual_axes_h = len(result_hidden.axes)
+        if actual_axes_h < expected_axes_h:
+            return f"❌ Hidden test: Expected at least {expected_axes_h} subplots for 3 columns, got {actual_axes_h}."
+
+        plt.close('all')
+
+        return "✅ Correct! All test cases passed successfully."
 
     except Exception as e:
-        return f"[ERROR] Validation error: {str(e)}"
+        return f"⚠️ Validation error: {str(e)}"

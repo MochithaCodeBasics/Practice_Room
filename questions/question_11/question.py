@@ -1,4 +1,4 @@
-description = """
+description = """### Task
 A food delivery platform needs an API endpoint to calculate the final payable amount for a customer's order.
 
 Each order contains multiple food items. The platform may optionally apply a service charge, 
@@ -60,13 +60,19 @@ Response:
   "total": 29.29
 }
 ```
+
+### API Contract
+- FastAPI app instance named `app`
+- POST endpoint at `/order/total`
+- Pydantic models `OrderItem` and `OrderRequest`
+
+### Return
+The function should return the result as specified in the task.
+
 """
 
-hint = """
-- Define Pydantic models before the endpoint.
-- Final total = subtotal + service_charge - discount_amount
-"""
-
+hint = """- Define Pydantic models before the endpoint.
+- Final total = subtotal + service_charge - discount_amount"""
 
 initial_sample_code = """from fastapi import FastAPI
 from pydantic import BaseModel
@@ -92,16 +98,4 @@ app = FastAPI()
 #     }
 #     
 #     response = client.post("/order/total", json=request)
-#     print(f"Response: {response.json()}")
-
-"""
-
-
-def get_description():
-    return description
-
-def get_hint():
-    return hint
-
-def get_initial_sample_code():
-    return initial_sample_code
+#     print(f"Response: {response.json()}")"""

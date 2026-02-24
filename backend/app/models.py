@@ -2,8 +2,7 @@ from sqlmodel import SQLModel, Field
 from typing import List, Optional
 from datetime import datetime
 from pydantic import BaseModel
-from sqlalchemy import UniqueConstraint, Column, String, Integer, DateTime, Boolean, ForeignKey
-from sqlalchemy.orm import Relationship
+from sqlalchemy import UniqueConstraint
 
 # --- BASE MODELS (Reusable fields, no DB table) ---
 
@@ -102,17 +101,6 @@ class UserSettingsUpdate(BaseModel):
     anthropic_api_key: Optional[str] = None
     default_llm_provider: Optional[str] = None
 
-class UserInDB(BaseModel):
-    id: Optional[int] = None
-    username: str
-    email: str
-    hashed_password: str
-    role: str
-    disabled: bool = False
-    current_streak: int = 0
-    last_completed_at: Optional[datetime] = None
-    created_at: datetime
-
 # --- API MODELS (Pure Pydantic for JSON transfer, NOT SQLModel) ---
 
 class QuestionRead(QuestionBase):
@@ -149,6 +137,7 @@ class ExecutionRequest(BaseModel):
 class ExecutionResult(BaseModel):
     stdout: str
     stderr: str
+    validation_output: Optional[str] = None
     artifacts: List[str] = []
     status: str
     run_id: Optional[str] = None

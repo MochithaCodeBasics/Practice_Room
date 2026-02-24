@@ -7,7 +7,8 @@ from sklearn.metrics import r2_score, mean_squared_error
 import os
 import sys
 
-from validator_utils import (
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+from _validator_utils import (
     check_result_structure,
     extract_metrics,
     check_metric_threshold,

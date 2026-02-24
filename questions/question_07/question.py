@@ -1,4 +1,4 @@
-description = """
+description = """### Task
 A retail company stores daily transaction data in a text file. Each line in the file
 represents a single transaction containing the product name and the sale amount.
 
@@ -12,7 +12,7 @@ Each line in the file follows the format:
 Your task is to read the file and generate a sales summary using a dictionary.
 
 ### Requirements
-- Define a function named `generate_sales_summary(file_path)`
+- Define a function named `generate_sales_summary`
 - Open and read the file at `file_path`
 - Use a dictionary where:
   - key   -> product name (string)
@@ -30,16 +30,22 @@ Apple,2.25
 
 Output:
 {"Apple": 12.25, "Banana": 5.5}
+
+### Function Signature
+```python
+def generate_sales_summary(file_path):
+```
+
+### Return
+The function should return the result as specified in the task.
+
 """
 
-hint = """
-Focus on reading the file line by line and splitting each line by a comma.
+hint = """Focus on reading the file line by line and splitting each line by a comma.
 Use a dictionary to accumulate totals per product.
-Remember to convert amounts to float and round totals at the end.
-"""
+Remember to convert amounts to float and round totals at the end."""
 
-initial_sample_code = """
-# Create a function named:
+initial_sample_code = """# Create a function named:
 # generate_sales_summary
 
 # The function should return a dictionary with product names as keys and total sales as values
@@ -50,15 +56,4 @@ initial_sample_code = """
 # ============================================================
 # if __name__ == "__main__":
 #     result = generate_sales_summary("sales.txt")
-#     print(result)
-"""
-
-def get_description():
-    return description
-
-def get_hint():
-    return hint
-
-def get_initial_sample_code():
-    return initial_sample_code
-
+#     print(result)"""

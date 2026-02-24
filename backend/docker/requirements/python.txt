@@ -13,3 +13,6 @@ python-dateutil>=2.8.2
 pytz>=2024.1
 streamlit-javascript>=0.1.5
 fpdf2>=2.7.0
+fastapi>=0.100.0
+uvicorn>=0.23.0
+httpx>=0.24.0

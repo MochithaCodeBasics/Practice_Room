@@ -1,0 +1,1201 @@
+tenure,monthly_charges,total_charges,contract_type,payment_method,internet_service,churn
+48,105.0,5195.75,Month-to-Month,Credit Card,No,1
+57,39.62,2251.79,Two Year,UPI AutoPay,Fiber Optic,0
+18,32.55,605.5,One Year,Debit Card,Fiber Optic,0
+45,116.35,5327.61,One Year,Credit Card,DSL,0
+41,30.8,1310.37,Month-to-Month,Debit Card,DSL,0
+60,67.85,3880.28,Month-to-Month,Credit Card,Fiber Optic,0
+65,78.56,5020.13,Month-to-Month,Electronic Check,Fiber Optic,0
+1,74.14,231.07,Two Year,Debit Card,DSL,1
+48,28.6,1384.21,One Year,Debit Card,DSL,0
+4,25.7,67.92,One Year,UPI AutoPay,DSL,0
+39,30.55,1085.13,Month-to-Month,Debit Card,Fiber Optic,1
+21,78.56,1574.91,Two Year,Debit Card,Fiber Optic,0
+22,74.43,1493.52,Two Year,Electronic Check,DSL,0
+26,43.37,1120.2,Month-to-Month,Debit Card,DSL,1
+45,83.78,3719.5,Month-to-Month,Electronic Check,DSL,0
+24,102.01,2424.7,Month-to-Month,Electronic Check,No,1
+53,24.16,1274.08,Month-to-Month,Electronic Check,DSL,0
+29,69.81,2111.34,Month-to-Month,Electronic Check,Fiber Optic,1
+5,88.93,729.84,Month-to-Month,Credit Card,Fiber Optic,0
+56,45.23,2411.02,Month-to-Month,UPI AutoPay,Fiber Optic,0
+21,50.78,1196.92,One Year,Credit Card,DSL,0
+31,81.36,2678.69,Month-to-Month,Debit Card,DSL,0
+49,109.79,5375.15,Month-to-Month,Credit Card,Fiber Optic,0
+24,100.99,2505.18,Month-to-Month,Credit Card,Fiber Optic,0
+5,78.31,347.18,Month-to-Month,Debit Card,Fiber Optic,0
+27,93.02,2581.18,One Year,Debit Card,Fiber Optic,0
+68,56.48,3994.86,Month-to-Month,Debit Card,DSL,0
+46,84.1,3976.36,Month-to-Month,Credit Card,No,0
+48,66.62,3293.5,One Year,Credit Card,Fiber Optic,0
+45,38.99,1746.47,Month-to-Month,Debit Card,DSL,1
+15,90.17,1215.78,One Year,UPI AutoPay,No,0
+30,75.65,2301.63,Month-to-Month,UPI AutoPay,Fiber Optic,1
+54,55.86,3154.91,Month-to-Month,Electronic Check,Fiber Optic,0
+8,111.13,758.3,Two Year,Debit Card,Fiber Optic,0
+20,22.09,352.43,Two Year,Electronic Check,No,0
+20,51.58,1076.08,Two Year,UPI AutoPay,Fiber Optic,0
+31,25.69,715.16,Month-to-Month,Electronic Check,DSL,1
+70,96.65,6745.03,Month-to-Month,Debit Card,DSL,0
+5,90.21,480.2,One Year,Debit Card,No,0
+37,53.14,1873.43,Month-to-Month,Debit Card,DSL,0
+13,87.57,1105.3,Month-to-Month,Credit Card,Fiber Optic,0
+69,59.59,4237.02,Month-to-Month,Electronic Check,Fiber Optic,0
+9,95.63,734.15,Month-to-Month,UPI AutoPay,Fiber Optic,0
+29,65.42,1780.24,Two Year,UPI AutoPay,Fiber Optic,0
+53,61.23,3205.95,Month-to-Month,UPI AutoPay,No,1
+51,113.47,5862.97,One Year,Credit Card,DSL,0
+31,45.09,1378.65,Month-to-Month,Credit Card,DSL,0
+25,32.04,773.99,Month-to-Month,Debit Card,DSL,0
+29,78.45,2297.69,Month-to-Month,UPI AutoPay,No,0
+19,116.93,2136.43,Month-to-Month,Credit Card,Fiber Optic,1
+15,57.78,949.67,Two Year,Debit Card,DSL,0
+35,26.2,963.22,One Year,UPI AutoPay,No,0
+20,53.93,1041.23,Two Year,Electronic Check,No,0
+21,70.59,1611.98,Two Year,Debit Card,No,0
+47,36.19,1611.08,One Year,Credit Card,No,0
+69,85.81,6099.44,Two Year,Credit Card,DSL,0
+43,119.77,5268.57,Month-to-Month,Debit Card,Fiber Optic,1
+6,65.17,387.73,Month-to-Month,Debit Card,Fiber Optic,1
+6,55.47,351.18,Month-to-Month,Credit Card,No,0
+68,60.07,4107.16,Month-to-Month,Electronic Check,Fiber Optic,0
+22,31.51,818.74,Month-to-Month,UPI AutoPay,Fiber Optic,0
+7,108.33,708.77,Month-to-Month,Electronic Check,Fiber Optic,0
+43,61.48,2600.22,Two Year,Debit Card,DSL,0
+45,58.73,2762.75,Month-to-Month,Electronic Check,Fiber Optic,0
+47,85.97,3984.76,Month-to-Month,Credit Card,No,1
+19,64.2,1373.19,Month-to-Month,Debit Card,No,1
+2,84.82,345.77,Month-to-Month,UPI AutoPay,DSL,0
+69,26.14,1777.29,Two Year,Credit Card,DSL,0
+18,101.37,1975.3,Month-to-Month,Credit Card,DSL,1
+48,114.05,5472.86,Two Year,UPI AutoPay,Fiber Optic,0
+51,84.88,4418.67,One Year,UPI AutoPay,No,0
+44,115.46,5135.88,Month-to-Month,Electronic Check,DSL,1
+23,35.14,863.2,Month-to-Month,Debit Card,Fiber Optic,1
+20,67.74,1307.06,Two Year,UPI AutoPay,No,0
+43,80.18,3316.49,One Year,UPI AutoPay,Fiber Optic,0
+62,78.17,4935.62,One Year,Debit Card,Fiber Optic,0
+68,60.15,3896.72,One Year,UPI AutoPay,Fiber Optic,0
+8,53.81,426.68,Month-to-Month,UPI AutoPay,Fiber Optic,1
+11,32.68,486.07,Month-to-Month,Electronic Check,DSL,0
+68,59.17,4047.55,Month-to-Month,Credit Card,Fiber Optic,0
+53,36.27,2127.6,Two Year,Credit Card,Fiber Optic,0
+63,93.44,6053.73,One Year,Credit Card,No,0
+15,40.88,563.67,Month-to-Month,Credit Card,Fiber Optic,0
+42,25.86,1107.29,Month-to-Month,UPI AutoPay,Fiber Optic,0
+50,75.24,3815.85,Month-to-Month,Debit Card,DSL,0
+49,79.52,3761.31,Month-to-Month,Debit Card,Fiber Optic,0
+29,107.19,3119.42,One Year,Electronic Check,DSL,0
+2,77.7,106.55,One Year,Electronic Check,DSL,0
+42,54.55,2108.55,Two Year,UPI AutoPay,Fiber Optic,0
+18,100.3,1907.48,Month-to-Month,Debit Card,No,1
+32,74.03,2415.65,Month-to-Month,Debit Card,DSL,1
+68,27.93,1759.42,One Year,Credit Card,Fiber Optic,0
+29,76.59,2286.78,One Year,UPI AutoPay,No,0
+60,110.8,6789.05,One Year,UPI AutoPay,DSL,0
+14,59.63,880.58,One Year,Credit Card,Fiber Optic,0
+48,49.63,2386.92,Month-to-Month,UPI AutoPay,Fiber Optic,0
+70,34.35,2476.05,Month-to-Month,UPI AutoPay,Fiber Optic,0
+8,35.14,357.42,Month-to-Month,Electronic Check,DSL,0
+1,63.28,131.4,Month-to-Month,Debit Card,Fiber Optic,1
+31,79.57,2446.56,Month-to-Month,UPI AutoPay,Fiber Optic,0
+7,28.06,240.27,Month-to-Month,Electronic Check,Fiber Optic,1
+54,113.96,6288.64,One Year,Debit Card,DSL,0
+65,95.51,6237.82,Month-to-Month,Credit Card,Fiber Optic,0
+31,78.66,2712.48,Month-to-Month,Electronic Check,DSL,0
+19,102.84,1939.37,Two Year,Electronic Check,Fiber Optic,0
+31,28.02,895.43,Month-to-Month,Debit Card,DSL,0
+52,67.68,3477.0,Month-to-Month,Credit Card,No,0
+1,83.01,158.7,One Year,Electronic Check,Fiber Optic,1
+42,102.87,4233.68,Month-to-Month,UPI AutoPay,DSL,0
+44,98.35,4326.13,Month-to-Month,UPI AutoPay,DSL,0
+46,47.71,2098.47,Month-to-Month,UPI AutoPay,DSL,0
+18,114.09,2088.06,Month-to-Month,Credit Card,No,1
+51,32.43,1776.24,Two Year,Electronic Check,No,0
+7,107.51,869.75,Two Year,UPI AutoPay,Fiber Optic,0
+15,117.09,1536.6,One Year,Credit Card,Fiber Optic,0
+63,37.72,2591.6,Two Year,UPI AutoPay,Fiber Optic,0
+53,92.21,4957.91,Two Year,Debit Card,No,0
+1,24.03,0.0,Month-to-Month,Electronic Check,Fiber Optic,1
+18,60.54,1143.9,Two Year,Electronic Check,Fiber Optic,0
+16,71.63,1179.64,Month-to-Month,Credit Card,Fiber Optic,1
+20,78.06,1512.35,Two Year,Credit Card,Fiber Optic,0
+18,113.59,2129.99,Two Year,Electronic Check,DSL,0
+5,87.23,413.7,Month-to-Month,UPI AutoPay,Fiber Optic,0
+33,68.13,2247.62,Month-to-Month,UPI AutoPay,Fiber Optic,0
+53,100.97,5285.08,Month-to-Month,Debit Card,Fiber Optic,0
+44,115.05,4928.05,Month-to-Month,UPI AutoPay,DSL,0
+48,22.21,1097.69,Two Year,Credit Card,Fiber Optic,0
+6,118.25,858.1,Two Year,Credit Card,Fiber Optic,0
+68,28.61,2013.09,Month-to-Month,UPI AutoPay,Fiber Optic,0
+60,101.44,6222.37,Month-to-Month,Credit Card,DSL,0
+58,48.03,2826.13,Month-to-Month,Electronic Check,Fiber Optic,1
+59,33.22,1920.93,Month-to-Month,Electronic Check,Fiber Optic,0
+67,63.99,4385.23,Month-to-Month,UPI AutoPay,Fiber Optic,0
+39,84.4,3209.86,Month-to-Month,Electronic Check,Fiber Optic,1
+15,58.1,794.14,Two Year,Electronic Check,Fiber Optic,0
+44,25.46,1043.82,Month-to-Month,Debit Card,No,0
+53,79.95,4404.68,Month-to-Month,Debit Card,DSL,0
+53,110.24,5980.25,One Year,Electronic Check,No,1
+38,58.32,2266.28,Month-to-Month,UPI AutoPay,Fiber Optic,0
+5,41.63,351.19,Two Year,Debit Card,DSL,0
+27,64.26,1669.46,Two Year,Credit Card,DSL,0
+66,24.84,1683.35,Month-to-Month,Credit Card,DSL,0
+42,102.05,4324.13,Month-to-Month,Credit Card,Fiber Optic,0
+39,102.63,4110.16,Month-to-Month,UPI AutoPay,Fiber Optic,0
+20,78.8,1571.46,Month-to-Month,Electronic Check,Fiber Optic,1
+27,55.31,1463.73,Month-to-Month,Credit Card,Fiber Optic,0
+64,99.98,6509.65,One Year,UPI AutoPay,Fiber Optic,0
+48,75.47,3734.18,Month-to-Month,Debit Card,DSL,0
+56,102.59,5771.18,Month-to-Month,Electronic Check,DSL,0
+33,83.15,2759.2,Month-to-Month,Debit Card,Fiber Optic,1
+45,98.44,4397.57,Two Year,UPI AutoPay,DSL,0
+18,79.86,1238.33,Month-to-Month,Credit Card,DSL,0
+51,61.41,3157.55,Month-to-Month,Credit Card,Fiber Optic,0
+31,115.79,3692.17,Month-to-Month,UPI AutoPay,Fiber Optic,1
+32,74.11,2428.95,Two Year,Credit Card,No,0
+47,80.51,3597.17,Month-to-Month,Electronic Check,No,0
+67,42.05,2802.19,One Year,UPI AutoPay,Fiber Optic,0
+5,82.57,235.94,One Year,Debit Card,Fiber Optic,1
+59,77.16,4732.42,Month-to-Month,UPI AutoPay,Fiber Optic,0
+21,38.48,728.77,One Year,Electronic Check,Fiber Optic,0
+32,25.96,969.67,Month-to-Month,Electronic Check,DSL,0
+2,80.44,300.17,One Year,UPI AutoPay,Fiber Optic,1
+22,96.37,2066.13,One Year,UPI AutoPay,No,0
+36,72.34,2540.65,Month-to-Month,Credit Card,Fiber Optic,0
+4,42.68,247.93,Month-to-Month,Electronic Check,Fiber Optic,1
+35,86.65,3023.59,Two Year,UPI AutoPay,Fiber Optic,0
+66,28.01,1882.05,Month-to-Month,UPI AutoPay,DSL,0
+8,64.18,496.18,Month-to-Month,Electronic Check,Fiber Optic,0
+55,36.34,1830.4,Month-to-Month,UPI AutoPay,DSL,0
+30,38.45,933.66,One Year,Credit Card,DSL,0
+47,40.23,1934.26,One Year,Electronic Check,DSL,0
+19,58.67,1086.56,Month-to-Month,Credit Card,No,1
+12,25.12,254.21,Month-to-Month,Credit Card,DSL,0
+12,59.78,810.42,Month-to-Month,Credit Card,Fiber Optic,0
+6,71.17,544.72,One Year,Credit Card,DSL,0
+14,68.33,941.72,Month-to-Month,Electronic Check,No,0
+48,58.28,2772.6,One Year,Credit Card,DSL,0
+63,103.91,6658.99,Month-to-Month,Credit Card,Fiber Optic,1
+58,34.53,1894.93,Two Year,UPI AutoPay,No,0
+49,70.57,3525.71,Month-to-Month,Electronic Check,No,0
+8,26.2,286.85,Month-to-Month,Electronic Check,DSL,0
+21,27.12,651.88,Month-to-Month,Debit Card,No,1
+22,77.39,1585.93,Two Year,Electronic Check,Fiber Optic,0
+18,76.6,1359.91,Two Year,Electronic Check,Fiber Optic,0
+37,107.8,3961.85,Month-to-Month,Debit Card,DSL,0
+39,75.79,2967.54,One Year,Electronic Check,DSL,1
+26,115.98,3102.84,Two Year,Electronic Check,Fiber Optic,0
+26,24.87,799.24,One Year,Electronic Check,Fiber Optic,0
+59,29.8,1733.41,Month-to-Month,Electronic Check,Fiber Optic,0
+57,24.41,1342.39,Month-to-Month,Debit Card,Fiber Optic,0
+22,38.53,995.46,Month-to-Month,Electronic Check,Fiber Optic,1
+65,74.13,4913.07,Two Year,Electronic Check,DSL,0
+68,84.56,5931.61,Two Year,Debit Card,Fiber Optic,0
+24,24.56,623.16,One Year,UPI AutoPay,DSL,0
+26,114.6,2882.63,Month-to-Month,Credit Card,Fiber Optic,1
+36,104.22,3712.28,Month-to-Month,UPI AutoPay,Fiber Optic,0
+67,49.66,3212.85,One Year,Debit Card,No,0
+63,27.72,1818.55,Two Year,Credit Card,DSL,0
+8,36.99,425.21,Two Year,Debit Card,DSL,0
+28,32.69,1129.28,One Year,Debit Card,DSL,0
+40,32.33,1386.8,One Year,Electronic Check,DSL,0
+36,71.86,2755.02,Month-to-Month,Credit Card,DSL,0
+14,44.58,600.26,Month-to-Month,Electronic Check,No,0
+61,55.81,3343.48,Two Year,Credit Card,DSL,0
+49,118.95,5921.05,One Year,Debit Card,DSL,0
+60,88.43,5391.12,Month-to-Month,Debit Card,Fiber Optic,1
+61,114.9,7131.24,Month-to-Month,UPI AutoPay,Fiber Optic,0
+54,34.26,1893.11,One Year,Credit Card,Fiber Optic,0
+32,58.21,1905.87,Month-to-Month,Electronic Check,DSL,0
+44,75.47,3475.53,Month-to-Month,UPI AutoPay,Fiber Optic,0
+12,27.68,472.29,Month-to-Month,UPI AutoPay,DSL,0
+48,20.42,1051.45,One Year,UPI AutoPay,DSL,0
+13,87.04,1279.42,One Year,Electronic Check,No,0
+50,84.18,4283.27,Month-to-Month,UPI AutoPay,DSL,0
+17,61.08,1010.64,One Year,Electronic Check,Fiber Optic,0
+9,68.96,720.21,Month-to-Month,UPI AutoPay,Fiber Optic,1
+12,61.54,644.33,Month-to-Month,Electronic Check,DSL,0
+1,22.4,130.96,One Year,Debit Card,No,0
+52,53.54,2666.11,One Year,Debit Card,DSL,0
+53,37.71,2027.13,Two Year,Debit Card,Fiber Optic,0
+37,29.84,1036.37,One Year,Debit Card,No,0
+12,115.67,1496.24,One Year,Debit Card,Fiber Optic,0
+6,79.94,550.75,Month-to-Month,UPI AutoPay,No,1
+2,92.87,59.52,Month-to-Month,UPI AutoPay,DSL,0
+12,51.54,700.09,Month-to-Month,UPI AutoPay,Fiber Optic,0
+64,59.31,3753.22,Month-to-Month,Electronic Check,DSL,0
+18,43.69,881.09,Two Year,Electronic Check,Fiber Optic,0
+26,29.7,776.79,Month-to-Month,Electronic Check,No,0
+8,37.9,360.94,Two Year,Electronic Check,DSL,0
+16,99.75,1578.84,One Year,Debit Card,Fiber Optic,1
+37,87.75,3263.89,One Year,Debit Card,DSL,0
+44,74.69,3251.86,Month-to-Month,Debit Card,Fiber Optic,0
+18,67.51,1329.19,One Year,Credit Card,Fiber Optic,0
+5,112.24,740.07,Month-to-Month,UPI AutoPay,No,1
+28,27.27,703.96,Month-to-Month,Electronic Check,Fiber Optic,0
+17,48.06,954.91,One Year,Electronic Check,DSL,0
+16,54.99,695.29,Month-to-Month,Debit Card,DSL,0
+69,98.24,6674.08,Month-to-Month,Electronic Check,DSL,0
+44,119.25,5241.5,One Year,Electronic Check,DSL,1
+40,44.07,1651.16,Month-to-Month,UPI AutoPay,DSL,0
+30,107.43,3120.43,Two Year,Debit Card,No,0
+31,103.06,3283.13,Two Year,UPI AutoPay,Fiber Optic,0
+39,42.47,1651.92,Two Year,Credit Card,Fiber Optic,0
+50,59.93,3061.36,Month-to-Month,Credit Card,DSL,0
+50,60.97,3169.38,Month-to-Month,Credit Card,No,0
+13,117.82,1580.67,Two Year,Debit Card,Fiber Optic,0
+36,38.09,1456.34,Month-to-Month,Electronic Check,DSL,0
+30,99.92,3015.4,Two Year,Debit Card,Fiber Optic,0
+62,53.42,3236.43,Two Year,Debit Card,Fiber Optic,0
+45,93.09,4372.03,Two Year,Electronic Check,DSL,0
+38,62.0,2347.21,Month-to-Month,UPI AutoPay,Fiber Optic,0
+9,77.84,621.99,Month-to-Month,Credit Card,Fiber Optic,1
+44,103.26,4525.73,Two Year,UPI AutoPay,DSL,0
+9,100.42,844.75,Month-to-Month,Credit Card,No,0
+24,106.64,2618.09,Month-to-Month,Debit Card,No,0
+11,25.96,323.67,One Year,Credit Card,Fiber Optic,0
+50,89.21,4507.33,Two Year,Debit Card,Fiber Optic,0
+15,34.0,442.09,One Year,UPI AutoPay,Fiber Optic,0
+28,61.58,1726.14,One Year,Debit Card,Fiber Optic,0
+64,74.86,4942.78,Month-to-Month,UPI AutoPay,Fiber Optic,0
+15,60.27,984.28,One Year,Electronic Check,DSL,1
+37,71.96,2873.97,Two Year,Electronic Check,Fiber Optic,0
+30,119.65,3799.52,Month-to-Month,Electronic Check,No,0
+2,33.52,191.09,Month-to-Month,Debit Card,Fiber Optic,0
+57,87.55,4876.34,Two Year,Electronic Check,DSL,0
+5,59.6,428.16,One Year,Credit Card,Fiber Optic,1
+34,33.3,1149.3,One Year,UPI AutoPay,DSL,0
+40,35.87,1408.84,One Year,UPI AutoPay,DSL,0
+45,114.93,5259.59,Month-to-Month,Credit Card,DSL,0
+49,107.96,5480.96,Month-to-Month,Debit Card,DSL,1
+18,110.7,2151.51,Two Year,Debit Card,Fiber Optic,0
+1,119.15,115.73,Two Year,UPI AutoPay,Fiber Optic,0
+52,40.83,2212.37,Two Year,Electronic Check,DSL,0
+39,55.54,2104.21,Two Year,Debit Card,No,0
+60,86.92,5268.65,Month-to-Month,Debit Card,No,0
+59,68.38,4025.88,Month-to-Month,Credit Card,No,1
+60,61.84,3742.63,One Year,Credit Card,DSL,0
+35,55.78,2053.6,One Year,Electronic Check,Fiber Optic,0
+24,79.38,1855.64,One Year,Debit Card,No,0
+57,77.56,4630.96,One Year,Debit Card,Fiber Optic,0
+33,36.15,1012.22,Two Year,Credit Card,DSL,0
+14,67.17,882.31,Month-to-Month,Debit Card,DSL,0
+61,75.35,4686.18,Month-to-Month,UPI AutoPay,Fiber Optic,0
+63,77.03,4962.21,Month-to-Month,Credit Card,No,0
+34,41.01,1388.75,One Year,Electronic Check,Fiber Optic,0
+6,94.23,594.93,Month-to-Month,Credit Card,Fiber Optic,1
+28,22.52,683.68,Month-to-Month,Debit Card,DSL,1
+58,55.48,3197.76,Month-to-Month,Electronic Check,Fiber Optic,1
+65,98.02,6513.24,Month-to-Month,Credit Card,No,0
+15,76.39,1263.89,One Year,UPI AutoPay,Fiber Optic,0
+5,46.12,352.69,Month-to-Month,UPI AutoPay,Fiber Optic,0
+63,89.5,5567.71,Month-to-Month,Credit Card,No,1
+28,76.74,2190.46,Two Year,UPI AutoPay,DSL,0
+39,99.62,3901.63,Month-to-Month,UPI AutoPay,Fiber Optic,0
+69,93.5,6419.62,Month-to-Month,UPI AutoPay,DSL,1
+5,81.01,499.89,Month-to-Month,Electronic Check,Fiber Optic,1
+47,68.82,3182.77,One Year,UPI AutoPay,Fiber Optic,0
+6,33.32,274.16,Month-to-Month,UPI AutoPay,Fiber Optic,0
+27,46.13,1168.95,One Year,UPI AutoPay,Fiber Optic,0
+58,61.91,3767.07,Month-to-Month,Electronic Check,Fiber Optic,0
+31,79.93,2450.26,Month-to-Month,Credit Card,No,0
+71,71.37,5146.35,Month-to-Month,Debit Card,Fiber Optic,0
+40,48.82,2065.77,Month-to-Month,UPI AutoPay,DSL,0
+23,20.65,434.37,One Year,Credit Card,Fiber Optic,0
+16,69.62,1242.95,One Year,UPI AutoPay,Fiber Optic,0
+25,48.56,1134.22,Two Year,Electronic Check,DSL,0
+27,93.46,2710.7,Month-to-Month,Credit Card,No,1
+5,22.39,133.07,Month-to-Month,Electronic Check,No,0
+27,78.48,2078.21,One Year,UPI AutoPay,DSL,0
+33,114.15,3846.64,Month-to-Month,UPI AutoPay,No,1
+52,37.44,2039.59,Month-to-Month,Electronic Check,DSL,0
+47,67.16,3140.47,Month-to-Month,Debit Card,DSL,0
+51,29.14,1420.71,Month-to-Month,Electronic Check,DSL,1
+1,82.57,109.45,Two Year,UPI AutoPay,No,0
+16,75.05,1117.26,Two Year,Electronic Check,Fiber Optic,0
+47,60.74,3096.17,One Year,Debit Card,DSL,0
+35,72.14,2494.38,Month-to-Month,Electronic Check,Fiber Optic,1
+1,109.66,234.19,Month-to-Month,Debit Card,Fiber Optic,0
+58,39.63,2324.17,Month-to-Month,Debit Card,DSL,0
+55,22.26,1145.0,Month-to-Month,Electronic Check,No,0
+39,106.17,4239.46,Month-to-Month,Electronic Check,No,1
+5,77.71,522.83,One Year,Credit Card,Fiber Optic,1
+55,109.07,6025.88,One Year,UPI AutoPay,No,0
+42,79.69,3501.84,Month-to-Month,Debit Card,Fiber Optic,0
+56,101.02,5811.5,Two Year,Credit Card,No,0
+54,62.97,3515.68,One Year,Electronic Check,Fiber Optic,0
+58,94.99,5464.47,One Year,UPI AutoPay,Fiber Optic,0
+37,111.3,4096.93,One Year,Credit Card,DSL,1
+10,77.21,785.12,Month-to-Month,Debit Card,No,0
+48,38.08,1872.23,Month-to-Month,Credit Card,Fiber Optic,1
+45,46.88,2166.68,Month-to-Month,Debit Card,DSL,1
+53,39.86,1923.56,One Year,Electronic Check,DSL,0
+13,44.69,582.85,Month-to-Month,UPI AutoPay,Fiber Optic,0
+14,50.64,767.49,Month-to-Month,UPI AutoPay,Fiber Optic,1
+64,75.51,4821.64,Month-to-Month,UPI AutoPay,Fiber Optic,0
+54,78.8,4403.86,Month-to-Month,Electronic Check,No,0
+65,62.65,4144.76,Two Year,Debit Card,DSL,0
+54,81.54,4605.13,One Year,Electronic Check,Fiber Optic,1
+43,28.16,1200.38,Month-to-Month,UPI AutoPay,DSL,0
+47,28.78,1459.11,Month-to-Month,Electronic Check,No,0
+64,37.18,2547.98,Month-to-Month,Electronic Check,No,0
+42,71.81,3153.94,Month-to-Month,Electronic Check,Fiber Optic,1
+45,41.4,1791.01,Month-to-Month,Debit Card,Fiber Optic,0
+12,48.33,559.88,Month-to-Month,Credit Card,DSL,0
+34,60.03,2045.47,Month-to-Month,Credit Card,Fiber Optic,0
+51,101.19,5296.89,One Year,Electronic Check,No,1
+20,21.39,501.43,One Year,Credit Card,Fiber Optic,0
+15,84.94,1220.76,Month-to-Month,Credit Card,Fiber Optic,0
+23,86.89,2029.68,Month-to-Month,Electronic Check,Fiber Optic,1
+18,99.87,1610.22,One Year,Electronic Check,No,0
+16,113.28,1985.91,Month-to-Month,UPI AutoPay,DSL,1
+31,22.01,634.81,Two Year,Credit Card,DSL,0
+65,35.38,2321.33,One Year,Debit Card,Fiber Optic,0
+37,108.62,3988.0,Month-to-Month,Electronic Check,No,0
+14,65.85,1059.07,Month-to-Month,UPI AutoPay,DSL,0
+6,76.46,210.56,One Year,Debit Card,DSL,1
+50,86.3,4350.33,Month-to-Month,Credit Card,DSL,1
+28,87.91,2466.51,One Year,UPI AutoPay,DSL,0
+59,113.17,6671.52,Two Year,Electronic Check,Fiber Optic,0
+47,119.69,5897.06,One Year,Debit Card,Fiber Optic,0
+57,92.02,5205.22,Month-to-Month,Electronic Check,Fiber Optic,1
+20,48.72,1066.64,One Year,Credit Card,Fiber Optic,0
+50,107.98,5451.39,Month-to-Month,Debit Card,Fiber Optic,0
+19,24.92,618.32,Month-to-Month,Credit Card,No,0
+67,43.11,2850.57,Two Year,Credit Card,Fiber Optic,0
+46,109.74,4994.71,Month-to-Month,UPI AutoPay,No,0
+24,45.62,1206.31,Two Year,Electronic Check,Fiber Optic,0
+20,42.07,889.53,Two Year,Debit Card,DSL,0
+14,33.81,337.67,Month-to-Month,Credit Card,Fiber Optic,1
+50,105.91,5275.47,Month-to-Month,Credit Card,DSL,0
+16,70.01,1195.75,Month-to-Month,Debit Card,Fiber Optic,0
+43,87.49,3869.14,Month-to-Month,Credit Card,DSL,1
+19,43.91,800.95,Month-to-Month,UPI AutoPay,DSL,0
+47,95.8,4307.15,One Year,UPI AutoPay,No,1
+58,96.0,5702.98,Month-to-Month,UPI AutoPay,DSL,0
+56,51.26,2760.81,Month-to-Month,UPI AutoPay,No,0
+55,61.07,3158.27,Two Year,Credit Card,DSL,0
+14,40.97,303.78,Month-to-Month,Debit Card,Fiber Optic,0
+7,117.66,937.39,Two Year,Debit Card,Fiber Optic,1
+50,84.56,4293.76,Month-to-Month,Debit Card,Fiber Optic,0
+27,113.45,3058.02,Month-to-Month,Debit Card,DSL,1
+31,50.34,1734.46,One Year,Electronic Check,DSL,0
+3,98.19,379.08,One Year,Debit Card,DSL,0
+19,96.59,2038.29,Two Year,Electronic Check,DSL,0
+3,89.17,163.09,One Year,Electronic Check,Fiber Optic,1
+63,116.56,7389.28,Two Year,UPI AutoPay,No,0
+18,59.36,923.42,Month-to-Month,Electronic Check,No,1
+40,33.07,1318.81,Month-to-Month,Credit Card,Fiber Optic,0
+3,87.17,303.56,One Year,Electronic Check,Fiber Optic,1
+48,92.93,4555.52,Two Year,UPI AutoPay,Fiber Optic,0
+23,77.51,1859.66,Two Year,Electronic Check,DSL,0
+64,40.68,2696.58,Month-to-Month,Credit Card,No,0
+64,70.45,4582.83,Month-to-Month,Credit Card,Fiber Optic,0
+24,51.22,1449.65,One Year,Credit Card,Fiber Optic,0
+64,62.75,4045.01,Month-to-Month,UPI AutoPay,DSL,0
+71,84.52,5968.41,Two Year,UPI AutoPay,Fiber Optic,0
+59,94.52,5658.51,Two Year,Debit Card,Fiber Optic,0
+60,43.22,2555.73,Month-to-Month,UPI AutoPay,No,0
+18,60.53,1278.92,One Year,Credit Card,Fiber Optic,0
+41,46.92,1939.62,One Year,Credit Card,Fiber Optic,0
+5,39.86,173.66,Month-to-Month,UPI AutoPay,No,1
+7,98.34,713.93,Two Year,Electronic Check,DSL,0
+71,110.93,8049.74,Month-to-Month,UPI AutoPay,Fiber Optic,0
+24,57.02,1363.7,Two Year,UPI AutoPay,DSL,0
+54,95.13,5084.26,Month-to-Month,Credit Card,Fiber Optic,0
+58,109.7,6559.08,Two Year,Debit Card,No,0
+61,104.61,6391.95,Month-to-Month,Credit Card,DSL,0
+71,38.28,2753.37,Month-to-Month,Debit Card,No,0
+18,115.63,2163.47,Two Year,Credit Card,DSL,0
+3,57.67,59.75,Month-to-Month,UPI AutoPay,No,1
+30,53.92,1676.24,Month-to-Month,Credit Card,Fiber Optic,0
+10,26.24,163.11,Two Year,Credit Card,No,0
+2,68.62,260.15,Two Year,Credit Card,DSL,0
+26,30.9,725.41,One Year,UPI AutoPay,No,0
+56,44.85,2610.05,One Year,UPI AutoPay,Fiber Optic,0
+41,51.69,2240.33,Month-to-Month,UPI AutoPay,DSL,1
+23,100.88,2427.35,Month-to-Month,UPI AutoPay,No,0
+47,107.55,5129.22,Month-to-Month,Debit Card,DSL,0
+17,50.25,854.84,One Year,Debit Card,No,0
+2,105.87,156.33,One Year,Electronic Check,DSL,0
+55,105.72,5990.32,One Year,UPI AutoPay,Fiber Optic,0
+45,96.47,4298.55,One Year,Debit Card,Fiber Optic,0
+55,34.67,1807.4,Month-to-Month,Credit Card,DSL,0
+3,89.03,401.71,Month-to-Month,UPI AutoPay,DSL,0
+60,114.5,6840.4,Month-to-Month,Electronic Check,DSL,0
+44,88.25,3875.22,Month-to-Month,Electronic Check,Fiber Optic,1
+41,53.16,2035.33,Month-to-Month,Electronic Check,DSL,0
+45,70.06,3128.67,Two Year,Credit Card,Fiber Optic,0
+62,84.57,5266.92,Month-to-Month,Debit Card,DSL,0
+42,71.06,3056.49,Month-to-Month,Credit Card,DSL,0
+42,32.0,1446.85,Month-to-Month,UPI AutoPay,Fiber Optic,0
+71,51.21,3705.66,One Year,Electronic Check,DSL,0
+54,100.24,5466.81,One Year,Credit Card,No,0
+32,106.14,3419.48,Month-to-Month,Credit Card,No,0
+51,33.73,1778.84,Month-to-Month,Debit Card,Fiber Optic,0
+28,115.24,3427.16,One Year,Debit Card,Fiber Optic,0
+17,52.88,924.86,Month-to-Month,Electronic Check,No,1
+43,86.23,3693.5,Two Year,Credit Card,DSL,0
+66,95.18,6268.51,One Year,Credit Card,DSL,0
+66,101.19,6632.37,Month-to-Month,Debit Card,DSL,1
+25,114.57,2962.54,Month-to-Month,Credit Card,Fiber Optic,0
+38,51.29,2030.75,Two Year,Credit Card,DSL,0
+16,105.85,1754.11,Month-to-Month,Credit Card,Fiber Optic,0
+71,33.17,2364.99,Month-to-Month,Debit Card,No,0
+70,90.5,6535.66,Two Year,Electronic Check,No,0
+47,94.2,4389.73,Two Year,UPI AutoPay,Fiber Optic,0
+58,87.77,5196.27,Two Year,Electronic Check,DSL,0
+51,45.23,2337.85,One Year,UPI AutoPay,No,0
+43,107.3,4565.51,Month-to-Month,Credit Card,Fiber Optic,0
+4,36.89,235.85,Month-to-Month,Electronic Check,DSL,1
+33,25.36,885.27,One Year,UPI AutoPay,DSL,0
+48,91.75,4523.0,One Year,Debit Card,No,0
+49,67.55,3325.03,Month-to-Month,Debit Card,Fiber Optic,0
+27,104.91,2880.36,Two Year,Electronic Check,No,0
+67,58.34,4197.78,Month-to-Month,Electronic Check,No,0
+12,36.83,592.86,Month-to-Month,Credit Card,Fiber Optic,1
+36,103.64,3857.94,Month-to-Month,Electronic Check,Fiber Optic,0
+50,74.89,3759.68,Month-to-Month,Credit Card,Fiber Optic,0
+50,38.92,2066.02,Month-to-Month,Credit Card,DSL,0
+47,92.04,4382.52,Month-to-Month,Debit Card,Fiber Optic,1
+20,71.11,1463.64,Month-to-Month,Debit Card,Fiber Optic,1
+12,80.43,942.11,One Year,UPI AutoPay,Fiber Optic,0
+46,66.09,3042.07,One Year,Debit Card,No,0
+43,102.87,4163.03,One Year,Debit Card,Fiber Optic,0
+13,102.96,1435.09,Two Year,Electronic Check,Fiber Optic,1
+51,90.94,4594.94,Month-to-Month,Debit Card,Fiber Optic,0
+33,30.54,1176.78,Month-to-Month,UPI AutoPay,Fiber Optic,0
+48,103.89,5031.13,Two Year,Electronic Check,Fiber Optic,0
+60,87.1,5146.64,Month-to-Month,UPI AutoPay,DSL,0
+13,89.7,1165.69,Two Year,Debit Card,Fiber Optic,0
+2,56.3,28.21,Month-to-Month,UPI AutoPay,DSL,0
+56,107.93,6125.44,Two Year,Electronic Check,Fiber Optic,0
+44,92.54,4127.43,Month-to-Month,Credit Card,Fiber Optic,1
+50,31.26,1679.82,Two Year,UPI AutoPay,Fiber Optic,0
+60,60.78,3598.52,Month-to-Month,UPI AutoPay,No,0
+57,108.64,6304.36,Two Year,Electronic Check,Fiber Optic,0
+69,24.72,1574.73,Month-to-Month,Electronic Check,Fiber Optic,0
+39,116.14,4605.64,One Year,UPI AutoPay,Fiber Optic,0
+35,87.92,3189.02,Two Year,Debit Card,Fiber Optic,0
+29,83.14,2504.97,Month-to-Month,UPI AutoPay,DSL,0
+11,47.06,560.7,One Year,Electronic Check,DSL,0
+41,44.88,1910.92,One Year,Credit Card,Fiber Optic,0
+20,114.21,2520.83,Month-to-Month,Credit Card,Fiber Optic,1
+66,49.83,3280.66,One Year,Debit Card,DSL,0
+42,97.55,4150.65,One Year,UPI AutoPay,DSL,0
+43,59.31,2447.25,Two Year,Credit Card,DSL,0
+26,33.93,802.01,Month-to-Month,UPI AutoPay,No,0
+4,21.07,108.63,Month-to-Month,Electronic Check,DSL,1
+3,74.43,352.56,Two Year,Credit Card,Fiber Optic,0
+31,117.58,3625.96,Two Year,Debit Card,DSL,0
+7,56.91,375.04,Month-to-Month,Electronic Check,Fiber Optic,1
+44,55.72,2415.76,One Year,Debit Card,DSL,0
+63,54.41,3404.18,Month-to-Month,Electronic Check,DSL,0
+63,72.05,4618.42,Month-to-Month,Credit Card,Fiber Optic,0
+47,64.07,2912.15,Month-to-Month,Debit Card,DSL,0
+15,107.99,1855.68,Month-to-Month,Debit Card,DSL,1
+62,70.55,4326.93,One Year,Electronic Check,DSL,0
+63,70.78,4595.66,Month-to-Month,Debit Card,DSL,0
+14,33.84,379.29,Two Year,Electronic Check,DSL,0
+53,118.27,6377.66,Two Year,Electronic Check,DSL,0
+21,45.0,1027.57,One Year,Electronic Check,No,0
+57,27.34,1623.59,Month-to-Month,Electronic Check,Fiber Optic,1
+71,86.31,6098.28,Month-to-Month,Credit Card,Fiber Optic,0
+3,79.54,274.05,Two Year,Electronic Check,DSL,1
+64,61.51,3862.49,One Year,UPI AutoPay,No,0
+45,62.22,2787.45,Month-to-Month,Debit Card,Fiber Optic,1
+70,98.51,7009.24,Two Year,UPI AutoPay,DSL,0
+34,39.57,1425.71,Two Year,Credit Card,Fiber Optic,0
+61,102.03,6241.85,Two Year,UPI AutoPay,DSL,0
+5,84.87,363.39,One Year,Debit Card,DSL,0
+24,61.9,1599.9,One Year,UPI AutoPay,Fiber Optic,0
+5,65.8,380.84,Month-to-Month,Credit Card,No,1
+70,45.66,2975.89,Two Year,Electronic Check,Fiber Optic,0
+59,95.21,5696.23,Two Year,UPI AutoPay,Fiber Optic,0
+61,71.29,4383.96,Month-to-Month,Credit Card,No,0
+67,52.09,3640.99,Month-to-Month,Credit Card,DSL,0
+7,79.61,451.08,Month-to-Month,Debit Card,DSL,1
+28,119.57,3075.52,Two Year,Debit Card,Fiber Optic,0
+6,63.53,411.83,Two Year,UPI AutoPay,Fiber Optic,0
+15,112.07,1818.49,Month-to-Month,Electronic Check,Fiber Optic,0
+17,54.5,772.99,One Year,Credit Card,No,0
+34,25.47,776.05,Month-to-Month,UPI AutoPay,Fiber Optic,0
+20,40.42,1086.75,Two Year,Credit Card,Fiber Optic,0
+8,61.87,474.88,Two Year,Credit Card,DSL,0
+12,41.96,614.08,Two Year,Electronic Check,No,0
+11,20.02,164.33,Month-to-Month,Electronic Check,No,1
+70,111.5,7605.84,Month-to-Month,UPI AutoPay,No,0
+54,104.39,5714.89,Month-to-Month,Electronic Check,DSL,1
+69,94.23,6542.26,Month-to-Month,Electronic Check,Fiber Optic,1
+32,36.78,1145.17,Two Year,UPI AutoPay,DSL,0
+20,32.04,653.74,Two Year,Electronic Check,DSL,0
+57,26.76,1569.94,Two Year,Debit Card,DSL,0
+24,92.4,2217.82,Two Year,Credit Card,Fiber Optic,0
+22,112.88,2385.9,One Year,Credit Card,Fiber Optic,0
+17,63.05,1152.56,One Year,Credit Card,DSL,0
+10,31.91,130.82,Two Year,Credit Card,Fiber Optic,0
+19,71.24,1163.39,Two Year,UPI AutoPay,Fiber Optic,0
+26,54.88,1513.38,Month-to-Month,Credit Card,Fiber Optic,0
+48,57.48,2858.93,Month-to-Month,Credit Card,DSL,0
+5,82.13,441.24,Month-to-Month,Credit Card,Fiber Optic,1
+15,91.87,1325.44,Two Year,Credit Card,Fiber Optic,0
+58,31.06,1744.4,One Year,Debit Card,DSL,0
+11,23.56,243.04,Month-to-Month,Credit Card,DSL,0
+25,119.43,2865.39,One Year,Debit Card,Fiber Optic,0
+62,43.27,2625.92,One Year,UPI AutoPay,No,0
+11,25.38,369.82,Month-to-Month,Electronic Check,Fiber Optic,1
+6,38.99,410.74,Month-to-Month,Credit Card,Fiber Optic,0
+35,23.9,804.02,One Year,Electronic Check,Fiber Optic,0
+22,59.18,1405.55,Month-to-Month,Electronic Check,Fiber Optic,1
+41,100.24,3918.64,One Year,UPI AutoPay,DSL,0
+58,54.12,3208.96,Month-to-Month,Electronic Check,Fiber Optic,0
+10,64.42,611.3,Two Year,Debit Card,No,0
+42,87.56,3728.31,One Year,Electronic Check,Fiber Optic,0
+36,70.89,2590.41,One Year,Electronic Check,No,0
+11,106.14,1324.0,Two Year,Electronic Check,Fiber Optic,1
+45,106.6,4742.11,Month-to-Month,Credit Card,DSL,0
+20,20.99,491.58,Month-to-Month,Credit Card,No,0
+35,97.8,3457.44,Month-to-Month,Debit Card,DSL,0
+6,66.07,436.2,One Year,Debit Card,Fiber Optic,0
+33,118.88,3979.74,One Year,Credit Card,DSL,1
+22,68.32,1470.39,One Year,Debit Card,DSL,1
+59,118.69,7047.45,Month-to-Month,Credit Card,Fiber Optic,0
+5,95.46,475.36,Month-to-Month,UPI AutoPay,DSL,1
+30,44.86,1402.29,Month-to-Month,Electronic Check,Fiber Optic,0
+33,73.84,2485.66,Month-to-Month,Electronic Check,Fiber Optic,0
+52,119.21,6335.58,One Year,Debit Card,DSL,0
+41,105.75,4510.12,Month-to-Month,Credit Card,DSL,1
+48,29.74,1333.36,Month-to-Month,Credit Card,Fiber Optic,1
+56,90.64,5178.01,Two Year,Debit Card,DSL,0
+62,54.56,3275.77,Month-to-Month,Credit Card,Fiber Optic,0
+23,20.7,540.75,Month-to-Month,UPI AutoPay,Fiber Optic,0
+39,60.35,2427.6,One Year,Electronic Check,No,0
+60,43.48,2445.55,Month-to-Month,Debit Card,Fiber Optic,0
+71,101.89,7268.85,One Year,Debit Card,Fiber Optic,0
+64,53.73,3400.44,Two Year,Credit Card,Fiber Optic,0
+27,102.75,2736.88,Two Year,Debit Card,DSL,0
+14,20.06,433.11,Month-to-Month,UPI AutoPay,DSL,1
+35,50.78,1749.93,Two Year,Credit Card,Fiber Optic,0
+53,44.12,2286.5,Month-to-Month,Credit Card,Fiber Optic,0
+35,43.36,1567.22,Month-to-Month,Credit Card,Fiber Optic,0
+35,26.82,1015.41,Month-to-Month,Credit Card,No,0
+60,38.71,2328.49,Two Year,UPI AutoPay,No,0
+26,75.55,2130.91,Month-to-Month,Credit Card,No,0
+62,49.14,3101.77,Month-to-Month,Debit Card,Fiber Optic,1
+29,61.74,1627.15,One Year,UPI AutoPay,DSL,0
+24,57.69,1349.1,Month-to-Month,Electronic Check,Fiber Optic,0
+33,107.59,3519.4,Month-to-Month,Electronic Check,Fiber Optic,1
+55,110.53,6141.86,Month-to-Month,Debit Card,Fiber Optic,0
+9,69.3,426.74,Month-to-Month,Debit Card,Fiber Optic,1
+14,53.02,1047.26,Month-to-Month,UPI AutoPay,Fiber Optic,0
+68,30.68,2156.3,Month-to-Month,Electronic Check,Fiber Optic,0
+13,115.34,1567.36,One Year,Electronic Check,DSL,0
+41,26.02,1193.12,Month-to-Month,Electronic Check,Fiber Optic,0
+42,49.77,2331.03,Month-to-Month,Electronic Check,DSL,1
+35,49.81,1868.33,Two Year,Electronic Check,No,0
+46,52.04,2529.16,Month-to-Month,Credit Card,DSL,1
+17,36.43,643.93,One Year,Debit Card,DSL,0
+40,98.32,3941.99,Month-to-Month,Credit Card,DSL,0
+27,32.25,836.85,Month-to-Month,Electronic Check,Fiber Optic,0
+47,83.49,3923.14,Month-to-Month,UPI AutoPay,Fiber Optic,0
+11,32.38,288.4,Month-to-Month,UPI AutoPay,DSL,0
+41,27.05,988.54,Month-to-Month,Electronic Check,DSL,0
+14,110.94,1562.72,Month-to-Month,Electronic Check,Fiber Optic,1
+20,39.01,642.36,Month-to-Month,UPI AutoPay,DSL,0
+16,102.13,1707.05,Month-to-Month,Credit Card,Fiber Optic,1
+13,74.46,1037.47,Month-to-Month,Credit Card,Fiber Optic,1
+59,27.79,1671.43,Month-to-Month,Electronic Check,Fiber Optic,0
+21,115.54,2407.19,Month-to-Month,Credit Card,DSL,0
+66,44.7,3294.54,Month-to-Month,UPI AutoPay,No,0
+69,105.96,7539.2,One Year,Credit Card,Fiber Optic,0
+41,36.88,1408.3,Month-to-Month,Electronic Check,Fiber Optic,0
+11,105.39,1198.76,One Year,UPI AutoPay,DSL,0
+27,21.32,527.56,One Year,Credit Card,Fiber Optic,0
+57,71.18,4001.18,Month-to-Month,Debit Card,DSL,0
+27,96.94,2491.7,Two Year,UPI AutoPay,Fiber Optic,0
+7,113.48,857.8,Two Year,UPI AutoPay,No,0
+40,110.92,4427.65,Month-to-Month,Debit Card,Fiber Optic,0
+61,101.96,6316.86,Month-to-Month,Debit Card,DSL,0
+57,108.82,6357.65,Two Year,UPI AutoPay,DSL,0
+13,39.92,673.69,One Year,Debit Card,Fiber Optic,0
+48,48.42,2275.95,Month-to-Month,Electronic Check,DSL,1
+16,48.9,861.95,Month-to-Month,Electronic Check,DSL,0
+16,57.71,1014.97,Month-to-Month,Electronic Check,Fiber Optic,1
+63,59.33,3694.01,Month-to-Month,UPI AutoPay,Fiber Optic,0
+18,74.46,1317.11,One Year,Debit Card,DSL,0
+19,35.99,869.58,Month-to-Month,Debit Card,No,0
+1,89.12,116.01,Month-to-Month,Credit Card,DSL,1
+62,36.76,2372.56,One Year,Credit Card,No,0
+57,51.03,2840.55,Month-to-Month,Debit Card,DSL,0
+45,70.33,3081.13,Month-to-Month,Debit Card,No,0
+54,99.64,5350.63,One Year,Debit Card,Fiber Optic,0
+11,93.95,1095.74,Two Year,UPI AutoPay,No,1
+33,84.55,2729.58,Month-to-Month,Debit Card,No,0
+25,35.58,921.77,Month-to-Month,Credit Card,DSL,1
+7,74.7,403.25,Month-to-Month,UPI AutoPay,No,1
+35,28.74,908.87,Month-to-Month,Debit Card,Fiber Optic,0
+66,57.74,3899.2,Month-to-Month,Credit Card,Fiber Optic,0
+3,61.35,296.23,Month-to-Month,UPI AutoPay,DSL,0
+21,23.98,481.05,Month-to-Month,Debit Card,Fiber Optic,1
+15,47.4,644.06,Month-to-Month,Debit Card,DSL,1
+17,115.56,1966.84,Month-to-Month,Debit Card,Fiber Optic,0
+65,115.36,7518.83,Month-to-Month,UPI AutoPay,Fiber Optic,0
+34,55.23,1955.23,Month-to-Month,Credit Card,Fiber Optic,0
+34,24.31,921.97,Month-to-Month,Credit Card,No,0
+55,37.91,2035.4,Month-to-Month,Electronic Check,Fiber Optic,0
+11,59.22,593.47,Two Year,Debit Card,DSL,0
+35,114.78,4112.4,One Year,Electronic Check,DSL,1
+31,34.12,993.41,One Year,Electronic Check,DSL,0
+43,96.35,4127.97,One Year,Credit Card,DSL,0
+71,30.87,2354.07,Month-to-Month,UPI AutoPay,DSL,0
+55,118.13,6654.15,Month-to-Month,UPI AutoPay,DSL,0
+29,58.16,1716.94,Month-to-Month,Credit Card,No,0
+59,97.52,5700.45,One Year,UPI AutoPay,Fiber Optic,0
+13,54.26,733.04,One Year,Electronic Check,DSL,1
+3,82.77,368.05,Month-to-Month,Debit Card,Fiber Optic,1
+15,39.2,570.68,Month-to-Month,Credit Card,DSL,0
+25,34.6,1006.02,Month-to-Month,Debit Card,Fiber Optic,0
+37,113.81,4368.7,Month-to-Month,UPI AutoPay,Fiber Optic,0
+44,111.76,5159.37,One Year,Debit Card,Fiber Optic,0
+65,108.75,7170.08,One Year,UPI AutoPay,Fiber Optic,0
+37,82.54,3129.32,Month-to-Month,UPI AutoPay,No,1
+36,100.83,3830.73,Two Year,Electronic Check,No,1
+4,26.9,167.62,One Year,UPI AutoPay,Fiber Optic,0
+3,53.48,135.91,Month-to-Month,Electronic Check,Fiber Optic,1
+40,51.37,2016.76,Month-to-Month,Electronic Check,Fiber Optic,0
+32,83.56,2707.17,Month-to-Month,Electronic Check,DSL,1
+60,55.6,3239.04,Month-to-Month,Credit Card,Fiber Optic,0
+12,34.85,418.11,Month-to-Month,Credit Card,DSL,0
+2,79.65,330.51,Month-to-Month,UPI AutoPay,Fiber Optic,1
+32,101.44,3116.35,Month-to-Month,Electronic Check,Fiber Optic,0
+17,58.21,1193.18,Month-to-Month,Credit Card,DSL,1
+4,33.23,262.51,Two Year,Electronic Check,No,0
+52,39.67,2034.51,Month-to-Month,Debit Card,No,0
+8,43.75,444.71,Month-to-Month,Debit Card,Fiber Optic,1
+44,49.99,2209.4,Month-to-Month,Debit Card,Fiber Optic,0
+20,84.28,1889.04,Two Year,UPI AutoPay,No,0
+13,80.09,1164.99,Month-to-Month,Electronic Check,DSL,0
+27,89.61,2365.64,Month-to-Month,Debit Card,Fiber Optic,1
+57,56.25,3315.76,Two Year,Credit Card,DSL,0
+28,102.4,2932.51,Two Year,Debit Card,Fiber Optic,0
+54,40.41,2202.67,Two Year,Debit Card,DSL,0
+9,66.9,590.17,Month-to-Month,Debit Card,No,0
+55,100.09,5766.74,Month-to-Month,UPI AutoPay,No,0
+17,38.02,781.54,One Year,Credit Card,DSL,0
+49,30.99,1447.29,Two Year,Electronic Check,Fiber Optic,0
+41,108.37,4328.12,One Year,Credit Card,No,0
+66,54.29,3597.39,One Year,Electronic Check,Fiber Optic,0
+28,88.39,2562.47,Month-to-Month,UPI AutoPay,No,0
+5,22.53,152.42,One Year,UPI AutoPay,Fiber Optic,0
+2,89.0,335.37,Month-to-Month,UPI AutoPay,Fiber Optic,0
+59,51.61,3160.48,Month-to-Month,UPI AutoPay,DSL,0
+38,25.57,1075.33,Month-to-Month,Electronic Check,DSL,0
+56,80.98,4571.06,Month-to-Month,Debit Card,Fiber Optic,0
+17,44.08,638.83,Month-to-Month,Electronic Check,Fiber Optic,0
+25,58.68,1476.84,Month-to-Month,Credit Card,Fiber Optic,0
+3,28.06,194.04,One Year,UPI AutoPay,Fiber Optic,0
+69,34.72,2399.51,Month-to-Month,UPI AutoPay,Fiber Optic,0
+48,49.8,2461.45,One Year,Credit Card,No,0
+67,28.98,1916.98,Month-to-Month,Electronic Check,No,0
+19,111.08,2102.04,Month-to-Month,Debit Card,Fiber Optic,1
+44,20.6,902.8,Month-to-Month,Debit Card,No,0
+49,68.39,3393.68,Month-to-Month,Credit Card,Fiber Optic,0
+23,32.32,695.55,Month-to-Month,Debit Card,Fiber Optic,1
+61,50.77,3084.22,Month-to-Month,Electronic Check,No,1
+68,112.61,7591.24,Month-to-Month,Electronic Check,DSL,0
+63,36.17,2420.43,Two Year,Credit Card,DSL,0
+53,116.58,6204.7,Month-to-Month,Electronic Check,No,1
+20,40.58,985.27,Two Year,UPI AutoPay,Fiber Optic,0
+20,94.16,2129.67,Month-to-Month,Credit Card,No,1
+69,74.67,5173.73,One Year,Electronic Check,No,0
+1,108.45,86.79,One Year,Credit Card,DSL,0
+51,75.4,3700.08,One Year,Debit Card,No,0
+51,73.46,3609.59,Month-to-Month,Electronic Check,Fiber Optic,1
+45,39.55,1650.52,Month-to-Month,UPI AutoPay,Fiber Optic,0
+71,36.62,2748.98,Month-to-Month,Electronic Check,Fiber Optic,1
+23,111.65,2595.52,Two Year,Credit Card,No,0
+25,52.78,1365.84,Two Year,Credit Card,DSL,0
+6,57.21,155.8,Two Year,Electronic Check,Fiber Optic,0
+32,95.98,2993.74,Month-to-Month,UPI AutoPay,Fiber Optic,0
+19,53.88,1141.27,One Year,UPI AutoPay,Fiber Optic,0
+25,115.21,2952.66,Two Year,UPI AutoPay,Fiber Optic,0
+60,93.79,5636.73,Month-to-Month,Credit Card,DSL,0
+67,79.74,5432.7,Month-to-Month,Electronic Check,DSL,0
+14,108.09,1697.05,One Year,Debit Card,Fiber Optic,0
+27,24.96,663.02,One Year,Credit Card,No,0
+66,45.71,3066.18,Two Year,UPI AutoPay,DSL,0
+5,66.5,377.61,Month-to-Month,Electronic Check,DSL,0
+7,42.7,561.9,One Year,UPI AutoPay,No,0
+12,94.39,975.44,Month-to-Month,Debit Card,DSL,1
+43,111.92,4910.03,Month-to-Month,UPI AutoPay,No,1
+11,62.38,717.3,Month-to-Month,UPI AutoPay,Fiber Optic,0
+69,54.21,3837.15,Two Year,Debit Card,No,0
+32,116.16,3734.48,One Year,Electronic Check,DSL,0
+36,64.49,2355.76,Month-to-Month,Credit Card,DSL,0
+18,68.9,1346.76,Month-to-Month,Electronic Check,Fiber Optic,0
+34,55.16,2211.07,Two Year,Debit Card,No,0
+47,110.95,5406.18,Month-to-Month,UPI AutoPay,Fiber Optic,0
+54,76.9,4093.2,Two Year,Electronic Check,DSL,0
+54,96.22,5203.85,Month-to-Month,Credit Card,Fiber Optic,0
+42,101.18,4207.31,Month-to-Month,Debit Card,Fiber Optic,0
+65,54.18,3353.81,Month-to-Month,Electronic Check,Fiber Optic,0
+59,63.37,3708.07,Month-to-Month,Credit Card,Fiber Optic,0
+54,104.85,5813.71,One Year,Debit Card,No,0
+4,56.33,151.28,Month-to-Month,Credit Card,Fiber Optic,1
+1,99.39,252.78,Month-to-Month,Debit Card,DSL,0
+16,114.1,1883.92,Two Year,UPI AutoPay,Fiber Optic,0
+48,82.32,3887.06,Month-to-Month,Electronic Check,DSL,0
+30,94.16,2829.09,Month-to-Month,Credit Card,Fiber Optic,0
+29,100.51,3131.99,Two Year,Debit Card,Fiber Optic,0
+63,104.5,6741.3,One Year,Credit Card,DSL,0
+64,59.51,3844.03,Month-to-Month,Credit Card,DSL,0
+65,25.13,1623.3,Two Year,Electronic Check,DSL,0
+23,60.19,1409.15,One Year,UPI AutoPay,No,0
+50,87.38,4323.28,Month-to-Month,Credit Card,No,0
+20,65.04,1108.82,Month-to-Month,Debit Card,DSL,1
+14,94.9,1583.37,One Year,Debit Card,No,0
+14,55.7,801.37,One Year,UPI AutoPay,Fiber Optic,0
+25,83.47,2150.85,Month-to-Month,Debit Card,DSL,0
+31,38.64,1212.47,Two Year,UPI AutoPay,DSL,0
+59,94.94,5622.46,One Year,Debit Card,Fiber Optic,0
+9,74.57,690.73,Month-to-Month,Electronic Check,Fiber Optic,1
+53,40.41,1988.86,Month-to-Month,Credit Card,Fiber Optic,0
+38,49.19,2133.04,Month-to-Month,Electronic Check,DSL,1
+21,94.86,1910.76,One Year,Credit Card,DSL,0
+35,68.26,2353.5,Month-to-Month,Credit Card,Fiber Optic,0
+22,41.6,883.55,One Year,Credit Card,DSL,0
+43,116.73,5185.64,One Year,Electronic Check,DSL,0
+31,91.51,2911.82,Two Year,Credit Card,DSL,0
+12,115.71,1342.8,Month-to-Month,Electronic Check,No,1
+9,62.71,707.22,Two Year,UPI AutoPay,No,0
+39,67.51,2761.04,Month-to-Month,Debit Card,Fiber Optic,0
+65,109.8,7198.38,Two Year,Debit Card,No,0
+25,72.5,1914.72,Month-to-Month,Credit Card,DSL,0
+53,90.73,5051.92,Month-to-Month,Electronic Check,Fiber Optic,0
+47,45.22,2378.31,One Year,Debit Card,DSL,0
+67,64.67,4273.48,Month-to-Month,Electronic Check,Fiber Optic,0
+59,32.34,2080.11,Month-to-Month,Electronic Check,No,1
+41,40.6,1712.13,One Year,Credit Card,Fiber Optic,0
+47,20.09,1007.39,One Year,Debit Card,Fiber Optic,0
+64,23.93,1380.86,One Year,Credit Card,Fiber Optic,0
+29,117.73,3440.15,One Year,Credit Card,DSL,0
+24,44.24,989.32,Month-to-Month,Debit Card,No,0
+1,86.33,235.4,Month-to-Month,Debit Card,Fiber Optic,1
+59,103.91,6308.99,Month-to-Month,UPI AutoPay,Fiber Optic,0
+57,75.07,4136.6,Month-to-Month,UPI AutoPay,Fiber Optic,0
+8,35.31,295.01,Two Year,Electronic Check,Fiber Optic,0
+41,92.81,4006.27,One Year,Debit Card,DSL,1
+33,80.03,2697.6,Month-to-Month,UPI AutoPay,Fiber Optic,0
+9,93.13,950.92,Month-to-Month,Electronic Check,DSL,0
+70,96.97,6883.5,Two Year,Electronic Check,Fiber Optic,0
+16,117.54,1943.43,Month-to-Month,Electronic Check,No,1
+5,77.36,419.5,One Year,UPI AutoPay,No,0
+43,54.16,2220.08,Month-to-Month,Debit Card,Fiber Optic,0
+53,84.85,4423.7,One Year,Credit Card,Fiber Optic,0
+3,26.84,159.61,Month-to-Month,Electronic Check,DSL,0
+47,109.74,5244.1,Two Year,UPI AutoPay,Fiber Optic,0
+38,31.94,1225.11,Two Year,UPI AutoPay,DSL,0
+8,52.78,397.4,One Year,Credit Card,Fiber Optic,0
+13,101.57,1315.26,One Year,Credit Card,DSL,1
+41,79.73,3399.68,Two Year,UPI AutoPay,DSL,0
+22,59.36,1274.93,One Year,Debit Card,Fiber Optic,0
+67,67.34,4419.69,Month-to-Month,Credit Card,DSL,0
+59,105.45,6309.96,One Year,UPI AutoPay,Fiber Optic,0
+70,54.0,3804.54,One Year,Credit Card,DSL,0
+19,106.96,2082.18,Month-to-Month,Debit Card,DSL,0
+69,28.81,2173.39,One Year,Electronic Check,Fiber Optic,0
+31,97.68,3086.35,Two Year,Credit Card,DSL,0
+25,104.75,2718.37,Two Year,Debit Card,DSL,0
+4,38.18,56.78,Month-to-Month,UPI AutoPay,Fiber Optic,0
+4,63.03,277.22,Month-to-Month,Credit Card,DSL,0
+50,36.55,1893.31,Two Year,Credit Card,No,0
+33,90.66,2882.76,Two Year,UPI AutoPay,DSL,0
+17,73.53,1276.28,Month-to-Month,Electronic Check,DSL,1
+44,83.53,3734.94,Two Year,UPI AutoPay,Fiber Optic,0
+18,39.65,755.59,Two Year,Credit Card,DSL,0
+42,41.17,1833.54,Month-to-Month,UPI AutoPay,DSL,0
+26,24.15,673.5,One Year,Debit Card,Fiber Optic,0
+59,52.21,3252.66,Month-to-Month,UPI AutoPay,DSL,0
+59,75.97,4403.6,Month-to-Month,Credit Card,No,0
+34,105.79,3704.93,Month-to-Month,UPI AutoPay,DSL,0
+25,86.69,2254.5,Two Year,Electronic Check,Fiber Optic,0
+26,63.54,1592.24,Month-to-Month,UPI AutoPay,No,0
+58,115.31,6807.45,Month-to-Month,Electronic Check,Fiber Optic,0
+24,91.92,2466.3,Month-to-Month,Debit Card,No,1
+15,113.02,1788.84,Month-to-Month,Electronic Check,Fiber Optic,1
+7,72.76,560.75,Two Year,UPI AutoPay,No,0
+34,45.89,1574.93,Month-to-Month,Credit Card,DSL,0
+35,25.28,819.38,Month-to-Month,Electronic Check,Fiber Optic,0
+60,92.61,5439.68,One Year,Debit Card,Fiber Optic,0
+16,32.13,466.25,Month-to-Month,Electronic Check,Fiber Optic,0
+28,50.28,1271.11,Month-to-Month,Electronic Check,Fiber Optic,1
+58,73.25,4447.81,Month-to-Month,Electronic Check,Fiber Optic,0
+59,76.44,4535.03,Month-to-Month,Debit Card,DSL,1
+28,80.06,2231.65,Month-to-Month,UPI AutoPay,DSL,0
+33,36.63,1319.45,Month-to-Month,Electronic Check,Fiber Optic,0
+22,57.97,1194.16,Month-to-Month,Electronic Check,Fiber Optic,0
+67,81.72,5415.79,Two Year,Credit Card,No,0
+9,116.98,1109.21,Month-to-Month,Debit Card,Fiber Optic,1
+67,92.76,6345.48,One Year,Electronic Check,No,0
+49,112.26,5613.18,One Year,Debit Card,Fiber Optic,1
+38,96.22,3752.6,Month-to-Month,Electronic Check,DSL,1
+3,79.17,270.57,One Year,UPI AutoPay,DSL,0
+34,39.2,1402.98,Month-to-Month,UPI AutoPay,Fiber Optic,0
+29,86.67,2615.9,Two Year,Electronic Check,Fiber Optic,0
+12,82.34,921.83,Month-to-Month,UPI AutoPay,DSL,1
+47,80.25,3824.77,Month-to-Month,Electronic Check,Fiber Optic,1
+69,68.98,4717.8,Month-to-Month,UPI AutoPay,No,0
+40,72.87,2989.44,Two Year,Credit Card,Fiber Optic,0
+51,53.44,2717.54,Month-to-Month,Credit Card,Fiber Optic,0
+5,71.93,675.45,One Year,Credit Card,Fiber Optic,0
+30,39.76,1214.69,Month-to-Month,Debit Card,DSL,0
+9,100.52,790.51,One Year,Debit Card,Fiber Optic,0
+44,38.58,1703.62,Month-to-Month,Credit Card,Fiber Optic,1
+67,28.5,1979.23,Two Year,Debit Card,DSL,0
+47,63.62,3220.44,Month-to-Month,UPI AutoPay,Fiber Optic,0
+6,85.83,494.92,Month-to-Month,Electronic Check,Fiber Optic,1
+26,63.77,1511.38,Month-to-Month,Electronic Check,No,1
+40,47.68,1993.33,Month-to-Month,Electronic Check,No,0
+29,75.82,2108.23,One Year,Credit Card,DSL,0
+60,54.7,3248.72,Month-to-Month,Debit Card,Fiber Optic,1
+58,113.29,6640.22,One Year,UPI AutoPay,Fiber Optic,0
+44,112.26,4982.07,Month-to-Month,UPI AutoPay,No,1
+27,70.24,2001.53,Month-to-Month,Credit Card,DSL,1
+19,52.79,941.42,Month-to-Month,UPI AutoPay,Fiber Optic,1
+8,93.71,770.79,Month-to-Month,UPI AutoPay,Fiber Optic,1
+26,23.67,618.71,One Year,UPI AutoPay,DSL,0
+30,67.48,2061.89,Month-to-Month,UPI AutoPay,DSL,0
+48,53.63,2636.88,Month-to-Month,Debit Card,Fiber Optic,0
+47,112.05,5391.85,Two Year,UPI AutoPay,Fiber Optic,0
+5,21.2,211.11,Two Year,Electronic Check,DSL,0
+29,75.28,2227.2,Month-to-Month,Credit Card,Fiber Optic,0
+13,94.07,1353.47,Month-to-Month,Debit Card,Fiber Optic,0
+12,68.5,672.96,One Year,UPI AutoPay,Fiber Optic,0
+59,28.54,1709.98,Month-to-Month,Debit Card,DSL,1
+3,117.25,514.12,Month-to-Month,UPI AutoPay,No,1
+30,71.8,2281.64,Month-to-Month,Electronic Check,DSL,1
+12,81.42,984.52,One Year,Credit Card,Fiber Optic,1
+63,43.66,2703.62,One Year,UPI AutoPay,DSL,0
+40,68.35,2714.17,Month-to-Month,UPI AutoPay,DSL,1
+17,62.91,1150.12,Month-to-Month,UPI AutoPay,Fiber Optic,0
+36,27.49,1111.5,Month-to-Month,UPI AutoPay,DSL,0
+52,30.62,1579.93,One Year,Credit Card,No,0
+69,103.75,7252.09,Month-to-Month,Credit Card,DSL,0
+16,43.98,744.72,Month-to-Month,Electronic Check,Fiber Optic,0
+63,39.5,2512.1,One Year,Credit Card,DSL,0
+67,70.49,4725.42,Month-to-Month,UPI AutoPay,DSL,0
+66,96.87,6474.77,One Year,Electronic Check,DSL,0
+46,26.19,1240.51,Month-to-Month,Electronic Check,Fiber Optic,0
+45,77.68,3778.94,Month-to-Month,Electronic Check,Fiber Optic,0
+29,31.92,860.53,Month-to-Month,UPI AutoPay,Fiber Optic,0
+54,23.65,1338.64,One Year,Debit Card,Fiber Optic,0
+38,25.27,925.75,Two Year,UPI AutoPay,Fiber Optic,0
+49,103.42,4990.62,Two Year,Credit Card,DSL,0
+31,31.8,998.0,Month-to-Month,Credit Card,Fiber Optic,1
+52,24.52,1311.47,One Year,UPI AutoPay,No,0
+59,63.79,4089.71,Month-to-Month,UPI AutoPay,Fiber Optic,0
+11,104.4,1171.42,Month-to-Month,Electronic Check,Fiber Optic,1
+60,46.24,2667.81,Two Year,UPI AutoPay,DSL,0
+39,62.17,2474.43,Month-to-Month,Electronic Check,Fiber Optic,1
+60,23.99,1255.37,Month-to-Month,Credit Card,Fiber Optic,0
+31,64.91,2043.35,Month-to-Month,Electronic Check,Fiber Optic,0
+27,77.76,2172.07,Month-to-Month,UPI AutoPay,No,0
+65,77.09,5165.08,Month-to-Month,Credit Card,DSL,0
+18,53.24,1100.08,One Year,Debit Card,DSL,0
+60,51.55,3091.25,Month-to-Month,Electronic Check,Fiber Optic,0
+35,30.66,1069.33,Two Year,Credit Card,No,0
+37,56.68,2048.93,Two Year,Electronic Check,DSL,0
+22,29.95,573.07,Month-to-Month,Credit Card,DSL,0
+41,96.66,4060.34,Month-to-Month,Credit Card,DSL,0
+24,116.63,2682.2,Month-to-Month,Electronic Check,DSL,1
+3,117.01,401.78,One Year,Debit Card,Fiber Optic,0
+20,106.51,2063.84,Month-to-Month,Credit Card,Fiber Optic,1
+1,80.08,171.32,One Year,Credit Card,DSL,1
+70,90.09,6527.93,Month-to-Month,Credit Card,Fiber Optic,1
+69,48.52,3245.32,One Year,Debit Card,DSL,0
+29,83.08,2228.59,Month-to-Month,Debit Card,DSL,0
+52,65.56,3443.72,Month-to-Month,UPI AutoPay,Fiber Optic,0
+25,68.2,1744.28,Two Year,Electronic Check,No,0
+48,95.78,4681.22,One Year,Debit Card,No,0
+58,48.19,2759.44,Month-to-Month,Electronic Check,DSL,0
+68,51.8,3513.99,Two Year,UPI AutoPay,No,0
+29,112.46,3344.89,Month-to-Month,Electronic Check,Fiber Optic,1
+56,25.62,1554.64,Two Year,Debit Card,Fiber Optic,0
+19,68.56,1167.6,One Year,Electronic Check,Fiber Optic,1
+71,111.28,7898.89,Month-to-Month,Debit Card,Fiber Optic,1
+2,81.04,250.68,Month-to-Month,Electronic Check,DSL,1
+43,74.64,3181.24,Month-to-Month,Debit Card,DSL,1
+47,44.97,2324.02,Month-to-Month,Debit Card,DSL,0
+49,54.33,2644.75,One Year,Electronic Check,DSL,0
+9,105.2,1000.32,Month-to-Month,UPI AutoPay,Fiber Optic,0
+67,75.92,5190.62,Month-to-Month,Credit Card,Fiber Optic,0
+13,71.47,931.79,Two Year,UPI AutoPay,Fiber Optic,0
+45,29.96,1169.91,Two Year,Electronic Check,DSL,0
+16,21.6,320.28,Month-to-Month,UPI AutoPay,No,1
+22,116.37,2757.59,Month-to-Month,Debit Card,No,0
+39,57.7,2262.63,Month-to-Month,Credit Card,Fiber Optic,1
+30,80.32,2374.85,Month-to-Month,Electronic Check,No,0
+12,27.97,438.74,Two Year,Electronic Check,Fiber Optic,0
+13,88.31,1127.02,Month-to-Month,Electronic Check,No,1
+30,113.26,3424.64,One Year,Credit Card,DSL,0
+54,77.57,4263.04,Month-to-Month,Debit Card,Fiber Optic,0
+64,32.61,2188.85,One Year,Electronic Check,DSL,0
+6,78.17,783.27,One Year,UPI AutoPay,DSL,0
+28,96.63,2876.47,Two Year,Electronic Check,DSL,1
+8,60.64,608.24,Month-to-Month,Electronic Check,Fiber Optic,1
+2,107.98,184.6,Month-to-Month,Electronic Check,Fiber Optic,1
+47,84.87,3969.57,Month-to-Month,Electronic Check,Fiber Optic,0
+43,109.92,4818.08,Two Year,Debit Card,DSL,0
+12,82.35,1046.22,Two Year,UPI AutoPay,No,0
+17,33.13,475.24,One Year,Debit Card,Fiber Optic,0
+2,50.97,119.23,One Year,UPI AutoPay,Fiber Optic,0
+60,40.18,2462.0,One Year,Electronic Check,Fiber Optic,0
+70,110.88,7820.34,Month-to-Month,Credit Card,DSL,0
+10,96.04,1070.15,Two Year,Debit Card,DSL,0
+17,87.64,1557.07,Month-to-Month,Credit Card,No,1
+62,50.1,3088.21,Month-to-Month,Debit Card,DSL,0
+66,38.4,2513.22,Month-to-Month,Electronic Check,Fiber Optic,0
+30,95.65,2825.36,Month-to-Month,Debit Card,No,0
+4,67.42,488.2,Month-to-Month,Electronic Check,Fiber Optic,1
+3,42.58,163.01,One Year,Debit Card,DSL,0
+41,81.66,3386.95,Month-to-Month,Electronic Check,DSL,0
+28,24.03,601.58,One Year,Electronic Check,DSL,0
+3,52.62,453.22,Month-to-Month,UPI AutoPay,Fiber Optic,1
+42,66.86,2728.08,Month-to-Month,Electronic Check,Fiber Optic,0
+1,34.8,19.83,Month-to-Month,UPI AutoPay,DSL,0
+56,118.47,6782.67,Month-to-Month,Electronic Check,No,1
+22,40.91,990.99,One Year,Credit Card,Fiber Optic,0
+3,33.04,223.25,Month-to-Month,Electronic Check,DSL,0
+42,40.35,1906.8,One Year,Credit Card,Fiber Optic,0
+29,96.91,2883.72,Month-to-Month,Credit Card,Fiber Optic,0
+70,62.55,4281.68,One Year,Electronic Check,DSL,0
+39,76.54,3008.27,Two Year,Credit Card,DSL,0
+20,22.1,484.78,One Year,UPI AutoPay,No,0
+51,23.44,1411.1,Month-to-Month,Debit Card,Fiber Optic,0
+20,64.58,1169.69,Month-to-Month,Electronic Check,Fiber Optic,0
+65,101.67,6748.98,Month-to-Month,Credit Card,Fiber Optic,0
+27,108.52,3013.82,One Year,Electronic Check,DSL,0
+40,28.67,1231.78,Month-to-Month,UPI AutoPay,DSL,1
+4,73.84,328.76,Month-to-Month,Electronic Check,Fiber Optic,1
+31,111.32,3395.11,One Year,Electronic Check,DSL,1
+60,58.8,3608.67,Month-to-Month,Credit Card,DSL,0
+58,102.96,6057.63,One Year,UPI AutoPay,No,0
+16,33.37,662.04,Month-to-Month,Debit Card,No,1
+17,113.54,1934.7,Month-to-Month,Debit Card,Fiber Optic,1
+59,95.14,5556.14,One Year,Credit Card,No,0
+67,114.13,7497.71,Month-to-Month,Electronic Check,DSL,0
+7,87.66,763.12,One Year,Credit Card,No,1
+32,56.34,1899.04,Month-to-Month,Credit Card,DSL,1
+24,113.82,2744.24,Month-to-Month,Credit Card,No,0
+62,47.56,2933.6,Two Year,Electronic Check,No,0
+6,53.22,322.13,One Year,UPI AutoPay,Fiber Optic,0
+15,90.08,1292.09,One Year,Credit Card,No,0
+54,96.53,5171.99,Month-to-Month,Electronic Check,Fiber Optic,0
+4,112.94,410.87,One Year,UPI AutoPay,DSL,1
+35,40.48,1414.83,Month-to-Month,Credit Card,Fiber Optic,0
+32,99.8,3158.61,Month-to-Month,Debit Card,Fiber Optic,0
+24,93.85,2159.5,Two Year,UPI AutoPay,DSL,0
+29,26.38,967.65,Month-to-Month,Credit Card,Fiber Optic,0
+38,58.72,2393.45,Two Year,UPI AutoPay,No,0
+12,48.28,523.48,Month-to-Month,UPI AutoPay,DSL,1
+41,50.45,2126.51,Month-to-Month,UPI AutoPay,Fiber Optic,0
+58,118.29,6924.81,Month-to-Month,UPI AutoPay,No,0
+54,84.28,4751.98,Two Year,UPI AutoPay,No,0
+11,91.77,1012.64,One Year,UPI AutoPay,No,0
+11,117.66,1473.7,Two Year,Credit Card,Fiber Optic,0
+20,57.72,1101.94,One Year,Debit Card,No,0
+26,100.18,2534.95,One Year,Electronic Check,Fiber Optic,0
+30,63.45,1976.03,Two Year,UPI AutoPay,DSL,0
+49,106.95,5397.44,Month-to-Month,Electronic Check,Fiber Optic,1
+5,38.07,450.05,Month-to-Month,Credit Card,Fiber Optic,1
+3,114.77,277.33,Month-to-Month,UPI AutoPay,DSL,0
+28,41.88,1277.03,Two Year,Debit Card,Fiber Optic,0
+50,52.62,2616.36,Two Year,Electronic Check,Fiber Optic,0
+14,95.62,1487.18,Month-to-Month,UPI AutoPay,DSL,1
+46,59.38,2616.69,One Year,Credit Card,Fiber Optic,0
+19,80.82,1445.52,Two Year,Debit Card,Fiber Optic,0
+63,64.46,4042.02,Month-to-Month,Electronic Check,Fiber Optic,0
+64,94.24,6095.04,One Year,Electronic Check,DSL,1
+22,42.83,882.82,Two Year,UPI AutoPay,DSL,0
+17,25.85,513.8,Month-to-Month,Debit Card,Fiber Optic,0
+30,49.99,1612.61,One Year,Debit Card,No,0
+18,67.43,1278.96,Month-to-Month,Debit Card,DSL,0
+48,36.8,1955.58,Two Year,Debit Card,Fiber Optic,0
+59,55.48,3350.98,Two Year,Credit Card,DSL,0
+48,60.0,2805.6,Two Year,Debit Card,DSL,0
+59,25.74,1668.56,Month-to-Month,Electronic Check,No,0
+29,78.33,2225.68,Two Year,Electronic Check,Fiber Optic,0
+12,108.43,1402.94,Two Year,Credit Card,DSL,0
+53,35.17,2035.49,Month-to-Month,Electronic Check,Fiber Optic,0
+26,79.78,2167.33,Two Year,Electronic Check,DSL,1
+48,86.47,4058.22,Month-to-Month,Debit Card,Fiber Optic,1
+20,61.93,1160.21,One Year,Electronic Check,Fiber Optic,1
+6,90.11,742.07,Month-to-Month,Credit Card,DSL,1
+71,61.07,4348.19,Month-to-Month,Debit Card,DSL,0
+12,70.46,859.89,Month-to-Month,UPI AutoPay,Fiber Optic,0
+71,20.74,1551.78,One Year,Debit Card,No,0
+70,89.17,6346.17,Month-to-Month,Credit Card,No,1
+57,86.13,4968.64,One Year,Debit Card,DSL,0
+47,23.84,1119.14,Month-to-Month,Debit Card,Fiber Optic,0
+42,56.83,2356.76,Month-to-Month,Credit Card,Fiber Optic,1
+62,117.9,7453.94,Month-to-Month,Debit Card,Fiber Optic,0
+21,62.07,1393.06,One Year,Credit Card,Fiber Optic,0
+34,70.19,2375.3,Month-to-Month,Credit Card,No,0
+44,110.99,5100.31,One Year,UPI AutoPay,No,0
+30,91.73,2756.73,Two Year,Electronic Check,Fiber Optic,0
+31,78.21,2366.74,One Year,Electronic Check,Fiber Optic,1
+24,99.78,2363.76,Month-to-Month,Debit Card,Fiber Optic,0
+41,106.44,4272.46,Month-to-Month,Debit Card,DSL,1
+61,65.69,4005.45,Two Year,UPI AutoPay,Fiber Optic,0
+15,67.51,1156.86,Month-to-Month,UPI AutoPay,Fiber Optic,0
+67,58.61,3866.24,Two Year,UPI AutoPay,Fiber Optic,0
+49,116.67,5843.65,Month-to-Month,Credit Card,DSL,0
+59,89.72,5268.2,Two Year,UPI AutoPay,DSL,0
+40,28.32,1120.73,One Year,UPI AutoPay,No,0
+56,106.3,5838.31,Two Year,Debit Card,DSL,0
+2,68.06,124.28,Month-to-Month,UPI AutoPay,Fiber Optic,1
+59,26.88,1569.1,One Year,Credit Card,DSL,0
+3,74.97,342.66,Month-to-Month,Credit Card,DSL,1
+64,61.72,3983.53,Month-to-Month,Debit Card,DSL,1
+71,107.77,7578.46,One Year,UPI AutoPay,DSL,0
+21,40.4,992.31,Two Year,UPI AutoPay,No,0
+15,102.65,1656.46,Two Year,Credit Card,DSL,0
+55,75.77,4212.95,One Year,UPI AutoPay,No,0
+18,25.46,481.95,Month-to-Month,UPI AutoPay,Fiber Optic,1
+62,117.18,7266.98,Month-to-Month,UPI AutoPay,Fiber Optic,0
+8,71.26,613.38,One Year,Electronic Check,Fiber Optic,0
+9,49.09,535.63,Month-to-Month,Debit Card,Fiber Optic,1
+70,66.94,4545.95,Month-to-Month,Electronic Check,Fiber Optic,0
+48,105.79,5112.97,Month-to-Month,Debit Card,DSL,0
+61,50.49,3060.93,Month-to-Month,Credit Card,Fiber Optic,0
+24,39.27,969.12,Month-to-Month,UPI AutoPay,No,0
+49,32.91,1732.78,Month-to-Month,Debit Card,No,0
+43,49.79,2073.14,Month-to-Month,Electronic Check,No,0
+43,98.0,4245.13,Month-to-Month,UPI AutoPay,Fiber Optic,1
+49,67.16,3270.6,Two Year,Credit Card,Fiber Optic,0
+41,42.75,1708.88,Month-to-Month,Debit Card,Fiber Optic,0
+31,36.62,1117.42,Month-to-Month,Debit Card,Fiber Optic,0
+20,53.27,1174.0,One Year,Debit Card,DSL,0
+55,113.99,6229.09,Month-to-Month,UPI AutoPay,Fiber Optic,0
+17,54.3,969.48,Two Year,Electronic Check,DSL,0
+50,118.81,5789.1,One Year,Electronic Check,DSL,0
+17,68.52,1147.59,Month-to-Month,Debit Card,No,0
+45,37.92,1688.4,Month-to-Month,Credit Card,DSL,0
+54,109.11,6064.29,Two Year,Credit Card,DSL,0
+16,66.04,1064.0,Two Year,Electronic Check,DSL,0
+5,90.97,258.0,Month-to-Month,Credit Card,No,0
+10,118.37,1019.23,One Year,Electronic Check,Fiber Optic,0
+44,25.02,1104.82,Month-to-Month,Debit Card,Fiber Optic,0
+61,29.67,1880.43,Two Year,Electronic Check,No,0
+4,92.05,423.66,Month-to-Month,Electronic Check,No,1
+53,48.18,2576.44,Two Year,Debit Card,DSL,0
+25,38.43,1085.96,One Year,Credit Card,Fiber Optic,0
+34,23.94,783.22,One Year,Electronic Check,Fiber Optic,0
+66,22.18,1574.73,Month-to-Month,Electronic Check,Fiber Optic,0
+24,97.45,2231.11,Month-to-Month,Debit Card,DSL,1
+34,33.44,1047.88,Month-to-Month,Credit Card,No,0
+1,66.77,0.0,Month-to-Month,Electronic Check,Fiber Optic,1
+6,80.59,520.0,Month-to-Month,Debit Card,DSL,1
+19,62.84,1211.86,One Year,Electronic Check,Fiber Optic,0
+2,22.71,79.03,Month-to-Month,UPI AutoPay,DSL,1
+45,98.35,4513.34,Month-to-Month,Debit Card,DSL,1
+31,21.05,565.61,Two Year,Credit Card,Fiber Optic,0
+39,96.19,3820.68,Two Year,Credit Card,DSL,0
+13,109.33,1315.28,Two Year,Credit Card,Fiber Optic,0
+22,63.28,1529.28,Two Year,Credit Card,Fiber Optic,0
+48,73.55,3509.92,Month-to-Month,Electronic Check,DSL,1
+69,67.7,4658.62,Month-to-Month,Electronic Check,No,1
+4,58.92,428.73,One Year,Credit Card,DSL,0
+64,108.74,6858.92,One Year,Credit Card,DSL,0
+41,109.39,4477.43,Month-to-Month,Credit Card,DSL,1
+41,53.58,2089.28,Two Year,Electronic Check,DSL,0
+36,81.51,2969.83,Month-to-Month,Credit Card,DSL,1
+5,112.69,711.08,Month-to-Month,Credit Card,Fiber Optic,0
+7,116.21,931.71,Month-to-Month,UPI AutoPay,No,1
+43,70.9,3352.85,One Year,UPI AutoPay,DSL,0
+25,65.28,1420.7,One Year,Credit Card,Fiber Optic,0
+66,47.87,3226.29,Month-to-Month,Debit Card,Fiber Optic,0
+29,115.89,3405.6,Two Year,Credit Card,No,0
+11,34.28,324.38,Month-to-Month,UPI AutoPay,Fiber Optic,0
+51,77.98,3973.25,Month-to-Month,Debit Card,DSL,0
+21,48.26,962.44,Two Year,Debit Card,DSL,0
+38,47.9,2003.46,Two Year,Credit Card,Fiber Optic,0
+50,60.5,3142.11,Two Year,UPI AutoPay,No,0
+64,119.88,7784.73,Two Year,UPI AutoPay,DSL,0
+57,25.5,1594.67,One Year,Debit Card,Fiber Optic,0
+49,77.85,3665.29,One Year,Credit Card,No,0
+49,28.26,1258.71,Month-to-Month,Electronic Check,No,0
+68,35.45,2198.64,Month-to-Month,Electronic Check,No,1
+22,63.96,1337.32,Month-to-Month,UPI AutoPay,Fiber Optic,0
+1,71.05,92.83,Month-to-Month,Electronic Check,Fiber Optic,1
+20,45.88,942.04,One Year,UPI AutoPay,Fiber Optic,0
+16,51.65,865.55,Month-to-Month,UPI AutoPay,Fiber Optic,1
+47,28.7,1236.06,Month-to-Month,UPI AutoPay,DSL,0
+45,50.32,2394.8,Month-to-Month,Electronic Check,Fiber Optic,0
+43,116.66,5056.0,One Year,UPI AutoPay,Fiber Optic,0
+2,114.47,319.79,Month-to-Month,Debit Card,DSL,1
+52,53.49,2631.85,Two Year,Credit Card,Fiber Optic,0
+23,77.09,1878.94,Month-to-Month,Credit Card,Fiber Optic,0
+48,110.96,5231.58,Month-to-Month,UPI AutoPay,No,0
+40,20.62,795.66,One Year,Credit Card,DSL,0
+25,101.07,2613.89,Two Year,Electronic Check,DSL,0
+10,114.84,1221.2,Month-to-Month,Electronic Check,Fiber Optic,1
+7,29.13,139.28,One Year,Credit Card,DSL,0
+60,36.14,2170.68,One Year,Electronic Check,Fiber Optic,0
+66,116.07,7531.71,Month-to-Month,Credit Card,Fiber Optic,0
+47,73.75,3591.42,Two Year,Credit Card,DSL,0
+8,21.42,158.19,One Year,Credit Card,Fiber Optic,0
+29,45.76,1463.88,One Year,UPI AutoPay,Fiber Optic,0
+52,64.99,3376.1,Two Year,Credit Card,Fiber Optic,0
+56,89.29,4980.73,Two Year,UPI AutoPay,No,0
+9,93.32,800.15,One Year,Credit Card,No,0
+1,119.54,207.42,Two Year,Credit Card,Fiber Optic,0
+51,48.75,2442.75,One Year,Credit Card,Fiber Optic,0
+26,73.82,2007.33,One Year,Electronic Check,Fiber Optic,0
+19,73.33,1360.07,One Year,UPI AutoPay,No,0
+1,60.56,0.0,One Year,UPI AutoPay,Fiber Optic,0
+39,36.92,1396.04,Month-to-Month,Credit Card,Fiber Optic,0
+61,117.75,7115.41,Two Year,Credit Card,No,0
+68,105.33,7270.42,Two Year,Electronic Check,DSL,0
+41,69.83,2755.85,Month-to-Month,Electronic Check,No,0
+37,80.32,3106.92,Two Year,Electronic Check,DSL,0
+7,42.73,291.64,Month-to-Month,UPI AutoPay,DSL,1
+39,74.38,2955.16,Month-to-Month,UPI AutoPay,DSL,0
+27,89.5,2569.58,One Year,UPI AutoPay,No,0
+44,71.52,3250.75,Month-to-Month,Credit Card,No,0
+28,119.03,3402.15,Two Year,UPI AutoPay,Fiber Optic,0
+18,81.13,1388.26,Two Year,Debit Card,Fiber Optic,0
+7,57.1,264.68,Month-to-Month,Debit Card,Fiber Optic,1
+23,97.22,2202.27,Month-to-Month,Electronic Check,No,0
+7,37.05,229.53,Month-to-Month,UPI AutoPay,Fiber Optic,0
+13,58.45,803.29,One Year,Debit Card,Fiber Optic,0
+71,54.7,3854.41,Two Year,Electronic Check,DSL,0
+32,63.18,2124.15,One Year,UPI AutoPay,Fiber Optic,0
+38,98.18,3744.36,Month-to-Month,Credit Card,Fiber Optic,0
+63,68.42,4306.43,One Year,Debit Card,Fiber Optic,0
+71,99.4,7244.03,Month-to-Month,Credit Card,DSL,0
+42,77.65,3324.38,One Year,UPI AutoPay,No,0
+58,54.21,3175.17,Month-to-Month,Debit Card,DSL,0
+24,101.0,2385.25,One Year,UPI AutoPay,Fiber Optic,0
+22,43.83,931.94,Month-to-Month,Credit Card,No,1
+29,42.44,1170.77,Two Year,Debit Card,Fiber Optic,0
+48,70.45,3380.21,Month-to-Month,Credit Card,DSL,1
+49,46.08,2353.8,One Year,UPI AutoPay,Fiber Optic,0
+23,20.91,466.7,Two Year,UPI AutoPay,No,0
+10,84.83,752.16,Month-to-Month,Credit Card,Fiber Optic,1
+45,71.11,3440.75,Two Year,Debit Card,No,0
+10,64.55,684.69,One Year,Credit Card,DSL,1
+42,116.7,4769.09,Month-to-Month,UPI AutoPay,Fiber Optic,0
+50,77.12,3829.78,Month-to-Month,Credit Card,Fiber Optic,0
+50,106.34,5407.3,One Year,UPI AutoPay,No,1
+54,33.95,2020.34,Month-to-Month,Credit Card,DSL,0
+62,76.92,4733.11,One Year,Debit Card,No,0
+36,106.8,3995.42,Month-to-Month,Debit Card,Fiber Optic,0
+52,78.31,4278.48,One Year,Credit Card,Fiber Optic,0
+44,91.8,4064.64,Month-to-Month,Credit Card,DSL,0
+14,57.2,787.49,Two Year,Debit Card,No,0
+2,29.24,0.0,Two Year,UPI AutoPay,DSL,0
+21,65.79,1374.56,Two Year,Debit Card,DSL,0
+32,59.45,1925.75,One Year,UPI AutoPay,DSL,0
+44,106.71,4847.94,Month-to-Month,Credit Card,No,1

@@ -23,40 +23,29 @@ Use spaCy NER to extract entities and return them in a structured format.
 - Character offsets must match the entity spans
 - Entity order must be sorted by start_char
 - Entity labels must match spaCy's predictions for the given model
+
+### Expected Outputs (script-style)
+- Create a pandas DataFrame variable named `result`
+- Columns must be: `entity_text`, `entity_label`, `start_char`, `end_char`
 """
 
 hint = """
 - Access entities via `doc.ents` after processing with `nlp(text)`
 """
 
-
-inital_sample_code = """import spacy
+initial_sample_code = """import spacy
 import pandas as pd
 
 # Load spaCy model
 nlp = spacy.load("en_core_web_sm")
 
-# Process the text and extract entities
-# Your code here
+# Process the text (accessible via the variable 'text')
+doc = nlp(text)
 
-# Create result DataFrame with columns: entity_text, entity_label, start_char, end_char
+# Extract entities and create result DataFrame with columns: 
+# entity_text, entity_label, start_char, end_char
 # Sort by start_char ascending
-result = None  # Replace with your DataFrame
-"""
-
-
-# Input text that will be provided to users
-input_text = "Apple Inc. was founded by Steve Jobs in Cupertino, California on April 1, 1976."
-
-
-def get_description():
-    return description
-
-def get_hint():
-    return hint
-
-def get_inital_sample_code():
-    return inital_sample_code
+result = None  # Replace with your DataFrame"""
 
 def get_input_text():
-    return input_text
+    return "Apple is looking at buying U.K. startup for $1 billion. Microsoft is also interested."

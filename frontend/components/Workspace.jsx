@@ -40,20 +40,38 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
   const [isDownloadMenuOpen, setIsDownloadMenuOpen] = useState(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [savedArtifacts, setSavedArtifacts] = useState([]);
+  const [isRunning, setIsRunning] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
+  const [dots, setDots] = useState("");
+  const [lastValidatedCode, setLastValidatedCode] = useState("");
+
+  useEffect(() => {
+    let interval;
+    if (isRunning || isValidating) {
+      interval = setInterval(() => {
+        setDots((prev) => (prev.length >= 3 ? "" : prev + "."));
+      }, 400);
+    } else {
+      setDots("");
+    }
+    return () => clearInterval(interval);
+  }, [isRunning, isValidating]);
 
   useEffect(() => {
     getQuestion(questionId).then((data) => {
       setQuestion(data);
       setCode(data.initial_code || "# Write your solution here\n");
-      setIsValidationPassed(false);
+      // Admin must validate in the current session before enabling verification.
+      setIsValidationPassed(user?.role === "admin" ? false : (data.is_completed || false));
       setIsVerified(data.is_verified || false);
+      setLastValidatedCode("");
       setRunResult(null);
       setOutput("");
       setLastRunOutput("");
       setSavedArtifacts([]);
       setShowConfetti(false);
     });
-  }, [questionId]);
+  }, [questionId, user?.role]);
 
   useEffect(() => {
     if (typeof document !== "undefined") {
@@ -65,7 +83,8 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
   }, []);
 
   const handleRun = async () => {
-    setOutput("Running code...");
+    setIsRunning(true);
+    setOutput("");
     try {
       const result = await runCode({ code, question_id: question.id, module_id: question.module_id });
       setRunResult(result);
@@ -73,7 +92,9 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
       let runOut = result.stdout || "";
       if (result.stderr) {
         const stderrLow = result.stderr.toLowerCase();
-        const isWarning = stderrLow.includes("warning");
+        const isWarning = stderrLow.includes("warning") ||
+          stderrLow.includes("no model was supplied") ||
+          stderrLow.includes("defaulted to");
         const isInfo = stderrLow.includes("font cache") || stderrLow.includes("building the font cache");
         const isQuota = stderrLow.includes("insufficient_quota") || stderrLow.includes("exceeded your current quota");
         const isRateLimit = stderrLow.includes("rate_limit_exceeded") || stderrLow.includes("rate limit reached");
@@ -95,29 +116,67 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
       }
     } catch (error) {
       setOutput("System Error: " + error.message);
+    } finally {
+      setIsRunning(false);
     }
   };
 
   const handleValidate = async () => {
-    setOutput((prev) => prev + "\n\n--- Validating ---\n");
+    setIsValidating(true);
+    setOutput("");
     try {
       const result = await validateCode({ code, question_id: question.id, module_id: question.module_id });
       setRunResult(result);
-      const text = (result.stdout || "") + (result.stderr ? "\nVALIDATION ERROR:\n" + result.stderr : "");
-      setOutput((prev) => prev + `\nValidation Result:\n${text}`);
+
+      if (!result) {
+        setOutput((prev) => prev + "\n\n❌ No response from server. Please try again.");
+        return;
+      }
+
       if (result.artifacts && result.artifacts.length > 0) {
         setSavedArtifacts(result.artifacts.map((a) => ({ runId: result.run_id, filename: a })));
       }
-      if (result.stdout && (result.stdout.includes("[PASS]") || result.stdout.includes("Correct!") || result.stdout.includes("✅"))) {
+
+      // Check success from validation_output (hidden from console)
+      const valOut = result.validation_output || "";
+      const isSuccess = result.status === "success" && (valOut.includes("[PASS]") || valOut.includes("Correct!") || valOut.includes("✅"));
+
+      // Show console output first when present, then validation result.
+      // On success, show only a generic success message (hide detailed test-case breakdown).
+      const stdoutText = (result.stdout || "").trim();
+      let combinedOutput = stdoutText ? result.stdout : "";
+      if (isSuccess) {
+        const genericSuccess = "Validation Result:\n✅ Correct! Validation successful.";
+        combinedOutput += (combinedOutput ? "\n\n" : "") + genericSuccess;
+      } else if (valOut) {
+        combinedOutput += (combinedOutput ? "\n\n" : "") + `Validation Result:\n${valOut}`;
+      }
+      if (!combinedOutput && result.stderr && !isSuccess) {
+        combinedOutput = "Validation Result:\nValidation failed.";
+      }
+
+      // Hide noisy system stderr (HF downloads/model init logs) on successful validation.
+      // Preserve stderr for failures so debugging remains possible.
+      if (result.stderr && !isSuccess) {
+        combinedOutput += (combinedOutput ? "\n\n" : "") + "VALIDATION ERROR:\n" + result.stderr;
+      }
+
+      setOutput(combinedOutput);
+
+      if (isSuccess) {
         setIsValidationPassed(true);
+        setLastValidatedCode(code || "");
         setShowConfetti(true);
         if (refreshUser) refreshUser();
         setTimeout(() => setShowConfetti(false), 5000);
       } else {
         setIsValidationPassed(false);
+        setLastValidatedCode("");
       }
     } catch (error) {
-      setOutput((prev) => prev + `\nError during validation: ${error.message}`);
+      setOutput((prev) => prev + `\n\n❌ System Error: ${error.message}\nThis usually happens if the server times out or is overloaded.`);
+    } finally {
+      setIsValidating(false);
     }
   };
 
@@ -129,6 +188,15 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
       setOutput((prev) => prev + `\n\n--- System ---\nQuestion marked as ${newStatus ? "VERIFIED" : "UNVERIFIED"}.`);
     } catch (error) {
       setOutput((prev) => prev + `\nError updating verification status: ${error.message}`);
+    }
+  };
+
+  const handleCodeChange = (nextCode) => {
+    const normalized = nextCode ?? "";
+    setCode(normalized);
+    // For admin, invalidate verification eligibility if code changed after a successful validation.
+    if (user?.role === "admin" && isValidationPassed && normalized !== lastValidatedCode) {
+      setIsValidationPassed(false);
     }
   };
 
@@ -264,18 +332,23 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
               </span>
             ) : null)}
           {user?.role === "admin" && (
+            (() => {
+              const canToggleVerify = isVerified || isValidationPassed;
+              return (
             <div
-              onClick={isValidationPassed ? handleVerify : undefined}
-              className={`ml-2 px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest select-none transition-all border shadow-sm flex items-center gap-1 ${!isValidationPassed
+              onClick={canToggleVerify ? handleVerify : undefined}
+              className={`ml-2 px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest select-none transition-all border shadow-sm flex items-center gap-1 ${!canToggleVerify
                 ? "bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed opacity-60"
                 : isVerified
-                  ? "bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100 ring-1 ring-emerald-500/20 cursor-pointer"
+                  ? "bg-emerald-100 text-emerald-700 border-emerald-300 hover:bg-emerald-200 ring-1 ring-emerald-500/30 cursor-pointer"
                   : "bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200 hover:text-slate-700 cursor-pointer"
                 }`}
-              title={!isValidationPassed ? "Pass validation to enable verification" : "Click to toggle verification status"}
+              title={!canToggleVerify ? "Pass validation to enable verification" : "Click to toggle verification status"}
             >
-              {isVerified ? "Verified ✓" : "Unverified"}
+              {isVerified ? <><CheckCircle size={10} /> Verified</> : "Unverified"}
             </div>
+              );
+            })()
           )}
         </div>
       </header>
@@ -290,24 +363,33 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
               <div className="flex-1 overflow-y-auto p-4">
                 <div className="prose prose-sm max-w-none text-gray-700 prose-headings:text-base prose-headings:font-bold prose-h1:text-lg prose-h2:text-base prose-h3:text-sm prose-h4:text-sm">
                   {/* AI Key Warning */}
-                  {(question.module_id === "genai" || question.module_id === "agentic") && (!user?.has_groq_api_key && !user?.has_openai_api_key && !user?.has_anthropic_api_key) && (
-                    <div className="mb-6 p-5 bg-amber-50 border border-amber-100 rounded-2xl flex gap-4 animate-pulse">
-                      <AlertTriangle className="text-amber-600 shrink-0" size={20} />
-                      <div className="space-y-2">
-                        <p className="text-xs font-black text-amber-900 uppercase tracking-[0.05em]">
-                          API KEY REQUIRED
-                        </p>
-                        <p className="text-[11px] text-amber-700 font-medium leading-relaxed">
-                          This question requires a specialized engine. Please set your <strong>LLM Provider API Key</strong> in{" "}
-                          <a href="/dashboard/settings" className="text-amber-800 font-bold underline hover:text-amber-950">
-                            Environment Settings
-                          </a>{" "}
-                          to run this code.
-                        </p>
+                  {(() => {
+                    const isGenAI = question.module_id === "genai" || question.module_id === "agentic";
+                    const hasGenAIKey = user?.has_groq_api_key || user?.has_openai_api_key || user?.has_anthropic_api_key;
+
+                    const showWarning = isGenAI && !hasGenAIKey;
+
+                    if (!showWarning) return null;
+
+                    return (
+                      <div className="mb-6 p-5 bg-amber-50 border border-amber-100 rounded-2xl flex gap-4 animate-pulse">
+                        <AlertTriangle className="text-amber-600 shrink-0" size={20} />
+                        <div className="space-y-2">
+                          <p className="text-xs font-black text-amber-900 uppercase tracking-[0.05em]">
+                            API KEY REQUIRED
+                          </p>
+                          <p className="text-[11px] text-amber-700 font-medium leading-relaxed">
+                            This question requires a specialized engine. Please set your <strong>LLM Provider API Key</strong> in{" "}
+                            <a href="/dashboard/settings" className="text-amber-800 font-bold underline hover:text-amber-950">
+                              Environment Settings
+                            </a>{" "}
+                            to run this code.
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{question.question_py}</ReactMarkdown>
+                    );
+                  })()}
+                  < ReactMarkdown remarkPlugins={[remarkGfm]}>{question.question_py}</ReactMarkdown>
                 </div>
                 {question.hint && (
                   <div className="mt-8 pt-4 border-t border-gray-200">
@@ -321,7 +403,7 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
                 )}
                 {question.sample_data && (
                   <div className="mt-6">
-                    <h4 className="font-bold text-gray-800 text-xs mb-2">📊 Sample Data (First 5 Rows)</h4>
+                    <h4 className="font-bold text-gray-800 text-xs mb-2">📊 Sample Data (First 4 Rows)</h4>
                     <div className="overflow-x-auto border border-gray-200 rounded p-2 bg-gray-50">
                       <div className="prose prose-xs max-w-none prose-table:border-collapse prose-table:text-xs prose-td:border prose-td:px-2 prose-th:bg-gray-100">
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>{question.sample_data}</ReactMarkdown>
@@ -382,7 +464,7 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
                       height="100%"
                       defaultLanguage="python"
                       value={code}
-                      onChange={setCode}
+                      onChange={handleCodeChange}
                       options={{ minimap: { enabled: false }, fontSize: 12, automaticLayout: true }}
                     />
                   </div>
@@ -419,7 +501,25 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
                         <img src={`/api/execute/runs/${item.runId}/${item.filename}`} alt="Output" className="max-w-full h-auto" />
                       </div>
                     ))}
-                    <pre className="whitespace-pre-wrap text-xs">{output}</pre>
+                    <pre
+                      className="whitespace-pre-wrap text-xs"
+                      style={{
+                        fontFamily:
+                          'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", monospace',
+                      }}
+                    >
+                      {isRunning ? (
+                        <span className="text-indigo-400 font-bold italic animate-pulse">
+                          Running code{dots}
+                        </span>
+                      ) : isValidating ? (
+                        <span className="text-indigo-400 font-bold italic animate-pulse">
+                          Validating code{dots}
+                        </span>
+                      ) : (
+                        output
+                      )}
+                    </pre>
                   </div>
                 </div>
               </ResizablePanel>
@@ -428,95 +528,96 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
         </ResizablePanelGroup>
       </div>
 
-      {isGeneratingPdf && (
-        <div id="pdf-report-overlay" className="fixed inset-0 z-[100] bg-gray-800 bg-opacity-75 flex justify-center overflow-auto p-8 backdrop-blur-sm">
-          <div className="relative shrink-0 flex flex-col items-center">
-            <div id="pdf-controls" className="bg-white p-2 rounded shadow-lg mb-4 flex flex-col gap-2 w-fit items-center">
-              <div className="flex gap-2">
-                <Button onClick={() => typeof window !== "undefined" && window.print()} className="bg-blue-600 hover:bg-blue-700 text-white font-bold">
-                  <Download size={16} className="mr-2" /> Print / Save as PDF
-                </Button>
-                <Button variant="secondary" onClick={() => setIsGeneratingPdf(false)} className="font-bold">
-                  Close
-                </Button>
-              </div>
-            </div>
-            <div
-              id="pdf-report-final"
-              className="bg-white text-gray-800 font-sans shadow-2xl relative w-[816px] shrink-0 origin-top h-fit mb-20"
-              style={{ WebkitPrintColorAdjust: "exact", printColorAdjust: "exact" }}
-            >
-              <div className="bg-slate-50 border-b border-slate-200 px-8 py-3 flex justify-between items-center">
-                <span className="text-[10px] font-medium text-slate-500 tracking-wider">
-                  Generated by <span className="font-bold text-blue-500">codebasics</span> Practice Room
-                </span>
-                <span className="text-[10px] font-medium text-slate-400">{today}</span>
-              </div>
-              <div className="px-12 pt-6 pb-4 border-b-4 border-indigo-500">
-                <h1 className="text-2xl font-bold text-gray-900 leading-tight text-left">{question.title}</h1>
-              </div>
-              <div className="px-12 py-10 space-y-8 min-h-[600px]">
-                <div className="space-y-2">
-                  <div className="border-b border-blue-50 pb-1 mb-2">
-                    <h3 className="text-sm font-bold uppercase tracking-widest text-blue-500 border-l-[5px] border-blue-300 pl-3">Problem Statement</h3>
-                  </div>
-                  <div className="prose prose-sm max-w-none text-gray-600 text-xs leading-relaxed text-left prose-headings:text-gray-500 prose-headings:text-xs prose-headings:font-bold prose-headings:uppercase prose-headings:tracking-widest prose-headings:mb-2 prose-headings:mt-4 prose-pre:bg-slate-900 prose-pre:text-emerald-300 prose-pre:rounded-lg prose-pre:shadow-sm prose-pre:p-4 prose-pre:border prose-pre:border-slate-800">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{question.question_py}</ReactMarkdown>
-                  </div>
+      {
+        isGeneratingPdf && (
+          <div id="pdf-report-overlay" className="fixed inset-0 z-[100] bg-gray-800 bg-opacity-75 flex justify-center overflow-auto p-8 backdrop-blur-sm">
+            <div className="relative shrink-0 flex flex-col items-center">
+              <div id="pdf-controls" className="bg-white p-2 rounded shadow-lg mb-4 flex flex-col gap-2 w-fit items-center">
+                <div className="flex gap-2">
+                  <Button onClick={() => typeof window !== "undefined" && window.print()} className="bg-blue-600 hover:bg-blue-700 text-white font-bold">
+                    <Download size={16} className="mr-2" /> Print / Save as PDF
+                  </Button>
+                  <Button variant="secondary" onClick={() => setIsGeneratingPdf(false)} className="font-bold">
+                    Close
+                  </Button>
                 </div>
-                {question.sample_data && (
-                  <div className="space-y-2">
-                    <div className="border-b border-rose-50 pb-1 mb-2">
-                      <h3 className="text-sm font-bold uppercase tracking-widest text-rose-500 border-l-[5px] border-rose-300 pl-3">Dataset Preview</h3>
-                    </div>
-                    <div className="border border-gray-100 rounded-lg overflow-hidden inline-block w-fit">
-                      <div className="prose prose-sm max-w-none prose-table:w-auto prose-table:text-[10px] prose-table:m-0 prose-thead:bg-rose-50 prose-thead:text-rose-900 prose-thead:border-b prose-thead:border-rose-100 prose-th:p-2 prose-th:uppercase prose-th:font-semibold prose-th:tracking-wider prose-th:text-left prose-tr:border-b prose-tr:border-gray-50 last:prose-tr:border-0 prose-td:p-2 prose-td:text-gray-600 font-mono prose-td:text-left">
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{question.sample_data}</ReactMarkdown>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                <div className="space-y-2">
-                  <div className="border-b border-emerald-50 pb-1 mb-2">
-                    <h3 className="text-sm font-bold uppercase tracking-widest text-emerald-500 border-l-[5px] border-emerald-300 pl-3">Solution Code</h3>
-                  </div>
-                  <div className="bg-[#1e1e1e] rounded-lg overflow-hidden shadow-sm">
-                    <div className="flex gap-1.5 px-3 py-1.5 bg-[#252526] border-b border-[#333]">
-                      <div className="w-2 h-2 rounded-full bg-rose-400 opacity-80" />
-                      <div className="w-2 h-2 rounded-full bg-amber-400 opacity-80" />
-                      <div className="w-2 h-2 rounded-full bg-emerald-400 opacity-80" />
-                    </div>
-                    <pre className="p-3 text-[10px] font-mono text-gray-300 whitespace-pre-wrap leading-relaxed border-none m-0">{code}</pre>
-                  </div>
+              </div>
+              <div
+                id="pdf-report-final"
+                className="bg-white text-gray-800 font-sans shadow-2xl relative w-[816px] shrink-0 origin-top h-fit mb-20"
+                style={{ WebkitPrintColorAdjust: "exact", printColorAdjust: "exact" }}
+              >
+                <div className="bg-slate-50 border-b border-slate-200 px-8 py-3 flex justify-between items-center">
+                  <span className="text-[10px] font-medium text-slate-500 tracking-wider">
+                    Generated by <span className="font-bold text-blue-500">codebasics</span> Practice Room
+                  </span>
+                  <span className="text-[10px] font-medium text-slate-400">{today}</span>
                 </div>
-                {(pdfOutputText || (pdfArtifacts && pdfArtifacts.length > 0)) && (
+                <div className="px-12 pt-6 pb-4 border-b-4 border-indigo-500">
+                  <h1 className="text-2xl font-bold text-gray-900 leading-tight text-left">{question.title}</h1>
+                </div>
+                <div className="px-12 py-10 space-y-8 min-h-[600px]">
                   <div className="space-y-2">
-                    <div className="border-b border-amber-50 pb-1 mb-2">
-                      <h3 className="text-sm font-bold uppercase tracking-widest text-amber-500 border-l-[5px] border-amber-300 pl-3">Output</h3>
+                    <div className="border-b border-blue-50 pb-1 mb-2">
+                      <h3 className="text-sm font-bold uppercase tracking-widest text-blue-500 border-l-[5px] border-blue-300 pl-3">Problem Statement</h3>
                     </div>
-                    {pdfArtifacts?.map((item, i) => (
-                      <div key={i} className="mb-4 bg-gray-50 p-2 rounded-lg border border-gray-100 page-break-inside-avoid break-inside-avoid" style={{ pageBreakInside: "avoid" }}>
-                        <img
-                          src={`/api/execute/runs/${item.runId}/${item.filename}`}
-                          alt="Graph"
-                          className="max-w-full h-auto max-h-[500px] object-contain mx-auto"
-                          crossOrigin="anonymous"
-                          onError={(e) => (e.target.style.display = "none")}
-                        />
-                      </div>
-                    ))}
-                    {pdfOutputText && (
-                      <div className="bg-gray-50 border-l-2 border-gray-300 p-3 text-[10px] font-mono text-gray-600 whitespace-pre-wrap page-break-inside-avoid break-inside-avoid">
-                        {pdfOutputText}
-                      </div>
-                    )}
+                    <div className="prose prose-sm max-w-none text-gray-600 text-xs leading-relaxed text-left prose-headings:text-gray-500 prose-headings:text-xs prose-headings:font-bold prose-headings:uppercase prose-headings:tracking-widest prose-headings:mb-2 prose-headings:mt-4 prose-pre:bg-slate-900 prose-pre:text-emerald-300 prose-pre:rounded-lg prose-pre:shadow-sm prose-pre:p-4 prose-pre:border prose-pre:border-slate-800">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{question.question_py}</ReactMarkdown>
+                    </div>
                   </div>
-                )}
+                  {question.sample_data && (
+                    <div className="space-y-2">
+                      <div className="border-b border-rose-50 pb-1 mb-2">
+                        <h3 className="text-sm font-bold uppercase tracking-widest text-rose-500 border-l-[5px] border-rose-300 pl-3">Dataset Preview</h3>
+                      </div>
+                      <div className="border border-gray-100 rounded-lg overflow-hidden inline-block w-fit">
+                        <div className="prose prose-sm max-w-none prose-table:w-auto prose-table:text-[10px] prose-table:m-0 prose-thead:bg-rose-50 prose-thead:text-rose-900 prose-thead:border-b prose-thead:border-rose-100 prose-th:p-2 prose-th:uppercase prose-th:font-semibold prose-th:tracking-wider prose-th:text-left prose-tr:border-b prose-tr:border-gray-50 last:prose-tr:border-0 prose-td:p-2 prose-td:text-gray-600 font-mono prose-td:text-left">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>{question.sample_data}</ReactMarkdown>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  <div className="space-y-2">
+                    <div className="border-b border-emerald-50 pb-1 mb-2">
+                      <h3 className="text-sm font-bold uppercase tracking-widest text-emerald-500 border-l-[5px] border-emerald-300 pl-3">Solution Code</h3>
+                    </div>
+                    <div className="bg-[#1e1e1e] rounded-lg overflow-hidden shadow-sm">
+                      <div className="flex gap-1.5 px-3 py-1.5 bg-[#252526] border-b border-[#333]">
+                        <div className="w-2 h-2 rounded-full bg-rose-400 opacity-80" />
+                        <div className="w-2 h-2 rounded-full bg-amber-400 opacity-80" />
+                        <div className="w-2 h-2 rounded-full bg-emerald-400 opacity-80" />
+                      </div>
+                      <pre className="p-3 text-[10px] font-mono text-gray-300 whitespace-pre-wrap leading-relaxed border-none m-0">{code}</pre>
+                    </div>
+                  </div>
+                  {(pdfOutputText || (pdfArtifacts && pdfArtifacts.length > 0)) && (
+                    <div className="space-y-2">
+                      <div className="border-b border-amber-50 pb-1 mb-2">
+                        <h3 className="text-sm font-bold uppercase tracking-widest text-amber-500 border-l-[5px] border-amber-300 pl-3">Output</h3>
+                      </div>
+                      {pdfArtifacts?.map((item, i) => (
+                        <div key={i} className="mb-4 bg-gray-50 p-2 rounded-lg border border-gray-100 page-break-inside-avoid break-inside-avoid" style={{ pageBreakInside: "avoid" }}>
+                          <img
+                            src={`/api/execute/runs/${item.runId}/${item.filename}`}
+                            alt="Graph"
+                            className="max-w-full h-auto max-h-[500px] object-contain mx-auto"
+                            crossOrigin="anonymous"
+                            onError={(e) => (e.target.style.display = "none")}
+                          />
+                        </div>
+                      ))}
+                      {pdfOutputText && (
+                        <div className="bg-gray-50 border-l-2 border-gray-300 p-3 text-[10px] font-mono text-gray-600 whitespace-pre-wrap page-break-inside-avoid break-inside-avoid">
+                          {pdfOutputText}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
     </div>
   );
 }

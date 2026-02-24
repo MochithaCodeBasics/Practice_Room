@@ -5,4 +5,14 @@ USER root
 COPY docker/requirements/genai.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
+# Pre-download the sentence-transformers model used by validators
+# Stored in the persistent cache volume path so it's found at runtime
+RUN mkdir -p /opt/genai_cache && chown runner:runner /opt/genai_cache
+USER runner
+ENV SENTENCE_TRANSFORMERS_HOME=/opt/genai_cache
+RUN python -c "\
+from sentence_transformers import SentenceTransformer; \
+SentenceTransformer('all-MiniLM-L6-v2'); \
+print('Validator model pre-downloaded successfully.')"
+
 USER runner

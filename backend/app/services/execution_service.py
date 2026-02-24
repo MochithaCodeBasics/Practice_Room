@@ -1,7 +1,6 @@
 import subprocess
 import asyncio
 from ..core.config import settings
-import tempfile
 import os
 import uuid
 import shutil
@@ -19,12 +18,10 @@ class ExecutionService:
         self.docker_available = docker_executor.is_available() if self.use_docker else False
         
         if self.use_docker and not self.docker_available:
-            print("WARNING: Docker execution requested but Docker is not available.")
-            print("SECURITY WARNING: Falling back to local execution - this is insecure!")
-            print("To fix: Install Docker and build the image with:")
-            print("  docker build -t practice-room-python:latest -f docker/Dockerfile.python .")
-        
-        print(f"DEBUG: ExecutionService initialized. use_docker={self.use_docker}, docker_available={self.docker_available}")
+            import logging
+            logging.getLogger("execution").warning(
+                "Docker execution requested but not available. Falling back to local execution (insecure)."
+            )
 
     async def run_code(self, request: ExecutionRequest, question_data: dict, current_user: User) -> ExecutionResult:
         if self.use_docker and self.docker_available:
@@ -39,15 +36,23 @@ class ExecutionService:
              
              image_name = "practice-room-python:latest" # Default
              if request.module_id:
-                 try:
-                     with Session(engine) as session:
-                         module = session.get(Module, request.module_id)
-                         if module and module.base_image:
-                             image_name = module.base_image
-                 except Exception as e:
-                     print(f"Error fetching module image: {e}")
-
-             print(f"DEBUG: Running code in Docker using image: {image_name}")
+                 # Check for module type keywords in ID (simple heuristic until DB is fully seeded)
+                 mod_id = request.module_id.lower()
+                 if "genai" in mod_id or "agentic" in mod_id:
+                     image_name = "practice-room-genai:latest"
+                 elif "nlp" in mod_id:
+                     image_name = "practice-room-nlp:latest"
+                 elif "cv" in mod_id or "vision" in mod_id:
+                     image_name = "practice-room-cv:latest"
+                     image_name = "practice-room-cv:latest"
+                 else:
+                     try:
+                         with Session(engine) as session:
+                             module = session.get(Module, request.module_id)
+                             if module and module.base_image:
+                                 image_name = module.base_image
+                     except Exception as e:
+                         pass
 
              # Pass LLM API KEYS if available
              env_vars = {}
@@ -59,33 +64,67 @@ class ExecutionService:
                  env_vars["ANTHROPIC_API_KEY"] = current_user.anthropic_api_key.strip()
              
              env_vars["DEFAULT_LLM_PROVIDER"] = current_user.default_llm_provider or "groq"
+             env_vars["TRANSFORMERS_VERBOSITY"] = "error"
 
              # SECURITY: Enable network ONLY for GenAI and Agentic modules
-             is_ai_module = any(keyword in image_name.lower() for keyword in ["genai", "agentic", "nlp"])
-             network_enabled = is_ai_module
+             # We also verify against module_id to catch cases where the image is default but the task is AI-heavy
+             mod_id_safe = (request.module_id or "").lower()
+             is_ai_image = any(keyword in image_name.lower() for keyword in ["genai", "agentic", "nlp", "cv", "vision", "deep", "dl", "ml"])
+             is_ai_id = any(keyword in mod_id_safe for keyword in ["genai", "agentic", "nlp", "cv", "vision", "deep", "dl", "ml"])
              
-             if is_ai_module:
-                 # Check if at least one key is configured
+             is_ai_module = is_ai_image or is_ai_id
+             is_nlp_only = "nlp" in image_name.lower() and not any(k in image_name.lower() for k in ["genai", "agentic"])
+             network_enabled = is_ai_module
+
+             # Use NLP_TIMEOUT for AI modules (including ML/DL training), DOCKER_TIMEOUT for others
+             exec_timeout = settings.NLP_TIMEOUT if is_ai_module else settings.DOCKER_TIMEOUT
+             use_hf_cache = is_ai_module
+ 
+             # Only GenAI/Agentic (not NLP, ML, or DL) require API keys
+             is_genai_only = is_ai_module and not is_nlp_only and not any(k in mod_id_safe for k in ["ml", "dl"])
+             if is_genai_only:
                  has_any_key = any([current_user.groq_api_key, current_user.openai_api_key, current_user.anthropic_api_key])
                  if not has_any_key:
                     return ExecutionResult(
-                        stdout="", 
+                        stdout="",
                         stderr="No service keys configured. Please go to Environment Settings and enter a provider key (Groq, OpenAI, or Anthropic) to use advanced features.",
                         status="error"
                     )
 
-             result = await docker_executor.run_code(
-                 request.code, 
-                 Path(question_data["folder_path"]),
-                 image_name=image_name,
-                 timeout=settings.DOCKER_TIMEOUT,
-                 env_vars=env_vars,
-                 network_enabled=network_enabled
-             )
-             return result
+             # CRITICAL: Wrap Docker executor in try-catch with explicit timeout to prevent hangs
+             try:
+                 result = await asyncio.wait_for(
+                     docker_executor.run_code(
+                         request.code,
+                         Path(question_data["folder_path"]),
+                         image_name=image_name,
+                         timeout=exec_timeout,
+                         env_vars=env_vars,
+                         network_enabled=network_enabled,
+                         use_hf_cache=use_hf_cache
+                     ),
+                     timeout=exec_timeout + 5
+                 )
+                 return result
+             except asyncio.TimeoutError:
+                 return ExecutionResult(
+                     stdout="",
+                     stderr="Docker execution timed out. The code took too long to run.",
+                     status="error"
+                 )
+             except Exception as e:
+                 return ExecutionResult(
+                     stdout="",
+                     stderr=f"Docker execution failed: {str(e)}",
+                     status="error"
+                 )
         else:
-            print("DEBUG: Falling back to local execution")
-            # Fallback to local execution
+            if self.use_docker and not self.docker_available:
+                return ExecutionResult(
+                    stdout="",
+                    stderr="Docker execution is required but Docker is not running on the server.",
+                    status="error"
+                )
             return await self._run_code_local_async(request, question_data, current_user)
 
 
@@ -104,19 +143,28 @@ class ExecutionService:
             (work_dir / "user_code.py").write_text(code, encoding="utf-8")
             
             # Generic Driver: Runs user code as __main__ and captures plots
+            # CRITICAL: Wrap ALL code in try-catch to prevent subprocess crashes
             driver_code = """
 import sys
 import os
 import matplotlib
-matplotlib.use('Agg') # Force non-interactive backend
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import pandas as pd
 import traceback
+import builtins
+
+# Ensure UTF-8 output (preserve emoji) and flush promptly
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace', line_buffering=True)
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(encoding='utf-8', errors='replace', line_buffering=True)
+
+# print("SYSTEM: Initializing Execution Engine...", flush=True)
 
 # Add current dir to path
 sys.path.append(os.getcwd())
 
-# Context for execution
 global_ns = {
     "__name__": "__main__",
     "__file__": "user_code.py"
@@ -130,17 +178,32 @@ try:
             loaded_df.columns = loaded_df.columns.str.lower().str.strip()
             global_ns["data"] = loaded_df
             global_ns["df"] = loaded_df
-        except Exception:
+            # print("SYSTEM: Dataset 'data' loaded.", flush=True)
+        except Exception as csv_err:
+            # print(f"SYSTEM WARNING: Could not load data.csv: {csv_err}")
             pass
 
     # Injection: Add get_llm to builtins/global_ns if available
     try:
         from _env import get_llm
-        import builtins
         builtins.get_llm = get_llm
         global_ns["get_llm"] = get_llm
     except ImportError:
         pass
+
+    # Injection: Add task-specific variables from validator if available
+    try:
+        import validator
+        if hasattr(validator, "get_input_variables"):
+            input_vars = validator.get_input_variables()
+            for k, v in input_vars.items():
+                global_ns[k] = v
+                setattr(builtins, k, v)
+    except Exception:
+        pass
+
+    # print("SYSTEM: Running your code...", flush=True)
+    sys.stdout.flush()
 
     with open("user_code.py", "r", encoding="utf-8") as f:
         user_source = f.read()
@@ -152,15 +215,12 @@ try:
     if fignums:
         for i, num in enumerate(fignums):
             fig = plt.figure(num)
-            if len(fignums) == 1:
-                fname = "output.png"
-            else:
-                fname = f"output_{i+1}.png"
-            
+            fname = "output.png" if len(fignums) == 1 else f"output_{i+1}.png"
             fig.savefig(fname, bbox_inches='tight')
             plt.close(fig) 
             
 except Exception as e:
+    print(f"❌ Execution failed: {str(e)}", flush=True)
     traceback.print_exc()
 """
             (work_dir / "main.py").write_text(driver_code, encoding="utf-8")
@@ -176,21 +236,21 @@ except Exception as e:
                     target_dir = work_dir / rel_path
                     target_dir.mkdir(parents=True, exist_ok=True)
                     for f in os.listdir(q_dir):
-                        if f.endswith((".csv", ".txt", ".json")) and f != "master_question_list.csv":
+                        if f.endswith((".csv", ".txt", ".json", ".py")) and f != "master_question_list.csv":
                             try:
                                 shutil.copy(q_dir / f, target_dir / f)
                                 shutil.copy(q_dir / f, work_dir / f)
-                            except Exception as copy_err:
-                                print(f"DEBUG: Failed to copy file {f}: {copy_err}")
+                            except Exception:
+                                pass
                 else:
                     for f in os.listdir(q_dir):
-                        if f.endswith((".csv", ".txt", ".json")) and f != "master_question_list.csv":
+                        if f.endswith((".csv", ".txt", ".json", ".py")) and f != "master_question_list.csv":
                             try:
                                 shutil.copy(q_dir / f, work_dir / f)
-                            except Exception as copy_err:
-                                print(f"DEBUG: Failed to copy file {f}: {copy_err}")
+                            except Exception:
+                                pass
             else:
-                print(f"DEBUG: Question directory not found: {q_dir}")
+                pass
 
             # Injection: Copy _env.py from questions/
             env_file = settings.QUESTIONS_DIR / "_env.py"
@@ -200,7 +260,13 @@ except Exception as e:
             # Build/Run command using run_in_executor to avoid asyncio subprocess issues on Windows
             env = os.environ.copy()
             env["PYTHONIOENCODING"] = "utf-8"
+            env["PYTHONUTF8"] = "1"
             
+            # Determine local timeout based on whether it's an AI module
+            # This logic needs to be duplicated here as exec_timeout is local to run_code/validate_code
+            is_ai_module_local = any(keyword in question_data.get("image_name", "").lower() for keyword in ["genai", "agentic", "nlp", "ml", "dl"])
+            local_exec_timeout = settings.NLP_TIMEOUT if is_ai_module_local else settings.DOCKER_TIMEOUT
+
             def run_sync():
                 return subprocess.run(
                     [sys.executable, "main.py"],
@@ -208,7 +274,7 @@ except Exception as e:
                     capture_output=True,
                     text=True,
                     env=env,
-                    timeout=30,
+                    timeout=local_exec_timeout,
                     encoding="utf-8",
                     errors="replace"
                 )
@@ -232,7 +298,7 @@ except Exception as e:
                 return_code = proc.returncode
             except subprocess.TimeoutExpired:
                 stdout = ""
-                stderr = "Execution timed out (30s limit)"
+                stderr = f"Execution timed out ({local_exec_timeout}s limit)"
                 return_code = 1
             except Exception as e:
                 stdout = ""
@@ -264,14 +330,7 @@ except Exception as e:
 
         except Exception as e:
             import traceback
-            print(f"DEBUG: Local execution failed: {e}")
-            traceback.print_exc()
             return ExecutionResult(stdout="", stderr=f"Backend Execution Error: {str(e)}\n{traceback.format_exc()}", status="error")
-        finally:
-            pass
-    
-    # Keeping old synchronous method commented out or removed
-    # def _run_code_local(self, ...): ...
 
     async def validate_code(self, request: ExecutionRequest, question_data: dict, current_user: User) -> ExecutionResult:
         if self.use_docker and self.docker_available:
@@ -282,13 +341,22 @@ except Exception as e:
              
              image_name = "practice-room-python:latest"
              if request.module_id:
-                 try:
-                     with Session(engine) as session:
-                         module = session.get(Module, request.module_id)
-                         if module and module.base_image:
-                             image_name = module.base_image
-                 except Exception:
-                     pass
+                 # Check for module type keywords in ID
+                 mod_id = request.module_id.lower()
+                 if "genai" in mod_id or "agentic" in mod_id:
+                     image_name = "practice-room-genai:latest"
+                 elif "nlp" in mod_id:
+                     image_name = "practice-room-nlp:latest"
+                 elif "cv" in mod_id or "vision" in mod_id:
+                     image_name = "practice-room-cv:latest"
+                 else:
+                     try:
+                         with Session(engine) as session:
+                             module = session.get(Module, request.module_id)
+                             if module and module.base_image:
+                                 image_name = module.base_image
+                     except Exception:
+                         pass
 
              # Pass LLM API KEYS if available
              env_vars = {}
@@ -298,33 +366,67 @@ except Exception as e:
                  env_vars["OPENAI_API_KEY"] = current_user.openai_api_key.strip()
              if current_user.anthropic_api_key:
                  env_vars["ANTHROPIC_API_KEY"] = current_user.anthropic_api_key.strip()
-
+ 
              env_vars["DEFAULT_LLM_PROVIDER"] = current_user.default_llm_provider or "groq"
+             env_vars["TRANSFORMERS_VERBOSITY"] = "error"
 
              # SECURITY: Enable network ONLY for GenAI and Agentic modules
-             is_ai_module = any(keyword in image_name.lower() for keyword in ["genai", "agentic", "nlp"])
+             # We also verify against module_id to catch cases where the image is default but the task is AI-heavy
+             mod_id_safe = (request.module_id or "").lower()
+             is_ai_image = any(keyword in image_name.lower() for keyword in ["genai", "agentic", "nlp", "cv", "vision", "deep", "dl", "ml"])
+             is_ai_id = any(keyword in mod_id_safe for keyword in ["genai", "agentic", "nlp", "cv", "vision", "deep", "dl", "ml"])
+             
+             is_ai_module = is_ai_image or is_ai_id
+             is_nlp_only = "nlp" in image_name.lower() and not any(k in image_name.lower() for k in ["genai", "agentic"])
              network_enabled = is_ai_module
 
-             if is_ai_module:
-                 # Check if at least one key is configured
+             # Use NLP_TIMEOUT for AI modules (including ML/DL training), DOCKER_TIMEOUT for others
+             exec_timeout = settings.NLP_TIMEOUT if is_ai_module else settings.DOCKER_TIMEOUT
+             use_hf_cache = is_ai_module
+
+             # Only GenAI/Agentic (not NLP, ML, or DL) require API keys
+             is_genai_only = is_ai_module and not is_nlp_only and not any(k in mod_id_safe for k in ["ml", "dl"])
+             if is_genai_only:
                  has_any_key = any([current_user.groq_api_key, current_user.openai_api_key, current_user.anthropic_api_key])
                  if not has_any_key:
                      return ExecutionResult(
-                         stdout="", 
-                         stderr="No service keys configured.",
+                         stdout="",
+                         stderr="No service keys configured. Please go to Environment Settings and enter a provider key.",
                          status="error"
                      )
 
-             result = await docker_executor.validate_code(
-                 request.code, 
-                 Path(question_data["folder_path"]),
-                 image_name=image_name, 
-                 timeout=settings.DOCKER_TIMEOUT,
-                 env_vars=env_vars,
-                 network_enabled=network_enabled
-             )
-             return result
+             # CRITICAL: Wrap Docker executor in try-catch to prevent crashes
+             try:
+                 result = await docker_executor.validate_code(
+                     request.code,
+                     Path(question_data["folder_path"]),
+                     image_name=image_name,
+                     timeout=exec_timeout,
+                     env_vars=env_vars,
+                     network_enabled=network_enabled,
+                     use_hf_cache=use_hf_cache
+                 )
+                 return result
+             # CRITICAL: Fix waiting for validate_code result
+             except asyncio.TimeoutError:
+                 return ExecutionResult(
+                     stdout="",
+                     stderr="Validation timed out. The code took too long to validate.",
+                     status="error"
+                 )
+             except Exception as e:
+                 return ExecutionResult(
+                     stdout="",
+                     stderr=f"Docker validation failed: {str(e)}",
+                     status="error"
+                 )
         else:
+            if self.use_docker and not self.docker_available:
+                return ExecutionResult(
+                    stdout="",
+                    stderr="Docker execution is required but Docker is not running on the server.",
+                    status="error"
+                )
             # Fallback to local execution
             return await self._validate_code_local_async(request, question_data, current_user)
 
@@ -340,6 +442,9 @@ except Exception as e:
         try:
             # Write user code
             (work_dir / "user_code.py").write_text(code, encoding="utf-8")
+            
+            # CRITICAL: Wrap the validator import/execution to prevent uncaught exceptions
+            # from causing 500 errors. Validators should output validation messages, not raise.
             
             # Copy validator
             if "validator_path" in question_data:
@@ -360,42 +465,70 @@ except Exception as e:
                             try:
                                 shutil.copy(q_dir / f, target_dir / f)
                                 shutil.copy(q_dir / f, work_dir / f)
-                            except Exception as copy_err:
-                                print(f"DEBUG: Failed to copy file {f}: {copy_err}")
+                            except Exception:
+                                pass
                 else:
                     for f in os.listdir(q_dir):
                         if f.endswith((".csv", ".txt", ".json")) and f != "master_question_list.csv":
                             try:
                                 shutil.copy(q_dir / f, work_dir / f)
-                            except Exception as copy_err:
-                                print(f"DEBUG: Failed to copy file {f}: {copy_err}")
+                            except Exception:
+                                pass
             else:
-                print(f"DEBUG: Question directory not found for validation: {q_dir}")
+                pass
             
             # Injection: Copy _env.py from questions/
             env_file = settings.QUESTIONS_DIR / "_env.py"
             if env_file.exists():
                 shutil.copy(env_file, work_dir / "_env.py")
+
+            # Injection: Copy _validator_utils.py from questions/
+            val_utils_file = settings.QUESTIONS_DIR / "_validator_utils.py"
+            if val_utils_file.exists():
+                shutil.copy(val_utils_file, work_dir / "_validator_utils.py")
             
-            # Create validation driver
+            # Create validation driver - CRITICAL: Wrap all exceptions to prevent 500 errors
             driver_code = """
 import sys
 import os
 import builtins
+import traceback
+import io
+import contextlib
+
+# Ensure UTF-8 output (preserve emoji) and flush promptly
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace', line_buffering=True)
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(encoding='utf-8', errors='replace', line_buffering=True)
+
+# Add current dir to path
+sys.path.append(os.getcwd())
+
+# print("SYSTEM: Validation Driver Initializing...", flush=True)
+
+# Set non-interactive matplotlib backend BEFORE any other imports
+try:
+    import matplotlib
+    matplotlib.use('Agg')
+except ImportError:
+    pass
 
 # Add current dir to path
 sys.path.append(os.getcwd())
 
 # Inject data DataFrame into builtins BEFORE importing user_code
-import pandas as pd
-if os.path.exists("data.csv"):
-    try:
+try:
+    import pandas as pd
+    if os.path.exists("data.csv"):
         loaded_df = pd.read_csv("data.csv")
         loaded_df.columns = loaded_df.columns.str.lower().str.strip()
         builtins.data = loaded_df
         builtins.df = loaded_df
-    except Exception:
-        pass
+        # print("SYSTEM: Dataset 'data' loaded.")
+except Exception as csv_err:
+    # print(f"SYSTEM WARNING: Could not load data.csv: {csv_err}")
+    pass
 
 # Injection: Add get_llm to builtins if available
 try:
@@ -404,20 +537,59 @@ try:
 except ImportError:
     pass
 
-import validator
-import user_code
-
+# CRITICAL: Wrap ALL validator execution in try-catch to prevent 500 errors
 try:
-    result = validator.validate(user_code)
-    print(result)
-except Exception as e:
-    print(f"Validation Wrapper Error: {e}")
+    import validator
+    
+    # Injection: Add task-specific variables from validator if available
+    if hasattr(validator, "get_input_variables"):
+        try:
+            input_vars = validator.get_input_variables()
+            for k, v in input_vars.items():
+                setattr(builtins, k, v)
+        except Exception as e:
+            # print(f"SYSTEM WARNING: Could not inject input variables: {e}")
+            pass
+
+    # print("SYSTEM: Loading your code...")
+    import user_code
+    # print("SYSTEM: User code loaded successfully.", flush=True)
+    
+    # Force flush to ensure the above appears even if validation hangs
+    sys.stdout.flush()
+    
+    # Silence validator internal prints if any (student prints in user_code already happened during import)
+    f = io.StringIO()
+    with contextlib.redirect_stdout(f):
+        # Call validator with maximum error handling
+        try:
+            result = validator.validate(user_code)
+        except TypeError:
+            # Handle cases where validator signature mismatches
+            result = validator.validate(user_code, None, None)
+    
+    # Prefix validation result to separate from stdout
+    print(f"\\n<<<VALIDATION_RESULT>>>\\n{result}", flush=True)
+
+except Exception as validate_err:
+    # Captures ImportErrors, SyntaxErrors (if not caught by compiler), and Validator crashes
+    error_msg = str(validate_err)
+    stack = traceback.format_exc()
+    print(f"❌ Validation failed: {error_msg}")
+    print(f"\\n<<<VALIDATION_RESULT>>>\\n❌ Execution Error")
+    if stack:
+        print(f"FULL STACK TRACE:\\n{stack}")
 """
             (work_dir / "validate_driver.py").write_text(driver_code, encoding="utf-8")
             
             # Run validation async using run_in_executor
             env = os.environ.copy()
             env["PYTHONIOENCODING"] = "utf-8"
+            env["PYTHONUTF8"] = "1"
+
+            # Determine local timeout based on whether it's an AI module
+            is_ai_module_local = any(keyword in str(q_dir).lower() for keyword in ["genai", "agentic", "nlp", "ml", "dl"])
+            local_exec_timeout = settings.NLP_TIMEOUT if is_ai_module_local else settings.DOCKER_TIMEOUT
 
             def run_sync_validate():
                 return subprocess.run(
@@ -426,7 +598,7 @@ except Exception as e:
                     capture_output=True,
                     text=True,
                     env=env,
-                    timeout=30,
+                    timeout=local_exec_timeout,
                     encoding="utf-8",
                     errors="replace"
                 )
@@ -449,16 +621,26 @@ except Exception as e:
                 return_code = proc.returncode
             except subprocess.TimeoutExpired:
                 stdout = ""
-                stderr = "Validation timed out (30s limit)"
+                stderr = f"Validation timed out ({local_exec_timeout}s limit)"
                 return_code = 1
             except Exception as e:
                 stdout = ""
                 stderr = f"Validation Execution failed: {str(e)}"
                 return_code = 1
 
+            # Parse validation output from stdout
+            validation_output = None
+            delimiter = "<<<VALIDATION_RESULT>>>"
+            
+            if delimiter in stdout:
+                parts = stdout.split(delimiter)
+                stdout = parts[0].strip()
+                validation_output = parts[1].strip() if len(parts) > 1 else ""
+
             return ExecutionResult(
                 stdout=stdout,
                 stderr=stderr,
+                validation_output=validation_output,
                 status="success" if return_code == 0 else "error",
                 run_id=run_id
             )
@@ -469,4 +651,4 @@ except Exception as e:
             return ExecutionResult(stdout="", stderr=f"Backend Validation Error: {str(e)}\n{traceback.format_exc()}", status="error")
 
 execution_service = ExecutionService()
-execution_service = ExecutionService()
+

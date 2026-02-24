@@ -1,0 +1,34 @@
+Path: /openapi.json, Methods: {'GET', 'HEAD'}
+Path: /docs, Methods: {'GET', 'HEAD'}
+Path: /docs/oauth2-redirect, Methods: {'GET', 'HEAD'}
+Path: /redoc, Methods: {'GET', 'HEAD'}
+Path: /api/questions/, Methods: {'GET'}
+Path: /api/questions, Methods: {'GET'}
+Path: /api/questions/{question_id}, Methods: {'GET'}
+Path: /api/modules/, Methods: {'GET'}
+Path: /api/modules, Methods: {'GET'}
+Path: /api/modules/, Methods: {'POST'}
+Path: /api/modules, Methods: {'POST'}
+Path: /api/modules/{module_id}, Methods: {'DELETE'}
+Path: /api/modules/{module_id}, Methods: {'PATCH'}
+Path: /api/execute/runs/{run_id}/{filename}, Methods: {'GET'}
+Path: /api/execute/run, Methods: {'POST'}
+Path: /api/execute/validate, Methods: {'POST'}
+Path: /api/v1/auth/admin/login, Methods: {'POST'}
+Path: /api/v1/auth/login, Methods: {'POST'}
+Path: /api/v1/auth/me/, Methods: {'GET'}
+Path: /api/v1/auth/me, Methods: {'GET'}
+Path: /api/v1/auth/me/settings, Methods: {'PUT'}
+Path: /api/v1/auth/me/settings, Methods: {'DELETE'}
+Path: /api/v1/auth/logout, Methods: {'POST'}
+Path: /api/v1/auth/signup, Methods: {'POST'}
+Path: /api/v1/auth/request-password-reset, Methods: {'POST'}
+Path: /api/v1/auth/verify-password-reset, Methods: {'POST'}
+Path: /api/v1/admin/questions, Methods: {'POST'}
+Path: /api/v1/admin/questions/bulk, Methods: {'POST'}
+Path: /api/v1/admin/questions/sample-template, Methods: {'GET'}
+Path: /api/v1/admin/questions/{question_id}, Methods: {'DELETE'}
+Path: /api/v1/admin/questions/{question_id}, Methods: {'PUT'}
+Path: /api/v1/admin/questions/{question_id}/verify, Methods: {'POST'}
+Path: /, Methods: {'GET'}
+Path: /health, Methods: {'GET'}

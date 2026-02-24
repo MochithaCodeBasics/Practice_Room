@@ -12,3 +12,4 @@ torch
 sentencepiece
 fpdf2>=2.8.0
 matplotlib>=3.8.0
+sentence-transformers>=2.6.0

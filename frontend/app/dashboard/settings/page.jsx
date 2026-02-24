@@ -65,11 +65,16 @@ export default function SettingsPage() {
         setMessage({ text: "", type: "" });
 
         try {
-            const payload = {};
-            payload[`${provider}_api_key`] = "";
-            await api.put("/v1/auth/me/settings", payload);
+            const fieldMap = {
+                'groq': 'groq_api_key',
+                'openai': 'openai_api_key',
+                'anthropic': 'anthropic_api_key'
+            };
+            const field = fieldMap[provider];
+
+            await api.delete("/v1/auth/me/settings", { params: { field } });
             await refreshUser();
-            setMessage({ text: `${providerName} API Key removed.`, type: "success" });
+            setMessage({ text: `${providerName} removed successfully.`, type: "success" });
         } catch (err) {
             console.error("Failed to delete key", err);
             setMessage({
@@ -239,6 +244,7 @@ export default function SettingsPage() {
                                         )}
                                     </div>
                                 </div>
+
                             </div>
 
                             {message.text && (

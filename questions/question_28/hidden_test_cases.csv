@@ -1,0 +1,11 @@
+text,category
+"I am having trouble with the SQL integration in the dashboard.",Technical
+"The subscription price shown on the website is different from what I was charged.",Billing
+"Please deactivate my account and remove all my personal information.",Account
+"The API documentation is missing examples for the Python SDK.",Technical
+"I need a VAT invoice for my company's accounting department.",Billing
+"My password reset link has expired. Can you send a new one?",Account
+"The website is not responsive on mobile devices.",Technical
+"I want to upgrade to the enterprise plan. Who should I contact?",Billing
+"I am unable to see my team members in the dashboard.",Account
+"The real-time data sync is failing with a timeout error.",Technical

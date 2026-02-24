@@ -7,4 +7,16 @@ RUN pip install --no-cache-dir -r /tmp/requirements.txt
 # Download spacy model
 RUN python -m spacy download en_core_web_sm
 
+# Pre-download HuggingFace models into the image so containers start instantly
+# Uses /opt/hf_cache so it won't be shadowed by volume mounts at runtime
+RUN mkdir -p /opt/hf_cache && chown runner:runner /opt/hf_cache
+USER runner
+ENV HF_HOME=/opt/hf_cache
+RUN python -c "\
+from transformers import pipeline, DistilBertTokenizer, DistilBertModel; \
+pipeline('sentiment-analysis', model='distilbert-base-uncased-finetuned-sst-2-english'); \
+DistilBertTokenizer.from_pretrained('distilbert-base-uncased'); \
+DistilBertModel.from_pretrained('distilbert-base-uncased'); \
+print('All NLP models pre-downloaded successfully.')"
+
 USER runner

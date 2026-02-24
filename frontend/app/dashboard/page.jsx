@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Layout from "@/components/Layout";
 import QuestionList from "@/components/QuestionList";
@@ -16,11 +16,17 @@ const Workspace = dynamic(() => import("@/components/Workspace"), { ssr: false }
 
 export default function DashboardPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
-  const [selectedModule, setSelectedModule] = useState(null);
+  const [selectedModule, setSelectedModule] = useState(searchParams.get("moduleId") || null);
   const [selectedQuestionId, setSelectedQuestionId] = useState(null);
   const [modules, setModules] = useState([]);
   const [questionIds, setQuestionIds] = useState([]);
+
+  useEffect(() => {
+    const moduleId = searchParams.get("moduleId");
+    setSelectedModule(moduleId || null);
+  }, [searchParams]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({ difficulty: "", status: "", topic: "" });
   const [availableTopics, setAvailableTopics] = useState([]);

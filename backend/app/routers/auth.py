@@ -16,20 +16,9 @@ from app.core.config import settings
 from pydantic import BaseModel
 from app.core.logging import log_audit_event
 
-# Get limiter from app state would be ideal, but for router we can import or use dependency
-# For simplicity with decorators, we'll re-create a reference or rely on the app state being hooked up
-# Alternatively, we can use the pattern:
-# limiter = Limiter(key_func=get_remote_address) 
-# But to share state with main app easily, we usually define it in a common file or pass it.
-# Let's assume standard pattern of importing limiter if we had a deps.py, 
-# but here we'll use property of slowapi to work with the app's limiter state.
-
 router = APIRouter()
 
-# Helper to access the limiter attached to the app
-def get_limiter():
-    from app.main import limiter
-    return limiter
+from app.core.limiter import limiter
 
 class PasswordResetRequest(BaseModel):
     """Step 1: Request password reset - sends email with token."""
@@ -42,10 +31,21 @@ class PasswordResetVerify(BaseModel):
 
 
 @router.post("/admin/login", response_model=Token)
-@get_limiter().limit("5/minute")
+@limiter.limit("5/minute")
 async def admin_login(request: Request, form_data: OAuth2PasswordRequestForm = Depends()):
     """Admin-only login endpoint"""
-    user = authenticate_user(form_data.username, form_data.password)
+    try:
+        user = authenticate_user(form_data.username, form_data.password)
+    except Exception as e:
+        import traceback
+        import logging
+        error_logger = logging.getLogger("errors")
+        error_logger.error(f"Admin login failed with exception: {str(e)}\n{traceback.format_exc()}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Login processing error: {str(e)}"
+        )
+
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -70,7 +70,7 @@ async def admin_login(request: Request, form_data: OAuth2PasswordRequestForm = D
 
 
 @router.post("/login", response_model=Token)
-@get_limiter().limit("5/minute")
+@limiter.limit("5/minute")
 async def login_for_access_token(request: Request, form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(form_data.username, form_data.password)
     if not user:
@@ -141,6 +141,7 @@ async def update_user_settings(
                     db_user.anthropic_api_key = stripped_key
                     db_user.has_anthropic_api_key = True
 
+
             if settings_in.default_llm_provider is not None:
                 db_user.default_llm_provider = settings_in.default_llm_provider
                 
@@ -158,6 +159,41 @@ async def update_user_settings(
             import traceback
             traceback.print_exc()
             raise HTTPException(status_code=500, detail=f"Update failed: {str(e)}")
+
+@router.delete("/me/settings")
+async def delete_user_setting(
+    field: str,
+    current_user: User = Depends(get_current_active_user)
+):
+    from app.database import engine
+    from sqlmodel import Session
+    
+    with Session(engine) as session:
+        try:
+            # Re-fetch the user in this session
+            db_user = session.get(User, current_user.id)
+            if not db_user:
+                raise HTTPException(status_code=404, detail="User not found")
+                
+            # Valid fields to delete
+            valid_fields = ["groq_api_key", "openai_api_key", "anthropic_api_key"]
+            
+            if field not in valid_fields:
+                raise HTTPException(status_code=400, detail="Invalid field specified")
+                
+            setattr(db_user, field, None)
+            
+            # Update the boolean flag
+            flag_name = f"has_{field}"
+            setattr(db_user, flag_name, False)
+            
+            session.add(db_user)
+            session.commit()
+            return {"message": f"Field {field} deleted successfully"}
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Deletion failed: {str(e)}")
 
 @router.post("/logout")
 async def logout(request: Request, token: str = Depends(settings.oauth2_scheme)):
@@ -198,7 +234,7 @@ async def signup(request: Request, user_in: UserCreate, background_tasks: Backgr
     return new_user
 
 @router.post("/request-password-reset")
-@get_limiter().limit("1/5minute")
+@limiter.limit("1/5minute")
 async def request_password_reset(request: Request, body: PasswordResetRequest, background_tasks: BackgroundTasks):
     """Step 1: Request password reset. Sends token to email if account exists."""
     # Generate token (returns None if email not found)

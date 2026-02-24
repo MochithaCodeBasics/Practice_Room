@@ -146,6 +146,32 @@ def create_db_and_tables():
                 print("Migrating schema: Adding default_llm_provider to user")
                 conn.execute(text("ALTER TABLE user ADD COLUMN default_llm_provider TEXT DEFAULT 'groq'"))
                 conn.commit()
+
+            # Check if hf_token exists in user
+            result = conn.execute(text("PRAGMA table_info(user)"))
+            columns = [row[1] for row in result]
+            if columns and "hf_token" not in columns:
+                print("Migrating schema: Adding hf_token to user")
+                conn.execute(text("ALTER TABLE user ADD COLUMN hf_token TEXT"))
+                conn.execute(text("ALTER TABLE user ADD COLUMN has_hf_token BOOLEAN DEFAULT 0"))
+                conn.commit()
+
+            # Check if current_streak exists in user
+            result = conn.execute(text("PRAGMA table_info(user)"))
+            columns = [row[1] for row in result]
+            if columns and "current_streak" not in columns:
+                print("Migrating schema: Adding current_streak to user")
+                conn.execute(text("ALTER TABLE user ADD COLUMN current_streak INTEGER DEFAULT 0"))
+                conn.commit()
+
+            # Check if last_completed_at exists in user
+            result = conn.execute(text("PRAGMA table_info(user)"))
+            columns = [row[1] for row in result]
+            if columns and "last_completed_at" not in columns:
+                print("Migrating schema: Adding last_completed_at to user")
+                conn.execute(text("ALTER TABLE user ADD COLUMN last_completed_at DATETIME"))
+                conn.commit()
+
     except Exception as e:
         print(f"Schema migration warning: {e}")
 

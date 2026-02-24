@@ -17,7 +17,7 @@ and Direct Website. Historical data shows:
 ### Task
 Implement a function:
 ```python
-calculate_marketing_probabilities() -> dict
+calculate_marketing_probabilities(channel_probs, conversion_rates) -> dict
 ```
 
 ### Requirements
@@ -50,22 +50,27 @@ A dictionary with the following structure:
 ```
 """
 
-hint = """
-- P(Convert) = P(Email)×P(Convert|Email) + P(Social)×P(Convert|Social) + P(Website)×P(Convert|Website)
-- P(Email|Convert) = P(Email)×P(Convert|Email) / P(Convert)
-- P(at least 2 channels) = P(E∩S) + P(E∩W) + P(S∩W) − 2×P(E∩S∩W), since channel interactions are independent
-"""
+hint = """- P(Convert) = sum of P(Channel) x P(Convert|Channel) for all channels
+- P(Channel|Convert) = P(Channel) x P(Convert|Channel) / P(Convert)
+- P(at least 2 channels) = P(E∩S) + P(E∩W) + P(S∩W) - 2×P(E∩S∩W), since channel interactions are independent"""
 
-initial_sample_code = """def calculate_marketing_probabilities():
-    \"\"\"
+initial_sample_code = """from itertools import combinations
+def calculate_marketing_probabilities(channel_probs, conversion_rates):
+    '''
     Calculate marketing channel probabilities using Bayes' theorem.
+
+    Parameters:
+        channel_probs: dict mapping channel names to interaction probabilities
+            e.g., {'Email': 0.40, 'Social': 0.35, 'Website': 0.25}
+        conversion_rates: dict mapping channel names to conversion rates
+            e.g., {'Email': 0.12, 'Social': 0.08, 'Website': 0.15}
 
     Returns:
         dict with keys:
             - overall_conversion_prob: float (total probability of conversion)
-            - bayes_results: dict with Email, Social, Website posterior probabilities
+            - bayes_results: dict with posterior probabilities per channel
             - at_least_two_channels_prob: float (probability of 2+ channel interactions)
-    \"\"\"
+    '''
     # Your code here
     pass
 
@@ -73,16 +78,7 @@ initial_sample_code = """def calculate_marketing_probabilities():
 # Uncomment below to see the output
 # ==========================================================
 # if __name__ == "__main__":
-#     result = calculate_marketing_probabilities()
-#     print(result)
-"""
-
-
-def get_description():
-    return description
-
-def get_hint():
-    return hint
-
-def get_initial_sample_code():
-    return initial_sample_code
+#     channel_probs = {'Email': 0.40, 'Social': 0.35, 'Website': 0.25}
+#     conversion_rates = {'Email': 0.12, 'Social': 0.08, 'Website': 0.15}
+#     result = calculate_marketing_probabilities(channel_probs, conversion_rates)
+#     print(result)"""

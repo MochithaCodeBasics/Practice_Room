@@ -1,9 +1,4 @@
-"""
-Question 1: Build and train a neural network from scratch using NumPy
-Customer Purchase Prediction
-"""
-
-description = """
+description = """### Task
 A small e-commerce startup wants to understand neural networks before using frameworks. 
 They need to predict if a customer will make a purchase based on simple website behavior.
 
@@ -35,20 +30,26 @@ Your task is to build a **simple neural network from scratch** using only NumPy.
 | accuracy    | 0.78   |
 | final_loss  | 0.42   |
 
+### Function Signature
+```python
+def main():
+```
+
+### Return
+The function should return the result as specified in the task.
+
 """
 
-hint = """
-- Normalize input features for better training
+hint = """- Normalize input features for better training
 - Ensure weight shapes match for matrix multiplication
 - Use log loss
 - Add small epsilon (1e-8) in log to avoid log(0)
-- If loss is NaN, reduce learning rate
-"""
+- If loss is NaN, reduce learning rate"""
 
 initial_sample_code = """# Import necessary libraries
 
 def main():
-    \"\"\"
+    '''
     Build and train a neural network from scratch using NumPy.
 
     Returns
@@ -57,7 +58,7 @@ def main():
         DataFrame with columns 'metric' and 'value' containing:
         - accuracy: test set accuracy
         - final_loss: final training loss
-    \"\"\"
+    '''
     # Data available in this dataframe
     df = data.copy()
     
@@ -74,14 +75,4 @@ def main():
 
 if __name__ == "__main__":
     result = main() # Save return value into a variable named `result`
-    print(result)
-"""
-
-def get_description():
-    return description
-
-def get_hint():
-    return hint
-
-def get_initial_sample_code():
-    return initial_sample_code
+    print(result)"""

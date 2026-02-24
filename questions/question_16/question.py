@@ -5,14 +5,11 @@ to accomplish tasks.
 
 In this exercise, you will build a simple agent that:
 - Uses an LLM to decide when to call a tool
-- Invokes a **Calculator** tool to perform arithmetic operations
+- Invokes a Calculator tool to perform arithmetic operations
 - Returns the final response after tool usage
 
 A helper function `get_llm()` is already available in the environment.
 By default, it is configured to use an open-source model.
-If you want to use a Groq-hosted open-source model, add your `GROQ_API_KEY`
-in a `.env` file. You may also modify `get_llm()` in `questions/_env.py`
-to use any other LLM and update `requirements.txt` accordingly.
 
 ### Your Task
 - Use `get_llm()` to obtain the LLM
@@ -25,26 +22,33 @@ Query: "What is 3 + 5?"
 Expected: The agent should use the calculator tool and return a response containing "8"
 
 ### Function Signature
-simple_tool_agent(query: str) -> str
+```python
+def simple_tool_agent(query: str) -> str
+```
 """
 
 hint = """
 Define a calculator tool using the `@tool` decorator and bind it to the LLM to handle arithmetic queries.
 """
 
-initial_sample_code = """
-from langchain_core.prompts import PromptTemplate
+initial_sample_code = """from langchain_core.prompts import PromptTemplate
 
 def simple_tool_agent(query: str):
+    '''
+    An agent that uses a calculator tool to answer questions.
+    
+    Args:
+        query (str): The user query (e.g., 'What is 3 + 5?').
+        
+    Returns:
+        str: The final answer from the agent.
+    '''
     llm = get_llm()
-    # Write your code here
-"""
+    # Your code here
+    pass
 
-def get_description():
-    return description
-
-def get_hint():
-    return hint
-
-def get_initial_sample_code():
-    return initial_sample_code
+# ==========================================================
+# Uncomment below to see the output
+# ==========================================================
+#if __name__ == "__main__":
+#    print(simple_tool_agent("What is 3 + 5?"))"""

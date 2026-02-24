@@ -1,9 +1,4 @@
-"""
-Question 1: Simple Linear Regression
-Predict sales from advertising spend
-"""
-
-description = """
+description = """### Task
 A marketing team wants to estimate **sales revenue** based on **advertising spend**.
 
 You are provided with a CSV file named `data.csv` containing historical campaign data.
@@ -29,22 +24,28 @@ and report evaluation metrics.
 | mse    | 125.5  |
 | r2     | 0.89   |
 
-- **Note:** Your model will be evaluated on a hidden test dataset to verify its generalization performance.
 - The **Mean Squared Error (MSE)** may appear very large due to the high magnitude of sales values, but this does **not necessarily indicate poor model performance**.
+
+### Function Signature
+```python
+def main():
+```
+
+### Return
+The function should return the result as specified in the task.
+
 """
 
-hint = """
-- Use `LinearRegression` from sklearn.linear_model
+hint = """- Use `LinearRegression` from sklearn.linear_model
 - Keep features as 2D array using double brackets `df[['ad_spend']]`
 - Calculate metrics using `mean_squared_error` and `r2_score` from sklearn.metrics
-- No feature scaling is needed for simple linear regression with a single feature
-"""
+- No feature scaling is needed for simple linear regression with a single feature"""
 
 initial_sample_code = """# Import necessary libraries
 
 
 def main():
-    \"\"\"
+    '''
     Train and evaluate the machine learning model.
 
     Returns
@@ -53,7 +54,7 @@ def main():
         The trained model.
     result : pandas.DataFrame
         Evaluation results.
-    \"\"\"
+    '''
     # data available in this dataframe
     df = data.copy()
 
@@ -64,15 +65,4 @@ def main():
 
 if __name__ == "__main__":
     model, result = main()
-    print(result)
-"""
-
-def get_description():
-    return description
-
-def get_hint():
-    return hint
-
-def get_initial_sample_code():
-    return initial_sample_code
-
+    print(result)"""

@@ -34,42 +34,23 @@ You must compute the following statistics and return them in a dictionary:
 - A dictionary with all 10 required keys and their computed values
 """
 
-hint = """
-- Quartiles: `.quantile(0.25)` and `.quantile(0.75)`
-- Mode returns a Series; use `.iloc[0]` for single value
-"""
-
+hint = """- Use `series.dropna()` before computing metrics
+- Use `quantile(0.25)` and `quantile(0.75)` for quartiles
+- `mode()` may return multiple values; return a single mode value as required"""
 
 initial_sample_code = """import pandas as pd
+import numpy as np
 
-def summarize_spend(series):
-    \"\"\"
-    Compute comprehensive statistics for spending data.
+def summarize_spend(spend_series):
+    '''
+    Return summary statistics for a pandas Series.
 
     Parameters:
-        series: pandas Series containing monthly spend values
+        spend_series: pandas Series (may include NaN values)
 
     Returns:
         dict with keys: mean, median, mode, std, variance, min, max, Q1, Q3, IQR
-    \"\"\"
+    '''
     # Your code here
     pass
-
-# ==========================================================
-# Uncomment below to see the output
-# ==========================================================
-# if __name__ == "__main__":
-#     test_data = pd.Series([1200, 1500, 1500, 1800, 2000, 2200])
-#     result = summarize_spend(test_data)
-#     print(result)
 """
-
-
-def get_description():
-    return description
-
-def get_hint():
-    return hint
-
-def get_initial_sample_code():
-    return initial_sample_code

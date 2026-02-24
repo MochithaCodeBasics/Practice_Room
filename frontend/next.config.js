@@ -9,6 +9,9 @@ const nextConfig = {
       { source: '/api/:path*', destination: 'http://localhost:8000/api/:path*' },
     ];
   },
+  experimental: {
+    proxyTimeout: 300000, // 5 minutes (matches backend timeout)
+  },
 };
 
 module.exports = nextConfig;

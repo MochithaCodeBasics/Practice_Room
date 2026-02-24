@@ -66,10 +66,24 @@ export default function AdminEditQuestionPage() {
   const handleFileChange = (e) => {
     const { name, files: selectedFiles } = e.target;
     if (name === "data_files") {
-      setFiles((prev) => ({ ...prev, data_files: Array.from(selectedFiles) }));
+      const newFiles = Array.from(selectedFiles);
+      setFiles((prev) => {
+        const uniqueNewFiles = newFiles.filter(
+          (nf) => !prev.data_files.some((pf) => pf.name === nf.name)
+        );
+        return { ...prev, data_files: [...prev.data_files, ...uniqueNewFiles] };
+      });
+      e.target.value = "";
     } else {
       setFiles((prev) => ({ ...prev, [name]: selectedFiles[0] }));
     }
+  };
+
+  const removeDataFile = (index) => {
+    setFiles((prev) => ({
+      ...prev,
+      data_files: prev.data_files.filter((_, i) => i !== index),
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -112,8 +126,8 @@ export default function AdminEditQuestionPage() {
           <h1 className="text-3xl font-bold text-gray-800">Edit Question</h1>
           <p className="text-gray-500 text-sm mt-1">Editing: {questionId}</p>
         </div>
-        <Button variant="outline" onClick={() => router.push("/dashboard")} className="border-indigo-100 text-indigo-600 hover:bg-indigo-50">
-          Back to Dashboard
+        <Button variant="outline" onClick={() => router.push(`/dashboard?moduleId=${formData.module_id}`)} className="border-indigo-100 text-indigo-600 hover:bg-indigo-50">
+          Back
         </Button>
       </div>
 
@@ -194,9 +208,40 @@ export default function AdminEditQuestionPage() {
                 <Input type="file" name="validator_py" accept=".py" onChange={handleFileChange} className="cursor-pointer" />
               </div>
             </div>
-            <div className="space-y-2">
-              <Label>Add/Replace Data Files</Label>
-              <Input type="file" name="data_files" multiple onChange={handleFileChange} className="cursor-pointer" />
+            <div className="space-y-4">
+              <Label>Add/Replace Data Files (CSV, TXT, PT, etc.)</Label>
+
+              <Input
+                type="file"
+                name="data_files"
+                multiple
+                accept=".csv,.txt,.json,.py,.pt"
+                onChange={handleFileChange}
+                className="cursor-pointer"
+              />
+
+              {files.data_files.length > 0 && (
+                <div className="bg-blue-50 p-4 rounded-md space-y-2">
+                  <p className="text-sm font-medium text-blue-800">New Files to Upload ({files.data_files.length}):</p>
+                  <ul className="space-y-2">
+                    {files.data_files.map((file, idx) => (
+                      <li key={idx} className="flex items-center justify-between text-sm bg-white p-2 rounded border border-blue-100">
+                        <span className="truncate max-w-[200px]">{file.name}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeDataFile(idx)}
+                          className="text-red-500 hover:text-red-700 h-8 px-2"
+                        >
+                          Remove
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <p className="text-xs text-gray-400">Selected files will be uploaded when you save.</p>
             </div>
           </CardContent>
         </Card>
@@ -208,7 +253,7 @@ export default function AdminEditQuestionPage() {
         )}
 
         <div className="flex justify-end gap-4 pt-4">
-          <Button type="button" variant="secondary" onClick={() => router.push("/dashboard")}>
+          <Button type="button" variant="secondary" onClick={() => router.push(`/dashboard?moduleId=${formData.module_id}`)}>
             Cancel
           </Button>
           <Button type="submit" disabled={saving} className="bg-indigo-600 hover:bg-indigo-700 font-bold">

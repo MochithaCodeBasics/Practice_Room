@@ -23,7 +23,7 @@ class Settings:
     # Auth - SECURITY: Environment variables required for production
     SECRET_KEY: str = os.getenv("SECRET_KEY", "dev-only-insecure-key-change-in-production")
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440 # 24 hours
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 480  # 8 hours
     
     # We need to expose this for the router to use in Depends
     @property
@@ -40,8 +40,10 @@ class Settings:
     CORS_ORIGINS: str = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:3000")
 
     # Docker Configuration
-    DOCKER_TIMEOUT: int = int(os.getenv("DOCKER_TIMEOUT", "30"))
-    DOCKER_MEMORY_LIMIT: str = os.getenv("DOCKER_MEMORY_LIMIT", "128m")
+    DOCKER_TIMEOUT: int = int(os.getenv("DOCKER_TIMEOUT", "60"))
+    NLP_TIMEOUT: int = int(os.getenv("NLP_TIMEOUT", str(DOCKER_TIMEOUT))) # Default to DOCKER_TIMEOUT if not set
+    DOCKER_MEMORY_LIMIT: str = os.getenv("DOCKER_MEMORY_LIMIT", "1.5g")  # Increased from 512m for PyTorch/ML workloads
+    DOCKER_HF_CACHE_VOLUME: str = os.getenv("DOCKER_HF_CACHE_VOLUME", "practice-room-hf-cache")
     
     # Environment check
     IS_PRODUCTION: bool = os.getenv("ENVIRONMENT", "development") == "production"

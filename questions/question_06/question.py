@@ -1,4 +1,4 @@
-description = """
+description = """### Task
 An e-commerce platform needs a flexible pricing function that can handle different
 types of charges and discounts during checkout.
 
@@ -35,17 +35,22 @@ Explanation:
 
 Output:
 983.25
+
+### Function Signature
+```python
+def calculate_final_price(...):
+```
+
+### Return
+The function should return the result as specified in the task.
+
 """
 
-hint = """
-Think about how Python functions can accept a flexible number of inputs.
+hint = """Think about how Python functions can accept a flexible number of inputs.
 Recall how *args and **kwargs behave inside a function.
-Consider how percentage-based discounts should affect a running total.
-"""
+Consider how percentage-based discounts should affect a running total."""
 
-
-initial_sample_code = """
-# Create a function named:
+initial_sample_code = """# Create a function named:
 # calculate_final_price
 
 # The function should return the final payable amount
@@ -56,16 +61,4 @@ initial_sample_code = """
 # ============================================================
 # if __name__ == "__main__":
 #     result = calculate_final_price(1000, 50, 100, coupon=10, loyalty=5)
-#     print(result)
-"""
-
-
-def get_description():
-    return description
-
-def get_hint():
-    return hint
-
-def get_initial_sample_code():
-    return initial_sample_code
-
+#     print(result)"""

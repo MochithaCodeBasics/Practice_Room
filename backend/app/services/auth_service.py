@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Optional, Union
+from typing import Optional
 import uuid
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -8,7 +8,7 @@ from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 
 from app.core.config import settings
-from app.models import User, UserInDB, UserCreate
+from app.models import User, UserCreate
 from app.database import engine
 from app.services.progress_service import progress_service
 from sqlmodel import Session, select
@@ -57,40 +57,6 @@ def create_user(user_create: UserCreate):
         session.commit()
         session.refresh(db_user)
         return db_user
-
-def reset_password(username: str, email: str, new_password: str):
-    """
-    SECURITY FIX: This is a simplified secure reset for demo purposes.
-    In production, implement a two-step flow:
-    1. initiate_password_reset(email) - sends token to email
-    2. complete_password_reset(token, new_password) - validates token and resets
-    
-    For now, we keep the username+email verification but add password strength check.
-    """
-    import re
-    
-    # Password strength validation
-    if len(new_password) < 8:
-        return False
-    if not re.search(r'[A-Z]', new_password):
-        return False
-    if not re.search(r'[a-z]', new_password):
-        return False
-    if not re.search(r'[0-9]', new_password):
-        return False
-    
-    with Session(engine) as session:
-        statement = select(User).where(User.username == username, User.email == email)
-        db_user = session.exec(statement).first()
-        if not db_user:
-            return False
-        
-        db_user.hashed_password = pwd_context.hash(new_password)
-        session.add(db_user)
-        session.commit()
-        session.refresh(db_user)
-        return True
-
 
 # SECURITY: Secure token-based password reset functions
 import secrets
@@ -183,12 +149,9 @@ def verify_and_reset_password(token: str, new_password: str) -> bool:
 def authenticate_user(username: str, password: str):
     user = get_user(username)
     if not user:
-        print(f"DEBUG AUTH: User '{username}' not found.")
         return False
-    
-    is_valid = verify_password(password, user.hashed_password)
-    print(f"DEBUG AUTH: Verification for '{username}'. valid={is_valid}. HashLen={len(user.hashed_password)}")
-    if not is_valid:
+
+    if not verify_password(password, user.hashed_password):
         return False
     return user
 
@@ -239,36 +202,26 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     
     # SECURITY: Check revocation blacklist first
     try:
-        if not token:
-             print("AUTH DEBUG: No token received")
-        
-        # Decode without verifying signature first to check JTI quickly? 
-        # No, safer to verify signature first to prevent DoS on DB with fake tokens.
-        # But jose.jwt.decode verifies by default.
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         jti: str = payload.get("jti")
-        
+
         if jti:
             from app.models import RevokedToken
             with Session(engine) as session:
                 revoked = session.exec(select(RevokedToken).where(RevokedToken.jti == jti)).first()
                 if revoked:
-                    print("AUTH DEBUG: Token revoked")
                     raise credentials_exception
-        
+
         username: str = payload.get("sub")
         role: str = payload.get("role")
         if username is None:
-            print("AUTH DEBUG: Username missing in token")
             raise credentials_exception
         token_data = TokenData(username=username, role=role)
-    except JWTError as e:
-        print(f"AUTH DEBUG: JWT Error: {e}")
+    except JWTError:
         raise credentials_exception
-    
+
     user = get_user(token_data.username)
     if user is None:
-        print(f"AUTH DEBUG: User {token_data.username} not found in DB")
         raise credentials_exception
     return user
 

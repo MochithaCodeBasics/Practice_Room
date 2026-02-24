@@ -2,6 +2,7 @@ import os
 import shutil
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, status, Request
+from fastapi.responses import FileResponse
 from app.core.logging import log_audit_event
 from app.core.config import settings
 from app.services.auth_service import get_current_admin_user, User
@@ -130,6 +131,36 @@ def create_question(
             
             time.sleep(random.uniform(0.1, 0.3)) # Wait a bit before retrying
 
+@router.post("/questions/bulk", status_code=status.HTTP_201_CREATED)
+async def bulk_upload_questions(
+    request: Request,
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_admin_user)
+):
+    from app.services.question_service import question_service
+    
+    if not file.filename.endswith(".zip"):
+        raise HTTPException(status_code=400, detail="Only .zip files are allowed")
+        
+    try:
+        result = await question_service.process_bulk_zip(file)
+        log_audit_event("bulk_upload_questions", user=current_user.username, request=request, status="success", details={"count": result["success"]})
+        return result
+    except Exception as e:
+        log_audit_event("bulk_upload_questions", user=current_user.username, request=request, status="failed", details={"error": str(e)})
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/questions/sample-template")
+def get_sample_template(current_user: User = Depends(get_current_admin_user)):
+    file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", "sample_questions.zip")
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Sample template not found")
+    return FileResponse(
+        path=file_path,
+        filename="sample_questions.zip",
+        media_type="application/zip"
+    )
+
 @router.delete("/questions/{question_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_question(request: Request, question_id: str, current_user: User = Depends(get_current_admin_user)):
     with Session(engine) as session:
@@ -204,6 +235,9 @@ def update_question(
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Failed to update files: {str(e)}")
         
+        # Reset verification status on any update
+        question.is_verified = False
+        
         session.add(question)
         session.commit()
         session.refresh(question)
@@ -233,4 +267,4 @@ def verify_question(
         session.commit()
         log_audit_event("verify_question", user=current_user.username, request=request, status="success", details={"question_id": question_id, "verified": body.verified})
         
-        return {"message": f"Question verification status set to {request.verified}", "id": question.id, "is_verified": request.verified}
+        return {"message": f"Question verification status set to {body.verified}", "id": question.id, "is_verified": body.verified}
