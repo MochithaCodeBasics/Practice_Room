@@ -120,6 +120,7 @@ model User {
 
   progress     UserProgress[]
   reset_tokens PasswordResetToken[]
+  submissions  UserSubmission[]
 
   @@map("users")
 }
@@ -143,7 +144,26 @@ model UserProgress {
   @@map("user_progress")
 }
 
-// ─── Table 6: revoked_tokens ────────────────────────────────────────────────
+// ─── Table 6: user_submissions ───────────────────────────────────────────────
+
+model UserSubmission {
+  id             Int      @id @default(autoincrement())
+  user_id        Int      @map("user_id")
+  question_id    String   @map("question_id") @db.VarChar(50)
+  submitted_code String?  @map("submitted_code") @db.Text
+  stdout         String?  @db.Text
+  stderr         String?  @db.Text
+  status         String   @db.VarChar(10)
+  created_at     DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id], map: "idx_us_user_id")
+  @@index([user_id, question_id], map: "idx_us_user_id_question")
+  @@map("user_submissions")
+}
+
+// ─── Table 7: revoked_tokens ────────────────────────────────────────────────
 
 model RevokedToken {
   jti        String   @id @db.VarChar(255)
@@ -153,7 +173,7 @@ model RevokedToken {
   @@map("revoked_tokens")
 }
 
-// ─── Table 7: password_reset_tokens ─────────────────────────────────────────
+// ─── Table 8: password_reset_tokens ─────────────────────────────────────────
 
 model PasswordResetToken {
   id         Int      @id @default(autoincrement())

@@ -1,5 +1,6 @@
 import {
   Controller,
+  Logger,
   Post,
   Get,
   Body,
@@ -38,6 +39,8 @@ class ExecutionRequestDto {
 
 @Controller('api/execute')
 export class ExecuteController {
+  private readonly logger = new Logger(ExecuteController.name);
+
   constructor(
     private readonly executeService: ExecuteService,
     private readonly dockerExecutor: DockerExecutorService,
@@ -107,6 +110,18 @@ export class ExecuteController {
       );
       result.current_streak = user.current_streak;
     }
+
+    // Record submission — fire-and-forget so DB errors never block the response
+    this.prisma.userSubmission.create({
+      data: {
+        user_id: user.id,
+        question_id: questionId,
+        submitted_code: dto.code,
+        stdout: result.stdout ?? null,
+        stderr: result.stderr ?? null,
+        status: isPass ? 'pass' : 'fail',
+      },
+    }).catch((err) => this.logger.error('Failed to record submission', err));
 
     return result;
   }
