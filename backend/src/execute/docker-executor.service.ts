@@ -13,7 +13,6 @@ export interface ExecutionResult {
   artifacts: string[];
   status: string;
   run_id?: string;
-  current_streak?: number;
 }
 
 // Python driver scripts (executed inside the container)

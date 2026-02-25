@@ -90,25 +90,9 @@ export class ExecuteController {
         result.stdout.includes('\u2705'));
 
     if (isPass) {
-      await this.progressService.markCompleted(
-        user.username,
-        questionId,
-        dto.code,
-      );
-      // Fetch updated streak
-      const updatedUser = await this.prisma.user.findUnique({
-        where: { username: user.username },
-      });
-      if (updatedUser) {
-        result.current_streak = updatedUser.current_streak;
-      }
+      await this.progressService.markCompleted(user.id, questionId, dto.code);
     } else {
-      await this.progressService.markAttempted(
-        user.username,
-        questionId,
-        dto.code,
-      );
-      result.current_streak = user.current_streak;
+      await this.progressService.markAttempted(user.id, questionId, dto.code);
     }
 
     // Record submission — fire-and-forget so DB errors never block the response

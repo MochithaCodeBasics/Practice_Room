@@ -6,55 +6,43 @@ export class ProgressService {
   constructor(private readonly prisma: PrismaService) {}
 
   async markCompleted(
-    username: string,
+    userId: number,
     questionId: string,
     code?: string,
   ): Promise<void> {
-    username = username.trim();
     questionId = questionId.trim();
 
-    const existing = await this.prisma.userProgress.findUnique({
-      where: { username_question_id: { username, question_id: questionId } },
-    });
-
-    const isNewCompletion = !existing || existing.status !== 'completed';
-
     await this.prisma.userProgress.upsert({
-      where: { username_question_id: { username, question_id: questionId } },
+      where: { user_id_question_id: { user_id: userId, question_id: questionId } },
       update: {
         status: 'completed',
         ...(code ? { user_code: code } : {}),
         updated_at: new Date(),
       },
       create: {
-        username,
+        user_id: userId,
         question_id: questionId,
         status: 'completed',
         user_code: code || null,
       },
     });
-
-    if (isNewCompletion) {
-      await this.updateStreak(username);
-    }
   }
 
   async markAttempted(
-    username: string,
+    userId: number,
     questionId: string,
     code?: string,
   ): Promise<void> {
-    username = username.trim();
     questionId = questionId.trim();
 
     const existing = await this.prisma.userProgress.findUnique({
-      where: { username_question_id: { username, question_id: questionId } },
+      where: { user_id_question_id: { user_id: userId, question_id: questionId } },
     });
 
     if (!existing) {
       await this.prisma.userProgress.create({
         data: {
-          username,
+          user_id: userId,
           question_id: questionId,
           status: 'attempted',
           user_code: code || null,
@@ -74,11 +62,10 @@ export class ProgressService {
   }
 
   async getProgress(
-    username: string,
+    userId: number,
   ): Promise<{ completed: Set<string>; attempted: Set<string> }> {
-    username = username.trim();
     const records = await this.prisma.userProgress.findMany({
-      where: { username },
+      where: { user_id: userId },
     });
 
     const completed = new Set<string>();
@@ -97,49 +84,15 @@ export class ProgressService {
   }
 
   async getUserCode(
-    username: string,
+    userId: number,
     questionId: string,
   ): Promise<string | null> {
-    username = username.trim();
     questionId = questionId.trim();
 
     const progress = await this.prisma.userProgress.findUnique({
-      where: { username_question_id: { username, question_id: questionId } },
+      where: { user_id_question_id: { user_id: userId, question_id: questionId } },
     });
 
     return progress?.user_code ?? null;
-  }
-
-  private async updateStreak(username: string): Promise<void> {
-    await this.prisma.user.update({
-      where: { username },
-      data: {
-        current_streak: { increment: 1 },
-        last_completed_at: new Date(),
-      },
-    });
-  }
-
-  async refreshStreak(username: string): Promise<void> {
-    const user = await this.prisma.user.findUnique({ where: { username } });
-    if (!user || !user.last_completed_at) return;
-
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const lastDate = new Date(
-      user.last_completed_at.getFullYear(),
-      user.last_completed_at.getMonth(),
-      user.last_completed_at.getDate(),
-    );
-
-    const diffDays =
-      (today.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24);
-
-    if (diffDays > 1) {
-      await this.prisma.user.update({
-        where: { username },
-        data: { current_streak: 0 },
-      });
-    }
   }
 }

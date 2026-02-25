@@ -95,32 +95,16 @@ model ModuleQuestionImport {
 // ─── Table 4: users ─────────────────────────────────────────────────────────
 
 model User {
-  id              Int     @id @default(autoincrement())
-  username        String  @unique @db.VarChar(50)
-  email           String  @unique @db.VarChar(255)
-  hashed_password String  @db.VarChar(255)
-  role            String  @default("learner") @db.VarChar(20)
-  disabled        Boolean @default(false)
-
-  groq_api_key      String? @db.VarChar(255)
-  openai_api_key    String? @db.VarChar(255)
-  anthropic_api_key String? @db.VarChar(255)
-
-  has_groq_api_key      Boolean @default(false)
-  has_openai_api_key    Boolean @default(false)
-  has_anthropic_api_key Boolean @default(false)
-
-  default_llm_provider String @default("groq") @db.VarChar(20)
-
-  current_streak    Int       @default(0) @map("current_streak")
-  last_completed_at DateTime? @map("last_completed_at")
+  id         Int    @id @default(autoincrement())
+  cb_user_id String @unique @map("cb_user_id") @db.VarChar(50)
+  email      String @unique @db.VarChar(255)
+  role       String @default("learner") @db.VarChar(20)
 
   created_at DateTime @default(now()) @map("created_at")
   updated_at DateTime @default(now()) @updatedAt @map("updated_at")
 
-  progress     UserProgress[]
-  reset_tokens PasswordResetToken[]
-  submissions  UserSubmission[]
+  progress    UserProgress[]
+  submissions UserSubmission[]
 
   @@map("users")
 }
@@ -129,17 +113,17 @@ model User {
 
 model UserProgress {
   id          Int      @id @default(autoincrement())
-  username    String   @db.VarChar(50)
+  user_id     Int      @map("user_id")
   question_id String   @map("question_id") @db.VarChar(50)
   status      String   @default("attempted") @db.VarChar(20)
   user_code   String?  @map("user_code") @db.Text
   created_at  DateTime @default(now()) @map("created_at")
   updated_at  DateTime @default(now()) @updatedAt @map("updated_at")
 
-  user User @relation(fields: [username], references: [username], onDelete: Cascade)
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
-  @@unique([username, question_id], name: "username_question_id")
-  @@index([username], map: "idx_up_username")
+  @@unique([user_id, question_id], name: "user_id_question_id")
+  @@index([user_id], map: "idx_up_user_id")
   @@index([question_id], map: "idx_up_question_id")
   @@map("user_progress")
 }
@@ -173,18 +157,3 @@ model RevokedToken {
   @@map("revoked_tokens")
 }
 
-// ─── Table 8: password_reset_tokens ─────────────────────────────────────────
-
-model PasswordResetToken {
-  id         Int      @id @default(autoincrement())
-  user_id    Int      @map("user_id")
-  token_hash String   @db.VarChar(255)
-  used       Boolean  @default(false)
-  expires_at DateTime @map("expires_at")
-  created_at DateTime @default(now()) @map("created_at")
-
-  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@index([token_hash], map: "idx_prt_token_hash")
-  @@map("password_reset_tokens")
-}

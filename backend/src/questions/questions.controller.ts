@@ -8,7 +8,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { QuestionsService } from './questions.service.js';
-import { OptionalAuthGuard } from '../common/guards/optional-auth.guard.js';
+import { CodebasicsOptionalAuthGuard } from '../common/guards/codebasics-optional-auth.guard.js';
 import { CurrentUser } from '../common/decorators/current-user.decorator.js';
 
 @Controller('api/questions')
@@ -16,14 +16,14 @@ export class QuestionsController {
   constructor(private readonly questionsService: QuestionsService) {}
 
   @Get()
-  @UseGuards(OptionalAuthGuard)
+  @UseGuards(CodebasicsOptionalAuthGuard)
   async findAll(
     @CurrentUser() user: any,
     @Query('difficulty') difficulty?: string,
     @Query('status') status?: string,
   ) {
     return this.questionsService.getAllQuestions(
-      user?.username,
+      user?.id,
       difficulty,
       status,
       user?.role,
@@ -31,14 +31,14 @@ export class QuestionsController {
   }
 
   @Get(':questionId')
-  @UseGuards(OptionalAuthGuard)
+  @UseGuards(CodebasicsOptionalAuthGuard)
   async findOne(
     @Param('questionId') questionId: string,
     @CurrentUser() user: any,
   ) {
     const question = await this.questionsService.getQuestion(
       questionId,
-      user?.username,
+      user?.id,
       user?.role,
     );
 

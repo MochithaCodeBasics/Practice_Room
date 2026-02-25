@@ -33,13 +33,13 @@ export class QuestionsService {
   }
 
   async getAllQuestions(
-    username?: string,
+    userId?: number,
     difficulty?: string,
     status?: string,
     userRole?: string,
   ) {
-    const userProgress = username
-      ? await this.progressService.getProgress(username)
+    const userProgress = userId
+      ? await this.progressService.getProgress(userId)
       : { completed: new Set<string>(), attempted: new Set<string>() };
 
     const where: any = { is_active: true };
@@ -82,7 +82,7 @@ export class QuestionsService {
 
   async getQuestion(
     questionId: string,
-    username?: string,
+    userId?: number,
     userRole?: string,
   ) {
     const parsedQuestionId = toPositiveInt(questionId);
@@ -141,16 +141,16 @@ export class QuestionsService {
       : [];
 
     // User progress
-    const userProgress = username
-      ? await this.progressService.getProgress(username)
+    const userProgress = userId
+      ? await this.progressService.getProgress(userId)
       : { completed: new Set<string>(), attempted: new Set<string>() };
 
     // Load saved code if available
     const shouldLoadProgress =
       !(userRole === 'admin' && !question.is_verified);
-    if (username && shouldLoadProgress) {
+    if (userId && shouldLoadProgress) {
       const savedCode = await this.progressService.getUserCode(
-        username,
+        userId,
         String(question.id),
       );
       if (savedCode) {

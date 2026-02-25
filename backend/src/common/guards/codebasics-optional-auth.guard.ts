@@ -5,8 +5,6 @@ import {
   Logger,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as bcrypt from 'bcrypt';
-import * as crypto from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service.js';
 
 interface CachedToken {
@@ -91,17 +89,14 @@ export class CodebasicsOptionalAuthGuard implements CanActivate {
       let localUser = await this.prisma.user.findUnique({ where: { email } });
 
       if (!localUser) {
-        const username = (`cb_${cbId || email.split('@')[0]}`).substring(0, 50);
-        const dummyHash = await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 4);
-
         localUser = await this.prisma.user.upsert({
           where: { email },
-          create: { username, email, hashed_password: dummyHash, role: 'learner' },
+          create: { cb_user_id: cbId, email, role: 'learner' },
           update: {},
         });
       }
 
-      request.user = localUser && !localUser.disabled ? localUser : null;
+      request.user = localUser;
     } catch {
       request.user = null;
     }
