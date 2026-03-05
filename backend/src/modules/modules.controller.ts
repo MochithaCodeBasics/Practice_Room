@@ -15,6 +15,8 @@ import { ModulesService } from './modules.service.js';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
 import { AdminGuard } from '../common/guards/admin.guard.js';
 import { CreateModuleDto, UpdateModuleDto } from './dto/create-module.dto.js';
+import { CodebasicsOptionalAuthGuard } from '../common/guards/codebasics-optional-auth.guard.js';
+import { CurrentUser } from '../common/decorators/current-user.decorator.js';
 
 @Controller('api/modules')
 export class ModulesController {
@@ -34,17 +36,19 @@ export class ModulesController {
   }
 
   @Get(':slug/questions')
+  @UseGuards(CodebasicsOptionalAuthGuard)
   async findQuestions(
     @Param('slug') slug: string,
+    @CurrentUser() user: any,
     @Query('difficulty') difficulty?: string,
     @Query('topic') topic?: string,
     @Query('search') search?: string,
   ) {
-    return this.modulesService.findQuestionsBySlug(slug, {
-      difficulty,
-      topic,
-      search,
-    });
+    return this.modulesService.findQuestionsBySlug(
+      slug,
+      { difficulty, topic, search },
+      user?.id,
+    );
   }
 
   @Get(':slug/questions/:questionSlug')

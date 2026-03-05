@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getSession } from "next-auth/react";
 import type { Filters, QuestionRead, QuestionDetail, ExecutionResult, Module } from "@/types";
 
 const api = axios.create({
@@ -6,6 +7,14 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+});
+
+api.interceptors.request.use(async (config) => {
+  const session = await getSession();
+  if (session?.accessToken) {
+    config.headers.Authorization = `Bearer ${session.accessToken}`;
+  }
+  return config;
 });
 
 

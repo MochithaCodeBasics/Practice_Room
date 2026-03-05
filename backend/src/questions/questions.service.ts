@@ -173,6 +173,7 @@ export class QuestionsService {
       hint,
       sample_data: sampleData || '',
       data_files: dataFiles,
+      is_active: question.is_active,
       is_verified: question.is_verified,
       is_completed: userProgress.completed.has(qid),
       is_attempted: userProgress.attempted.has(qid),

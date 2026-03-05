@@ -1,19 +1,16 @@
 "use client";
-
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
 import Layout from "@/components/Layout";
 import NotFoundView from "@/components/NotFoundView";
 import Link from "next/link";
 import { ArrowLeft, Search, Filter, Tag } from "lucide-react";
-import { Trash2, Pencil, CheckCircle, Clock } from "lucide-react";
+import { CheckCircle, Clock } from "lucide-react";
 import api from "@/services/api";
 import axios from "axios";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import type { Module as ModuleType, Filters } from "@/types";
 
 interface ModuleQuestion {
@@ -36,7 +33,7 @@ export default function ModuleQuestionsPage({
 }) {
     const { slug } = use(params);
     const router = useRouter();
-    const { user } = useAuth();
+
 
     const [module, setModule] = useState<ModuleType | null>(null);
     const [questions, setQuestions] = useState<ModuleQuestion[]>([]);
@@ -166,7 +163,7 @@ export default function ModuleQuestionsPage({
                 {availableTopics.length > 0 && (
                     <div className="space-y-2">
                         <p className="text-[10px] font-bold text-gray-500 uppercase ml-1">Topic</p>
-                        <div className="grid grid-cols-1 gap-1">
+                        <div className="flex flex-wrap gap-1">
                             <button
                                 type="button"
                                 onClick={() => setFilters({ ...filters, topic: "" })}
@@ -209,16 +206,6 @@ export default function ModuleQuestionsPage({
                     </div>
                 </div>
                 <div className="flex flex-col items-end gap-3">
-                    {user?.role === "admin" && (
-                        <button
-                            type="button"
-                            onClick={() => router.push(`/admin/upload?moduleId=${module?.id || slug}`)}
-                            className="bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-6 py-2.5 rounded-xl hover:from-indigo-700 hover:to-violet-700 transition-all shadow-lg shadow-indigo-500/20 font-bold text-sm transform hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2"
-                        >
-                            <span>+</span>
-                            <span>Add New Question</span>
-                        </button>
-                    )}
                 </div>
             </div>
 
@@ -260,26 +247,15 @@ export default function ModuleQuestionsPage({
                                             </Badge>
                                         </div>
                                         <div className="flex items-center gap-4">
-                                            {user?.role !== "admin" &&
-                                                (q.is_completed ? (
-                                                    <Badge variant="secondary" className="flex items-center gap-1.5 text-green-600 bg-green-50 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tight hover:bg-green-100">
-                                                        <CheckCircle size={12} className="fill-green-100" /> Completed
-                                                    </Badge>
-                                                ) : q.is_attempted ? (
-                                                    <Badge variant="secondary" className="flex items-center gap-1.5 text-amber-600 bg-amber-50 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tight hover:bg-amber-100">
-                                                        <Clock size={12} className="fill-amber-100" /> Attempted
-                                                    </Badge>
-                                                ) : null)}
-                                            {user?.role === "admin" && (
-                                                <div className="flex items-center gap-2">
-                                                    <Badge variant="outline" className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-md border tracking-tighter ${q.is_verified ? "bg-green-50 text-green-700 border-green-100" : "bg-red-50 text-red-700 border-red-100"}`}>
-                                                        {q.is_verified ? "Verified" : "Unverified"}
-                                                    </Badge>
-                                                    <Badge variant="outline" className="text-[10px] text-gray-400 font-mono bg-gray-50 px-2 py-0.5 border-gray-100 tracking-tighter font-normal hover:bg-gray-50">
-                                                        {q.id}
-                                                    </Badge>
-                                                </div>
-                                            )}
+                                            {q.is_completed ? (
+                                                <Badge variant="secondary" className="flex items-center gap-1.5 text-green-600 bg-green-50 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tight hover:bg-green-100">
+                                                    <CheckCircle size={12} className="fill-green-100" /> Completed
+                                                </Badge>
+                                            ) : q.is_attempted ? (
+                                                <Badge variant="secondary" className="flex items-center gap-1.5 text-amber-600 bg-amber-50 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tight hover:bg-amber-100">
+                                                    <Clock size={12} className="fill-amber-100" /> Attempted
+                                                </Badge>
+                                            ) : null}
                                         </div>
                                     </div>
                                     <CardTitle className="text-lg font-bold text-slate-800 group-hover:text-indigo-600 transition-colors pr-12 leading-tight">
@@ -300,25 +276,6 @@ export default function ModuleQuestionsPage({
                                             ))}
                                     </div>
                                 </CardContent>
-                                <CardFooter className="flex justify-end items-center pt-0 pb-3 pr-6 gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    {user?.role === "admin" && (
-                                        <>
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="sm"
-                                                className="text-[10px] font-bold uppercase h-auto py-1.5 px-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    router.push(`/admin/edit/${q.id}`);
-                                                }}
-                                                title="Edit Question"
-                                            >
-                                                <Pencil size={12} className="mr-1 inline" /> Edit
-                                            </Button>
-                                        </>
-                                    )}
-                                </CardFooter>
                             </Card>
                         ))}
                     </div>

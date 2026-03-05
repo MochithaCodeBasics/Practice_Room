@@ -11,6 +11,7 @@ import { PrismaService } from '../../prisma/prisma.service.js';
 interface CachedToken {
   email: string;
   cbId: string;
+  roleName: string;
   expiresAt: number;
 }
 
@@ -41,12 +42,14 @@ export class CodebasicsAuthGuard implements CanActivate {
 
     let email: string;
     let cbId: string;
+    let roleName: string;
 
-    // Check cache first (stores email + cbId, not raw external user data)
+    // Check cache first
     const cached = TOKEN_CACHE.get(token);
     if (cached && cached.expiresAt > Date.now()) {
       email = cached.email;
       cbId = cached.cbId;
+      roleName = cached.roleName;
     } else {
       // Validate token against Codebasics API
       try {
@@ -66,12 +69,13 @@ export class CodebasicsAuthGuard implements CanActivate {
         const userData = await response.json();
         email = userData.email as string;
         cbId = String(userData.id ?? '');
+        roleName = (userData.role_name as string)?.toLowerCase() || 'learner';
 
         if (!email) {
           throw new UnauthorizedException('Could not retrieve email from Codebasics API');
         }
 
-        TOKEN_CACHE.set(token, { email, cbId, expiresAt: Date.now() + CACHE_TTL_MS });
+        TOKEN_CACHE.set(token, { email, cbId, roleName, expiresAt: Date.now() + CACHE_TTL_MS });
       } catch (error) {
         if (error instanceof UnauthorizedException) throw error;
         this.logger.error('Failed to validate token with Codebasics API', error);
@@ -79,14 +83,19 @@ export class CodebasicsAuthGuard implements CanActivate {
       }
     }
 
-    // Find or auto-provision a local record for this Codebasics account
+    // Find or auto-provision a local record, syncing role from Codebasics
     let localUser = await this.prisma.user.findUnique({ where: { email } });
 
     if (!localUser) {
       localUser = await this.prisma.user.upsert({
         where: { email },
-        create: { cb_user_id: cbId, email, role: 'learner' },
+        create: { cb_user_id: cbId, email, role: roleName },
         update: {},
+      });
+    } else if (localUser.role !== roleName) {
+      localUser = await this.prisma.user.update({
+        where: { email },
+        data: { role: roleName },
       });
     }
 

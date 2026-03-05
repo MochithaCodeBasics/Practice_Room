@@ -7,9 +7,7 @@ export default auth((req) => {
   // Inject auth header for API calls going to the NestJS backend
   // Skip NextAuth routes which are handled separately
   if (pathname.startsWith("/api/") && !pathname.startsWith("/api/auth/")) {
-    const accessToken = (req.auth as Record<string, unknown>)?.accessToken as
-      | string
-      | undefined;
+    const accessToken = req.auth?.accessToken;
 
     if (accessToken) {
       const requestHeaders = new Headers(req.headers);

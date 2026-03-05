@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, FormEvent, ChangeEvent } from "react";
+import React, { useState, useEffect, ChangeEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/services/api";
@@ -24,9 +24,15 @@ export default function AdminUploadPage() {
     module_id: preSelectedModule || "",
     tags: "",
     topic: "",
-    question_text: "",
-    validator_text: "",
-    sample_data: "",
+  });
+  const [files, setFiles] = useState<{
+    question_py: File | null;
+    validator_py: File | null;
+    data_files: File[];
+  }>({
+    question_py: null,
+    validator_py: null,
+    data_files: [],
   });
 
   useEffect(() => {
@@ -48,14 +54,42 @@ export default function AdminUploadPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, files: selectedFiles } = e.target;
+    if (!selectedFiles) return;
+    if (name === "data_files") {
+      setFiles((prev) => ({ ...prev, data_files: Array.from(selectedFiles) }));
+    } else {
+      setFiles((prev) => ({ ...prev, [name]: selectedFiles[0] }));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!files.question_py) {
+      setStatus({ type: "error", message: "question.py file is required" });
+      return;
+    }
+    if (!files.validator_py) {
+      setStatus({ type: "error", message: "validator.py file is required" });
+      return;
+    }
     setLoading(true);
     setStatus({ type: "", message: "" });
+    const submitData = new FormData();
+    submitData.append("title", formData.title);
+    submitData.append("difficulty", formData.difficulty.toLowerCase());
+    submitData.append("module_id", formData.module_id);
+    submitData.append("topic", formData.topic);
+    submitData.append("tags", formData.tags);
+    submitData.append("question_py", files.question_py);
+    submitData.append("validator_py", files.validator_py);
+    if (files.data_files.length > 0) {
+      files.data_files.forEach((file) => submitData.append("data_files", file));
+    }
     try {
-      await api.post("/v1/admin/questions", {
-        ...formData,
-        difficulty: formData.difficulty.toLowerCase(),
+      await api.post("/v1/admin/questions", submitData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
       setStatus({ type: "success", message: "Question created successfully!" });
     } catch (error: any) {
@@ -116,30 +150,6 @@ export default function AdminUploadPage() {
                 </select>
               </div>
               <div className="space-y-2 md:col-span-2">
-                <Label>question.py Content</Label>
-                <textarea
-                  name="question_text"
-                  value={formData.question_text}
-                  onChange={(e) => setFormData({ ...formData, question_text: e.target.value })}
-                  required
-                  rows={10}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                  placeholder={'description = """..."""\n\ninitial_sample_code = """..."""\n\nhint = """..."""'}
-                />
-              </div>
-              <div className="space-y-2 md:col-span-2">
-                <Label>validator.py Content</Label>
-                <textarea
-                  name="validator_text"
-                  value={formData.validator_text}
-                  onChange={(e) => setFormData({ ...formData, validator_text: e.target.value })}
-                  required
-                  rows={10}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                  placeholder={"def validate(user_code_module):\n    ..."}
-                />
-              </div>
-              <div className="space-y-2 md:col-span-2">
                 <Label>Topic</Label>
                 <Input name="topic" value={formData.topic} onChange={handleTextChange} placeholder="e.g. Statistics" className="w-full" />
               </div>
@@ -153,18 +163,29 @@ export default function AdminUploadPage() {
 
         <Card className="border-gray-100">
           <CardHeader>
-            <CardTitle className="text-lg border-b pb-2">Sample Data (Optional)</CardTitle>
+            <CardTitle className="text-lg border-b pb-2">Files</CardTitle>
           </CardHeader>
-          <CardContent>
-            <Label className="block mb-2">Paste sample data text</Label>
-            <textarea
-              name="sample_data"
-              value={formData.sample_data}
-              onChange={(e) => setFormData({ ...formData, sample_data: e.target.value })}
-              rows={6}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              placeholder="customer_id,age,income,credit_score,monthly_spend..."
-            />
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <Label>question.py <span className="text-red-500">*</span></Label>
+                  <a href="/samples/question.py" download className="text-xs text-indigo-600 hover:text-indigo-800 underline underline-offset-2">Download sample</a>
+                </div>
+                <Input type="file" name="question_py" accept=".py" onChange={handleFileChange} className="cursor-pointer" required />
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <Label>validator.py <span className="text-red-500">*</span></Label>
+                  <a href="/samples/validator.py" download className="text-xs text-indigo-600 hover:text-indigo-800 underline underline-offset-2">Download sample</a>
+                </div>
+                <Input type="file" name="validator_py" accept=".py" onChange={handleFileChange} className="cursor-pointer" required />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Data Files (Optional)</Label>
+              <Input type="file" name="data_files" multiple onChange={handleFileChange} className="cursor-pointer" />
+            </div>
           </CardContent>
         </Card>
 

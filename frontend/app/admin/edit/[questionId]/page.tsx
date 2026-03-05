@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, FormEvent, ChangeEvent } from "react";
+import React, { useState, useEffect, ChangeEvent } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/services/api";
@@ -14,7 +14,7 @@ import type { Module } from "@/types";
 export default function AdminEditQuestionPage() {
   const router = useRouter();
   const { questionId } = useParams<{ questionId: string }>();
-  const { user } = useAuth();
+  useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<{ type: string; message: string }>({ type: "", message: "" });
@@ -25,6 +25,7 @@ export default function AdminEditQuestionPage() {
     module_id: "",
     tags: "",
     topic: "",
+    is_active: true,
   });
   const [files, setFiles] = useState<{
     question_py: File | null;
@@ -52,6 +53,7 @@ export default function AdminEditQuestionPage() {
           module_id: q.module_id || "",
           tags: q.tags || "",
           topic: q.topic || "",
+          is_active: q.is_active ?? true,
         });
         if (q.data_files?.length > 0) setExistingFiles(q.data_files);
       } catch (err) {
@@ -78,7 +80,7 @@ export default function AdminEditQuestionPage() {
     }
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSaving(true);
     setStatus({ type: "", message: "" });
@@ -87,6 +89,7 @@ export default function AdminEditQuestionPage() {
     submitData.append("difficulty", formData.difficulty);
     submitData.append("topic", formData.topic);
     submitData.append("tags", formData.tags);
+    submitData.append("is_active", String(formData.is_active));
     if (files.question_py) submitData.append("question_py", files.question_py);
     if (files.validator_py) submitData.append("validator_py", files.validator_py);
     if (files.data_files?.length > 0) {
@@ -168,6 +171,21 @@ export default function AdminEditQuestionPage() {
                 <Label>Tags (comma separated)</Label>
                 <Input name="tags" value={formData.tags} onChange={handleTextChange} className="w-full" />
               </div>
+              <div className="md:col-span-2 flex items-center justify-between p-3 rounded-lg border border-gray-200 bg-gray-50">
+                <div>
+                  <p className="text-sm font-medium text-gray-700">Active</p>
+                  <p className="text-xs text-gray-500">Inactive questions are hidden from learners</p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={formData.is_active}
+                  onClick={() => setFormData((prev) => ({ ...prev, is_active: !prev.is_active }))}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${formData.is_active ? "bg-indigo-600" : "bg-gray-300"}`}
+                >
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${formData.is_active ? "translate-x-6" : "translate-x-1"}`} />
+                </button>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -191,12 +209,18 @@ export default function AdminEditQuestionPage() {
             </div>
             <p className="text-sm text-gray-500">Upload new files only if you want to replace the existing ones.</p>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label>Replace question.py</Label>
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <Label>Replace question.py</Label>
+                  <a href="/samples/question.py" download className="text-xs text-indigo-600 hover:text-indigo-800 underline underline-offset-2">Download sample</a>
+                </div>
                 <Input type="file" name="question_py" accept=".py" onChange={handleFileChange} className="cursor-pointer" />
               </div>
-              <div className="space-y-2">
-                <Label>Replace validator.py</Label>
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <Label>Replace validator.py</Label>
+                  <a href="/samples/validator.py" download className="text-xs text-indigo-600 hover:text-indigo-800 underline underline-offset-2">Download sample</a>
+                </div>
                 <Input type="file" name="validator_py" accept=".py" onChange={handleFileChange} className="cursor-pointer" />
               </div>
             </div>

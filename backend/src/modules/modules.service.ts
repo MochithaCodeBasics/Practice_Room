@@ -1,5 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { ProgressService } from '../progress/progress.service.js';
 
 /**
  * Converts a string to a URL-friendly slug.
@@ -30,7 +31,10 @@ function normalizeDifficulty(value: string): 'easy' | 'medium' | 'hard' | null {
 
 @Injectable()
 export class ModulesService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly progressService: ProgressService,
+  ) { }
 
   async findAll() {
     return this.prisma.module.findMany({
@@ -83,6 +87,7 @@ export class ModulesService {
   async findQuestionsBySlug(
     slug: string,
     filters?: { difficulty?: string; topic?: string; search?: string },
+    userId?: number,
   ) {
     const mod = await this.findBySlug(slug);
 
@@ -104,7 +109,7 @@ export class ModulesService {
       where.title = { contains: filters.search };
     }
 
-    return this.prisma.moduleQuestion.findMany({
+    const questions = await this.prisma.moduleQuestion.findMany({
       where,
       orderBy: [{ difficulty: 'asc' }, { title: 'asc' }],
       select: {
@@ -118,6 +123,16 @@ export class ModulesService {
         created_at: true,
       },
     });
+
+    const userProgress = userId
+      ? await this.progressService.getProgress(userId)
+      : null;
+
+    return questions.map((q) => ({
+      ...q,
+      id: String(q.id),
+      is_completed: userProgress?.completed.has(String(q.id)) ?? false,
+    }));
   }
 
   async findQuestionBySlug(moduleSlug: string, questionSlug: string) {

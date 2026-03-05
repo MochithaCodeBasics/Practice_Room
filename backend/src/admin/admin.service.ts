@@ -192,6 +192,7 @@ export class AdminService {
           difficulty,
           topic: data.topic || 'General',
           tags: data.tags || '',
+          is_verified: true,
           question_py: parsed.description,
           initial_code: parsed.initialCode,
           hint: parsed.hint,
@@ -271,6 +272,7 @@ export class AdminService {
       difficulty?: string;
       topic?: string;
       tags?: string;
+      is_active?: boolean;
       questionPyFile?: Express.Multer.File;
       validatorPyFile?: Express.Multer.File;
       dataFiles?: Express.Multer.File[];
@@ -288,8 +290,6 @@ export class AdminService {
       throw new HttpException('Question not found', HttpStatus.NOT_FOUND);
     }
 
-    const folderPath = path.join(this.questionsDir, question.folder_name);
-
     // Update metadata
     const updateData: any = {};
     if (data.title !== undefined) updateData.title = data.title;
@@ -302,49 +302,27 @@ export class AdminService {
     }
     if (data.topic !== undefined) updateData.topic = data.topic;
     if (data.tags !== undefined) updateData.tags = data.tags;
+    if (data.is_active !== undefined) updateData.is_active = data.is_active;
 
-    // Replace files if provided
-    try {
-      if (data.questionPyFile?.originalname) {
-        const questionPyContent = data.questionPyFile.buffer.toString('utf-8');
-        fs.writeFileSync(
-          path.join(folderPath, 'question.py'),
-          questionPyContent,
-          'utf-8',
-        );
-        const parsed = this.parseQuestionPy(questionPyContent);
-        updateData.question_py = parsed.description;
-        updateData.initial_code = parsed.initialCode;
-        updateData.hint = parsed.hint;
-      }
-      if (data.validatorPyFile?.originalname) {
-        const validatorContent = data.validatorPyFile.buffer.toString('utf-8');
-        fs.writeFileSync(
-          path.join(folderPath, 'validator.py'),
-          validatorContent,
-          'utf-8',
-        );
-        updateData.validator_py = validatorContent;
-      }
-      if (data.dataFiles) {
-        for (const file of data.dataFiles) {
-          if (file.originalname) {
-            const safeName = path.basename(file.originalname);
-            fs.writeFileSync(
-              path.join(folderPath, safeName),
-              file.buffer,
-            );
-            if (!updateData.sample_data && (safeName.endsWith('.csv') || safeName.endsWith('.txt'))) {
-              updateData.sample_data = file.buffer.toString('utf-8');
-            }
-          }
+    // Parse uploaded files and update DB — no filesystem storage
+    if (data.questionPyFile?.buffer) {
+      const questionPyContent = data.questionPyFile.buffer.toString('utf-8');
+      const parsed = this.parseQuestionPy(questionPyContent);
+      updateData.question_py = parsed.description;
+      updateData.initial_code = parsed.initialCode;
+      updateData.hint = parsed.hint;
+    }
+    if (data.validatorPyFile?.buffer) {
+      updateData.validator_py = data.validatorPyFile.buffer.toString('utf-8');
+    }
+    if (data.dataFiles?.length) {
+      for (const file of data.dataFiles) {
+        const safeName = (file.originalname || '').toLowerCase();
+        if (!updateData.sample_data && (safeName.endsWith('.csv') || safeName.endsWith('.txt'))) {
+          updateData.sample_data = file.buffer.toString('utf-8');
+          break;
         }
       }
-    } catch (e: any) {
-      throw new HttpException(
-        `Failed to update files: ${e.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
     }
 
     await this.prisma.moduleQuestion.update({

@@ -15,6 +15,7 @@ import {
   HttpException,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import * as multer from 'multer';
 import { AdminService } from './admin.service.js';
 import { CodebasicsAuthGuard } from '../common/guards/codebasics-auth.guard.js';
 import { AdminGuard } from '../common/guards/admin.guard.js';
@@ -49,11 +50,14 @@ export class AdminController {
   @Post('questions')
   @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(
-    FileFieldsInterceptor([
-      { name: 'question_py', maxCount: 1 },
-      { name: 'validator_py', maxCount: 1 },
-      { name: 'data_files', maxCount: 10 },
-    ]),
+    FileFieldsInterceptor(
+      [
+        { name: 'question_py', maxCount: 1 },
+        { name: 'validator_py', maxCount: 1 },
+        { name: 'data_files', maxCount: 10 },
+      ],
+      { storage: multer.memoryStorage() },
+    ),
   )
   async createQuestion(
     @Body() body: CreateAdminQuestionDto,
@@ -66,8 +70,6 @@ export class AdminController {
   ) {
     const questionPyFile = files?.question_py?.[0];
     const validatorPyFile = files?.validator_py?.[0];
-    const questionText = body.question_text || questionPyFile?.buffer?.toString('utf-8');
-    const validatorText = body.validator_text || validatorPyFile?.buffer?.toString('utf-8');
 
     if (!body.title?.trim()) {
       throw new HttpException('title is required', HttpStatus.BAD_REQUEST);
@@ -78,15 +80,15 @@ export class AdminController {
     if (!body.difficulty?.trim()) {
       throw new HttpException('difficulty is required', HttpStatus.BAD_REQUEST);
     }
-    if (!questionText?.trim()) {
+    if (!questionPyFile) {
       throw new HttpException(
-        'question_text is required (or upload question_py)',
+        'question_py file is required',
         HttpStatus.BAD_REQUEST,
       );
     }
-    if (!validatorText?.trim()) {
+    if (!validatorPyFile) {
       throw new HttpException(
-        'validator_text is required (or upload validator_py)',
+        'validator_py file is required',
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -98,9 +100,9 @@ export class AdminController {
       tags: body.tags,
       topic: body.topic,
       questionPyFile,
-      questionPyContent: questionText,
+      questionPyContent: questionPyFile.buffer.toString('utf-8'),
       validatorPyFile,
-      validatorPyContent: validatorText,
+      validatorPyContent: validatorPyFile.buffer.toString('utf-8'),
       dataFiles: files?.data_files,
       dataFileContent: body.sample_data ?? body.data_file_content,
       dataFileName: body.data_file_name,
@@ -115,11 +117,14 @@ export class AdminController {
 
   @Put('questions/:questionId')
   @UseInterceptors(
-    FileFieldsInterceptor([
-      { name: 'question_py', maxCount: 1 },
-      { name: 'validator_py', maxCount: 1 },
-      { name: 'data_files', maxCount: 10 },
-    ]),
+    FileFieldsInterceptor(
+      [
+        { name: 'question_py', maxCount: 1 },
+        { name: 'validator_py', maxCount: 1 },
+        { name: 'data_files', maxCount: 10 },
+      ],
+      { storage: multer.memoryStorage() },
+    ),
   )
   async updateQuestion(
     @Param('questionId') questionId: string,
@@ -129,6 +134,7 @@ export class AdminController {
       difficulty?: string;
       topic?: string;
       tags?: string;
+      is_active?: string;
     },
     @UploadedFiles()
     files: {
@@ -142,6 +148,7 @@ export class AdminController {
       difficulty: body.difficulty,
       topic: body.topic,
       tags: body.tags,
+      is_active: body.is_active !== undefined ? body.is_active === 'true' : undefined,
       questionPyFile: files?.question_py?.[0],
       validatorPyFile: files?.validator_py?.[0],
       dataFiles: files?.data_files,
