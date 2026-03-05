@@ -34,6 +34,9 @@
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7"
   },
+  "overrides": {
+    "dompurify": "^3.3.2"
+  },
   "devDependencies": {
     "@types/node": "^25.2.3",
     "@types/react": "^19.2.14",
