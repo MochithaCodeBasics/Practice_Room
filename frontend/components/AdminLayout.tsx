@@ -20,12 +20,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const pathname = usePathname();
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 text-gray-900 font-sans">
+    <div className="flex flex-col min-h-screen bg-background text-foreground font-sans">
       <Header />
       <div className="flex flex-1">
-        <aside className="w-64 bg-white border-r border-gray-200 hidden lg:flex flex-col">
-          <div className="p-4 border-b border-gray-100">
-            <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Admin Panel</p>
+        <aside className="w-64 bg-card border-r border hidden lg:flex flex-col">
+          <div className="p-4 border-b border">
+            <p className="text-xs font-black text-muted-foreground uppercase tracking-widest">Admin Panel</p>
           </div>
           <nav className="p-4 space-y-1 flex-1">
             {navItems.map((item) => {
@@ -40,8 +40,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   href={item.href}
                   className={`flex items-center gap-3 px-4 py-2.5 text-sm font-semibold rounded-lg transition-colors ${
                     isActive
-                      ? "text-indigo-600 bg-indigo-50"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-800"
+                      ? "text-primary bg-primary/10"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   }`}
                 >
                   <item.icon size={16} />
@@ -50,10 +50,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               );
             })}
           </nav>
-          <div className="p-4 border-t border-gray-100">
+          <div className="p-4 border-t border">
             <Link
               href="/"
-              className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-gray-400 hover:text-gray-600 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
             >
               &larr; Back to Practice Room
             </Link>

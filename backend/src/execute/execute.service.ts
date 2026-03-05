@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { DockerExecutorService, ExecutionResult } from './docker-executor.service.js';
@@ -12,7 +12,6 @@ function toPositiveInt(value: string): number | null {
 
 @Injectable()
 export class ExecuteService {
-  private readonly logger = new Logger(ExecuteService.name);
   private useJudge0: boolean;
 
   constructor(
@@ -89,32 +88,6 @@ export class ExecuteService {
     const { errorResult } = await this.resolveExecutionConfig(moduleId, currentUser);
     if (errorResult) return errorResult;
 
-    // Step 1: Run the user's submitted code
-    const userScript = this.buildRunScript(code, question.sample_data ?? null);
-    const userResult = await this.executeScript(userScript);
-
-    // Step 2: If user code errored, fail immediately
-    if (userResult.status === 'error') {
-      return {
-        stdout: '[FAIL] Your code raised an error.',
-        stderr: userResult.stderr,
-        artifacts: [],
-        status: 'error',
-      };
-    }
-
-    // Step 3: If user code produced no output, fail
-    const userOutput = userResult.stdout.trim();
-    if (!userOutput) {
-      return {
-        stdout: '[FAIL] Your code did not produce any output.',
-        stderr: '',
-        artifacts: [],
-        status: 'error',
-      };
-    }
-
-    // Step 4: Run the validator reference solution from DB
     const validatorCode = question.validator_py;
     if (!validatorCode) {
       return {
@@ -125,32 +98,62 @@ export class ExecuteService {
       };
     }
 
-    const validatorScript = this.buildRunScript(validatorCode, question.sample_data ?? null);
-    const validatorResult = await this.executeScript(validatorScript);
+    // Build a single combined script: user code + validator run together
+    const combinedScript = this.buildValidateScript(code, validatorCode, question.sample_data ?? null);
+    const result = await this.executeScript(combinedScript);
 
-    if (validatorResult.status === 'error') {
-      this.logger.error(`Validator script failed for question ${parsedQuestionId}: ${validatorResult.stderr}`);
+    if (result.status === 'error') {
       return {
-        stdout: '[FAIL] Validator script error. Please contact support.',
-        stderr: validatorResult.stderr,
+        stdout: `[FAIL] ${result.stdout || 'Execution error.'}`,
+        stderr: result.stderr,
         artifacts: [],
         status: 'error',
       };
     }
 
-    // Step 5: Compare outputs
-    const validatorOutput = validatorResult.stdout.trim();
-
-    if (userOutput === validatorOutput) {
-      return { stdout: '[PASS] Correct!', stderr: '', artifacts: [], status: 'success' };
-    }
+    const output = result.stdout.trim();
+    const passed = output.includes('[PASS]') || output.includes('Correct!') || output.includes('✅');
 
     return {
-      stdout: `[FAIL] Output does not match expected.\n\nExpected:\n${validatorOutput}\n\nGot:\n${userOutput}`,
-      stderr: '',
+      stdout: passed ? `[PASS] ${output}` : `[FAIL] ${output}`,
+      stderr: result.stderr,
       artifacts: [],
-      status: 'error',
+      status: passed ? 'success' : 'error',
     };
+  }
+
+  /**
+   * Builds a combined Python script that runs user code and validator together.
+   * The validator's validate(user_module) function is called and its result printed.
+   * Both code strings are base64-encoded inside the script to avoid quoting issues.
+   */
+  private buildValidateScript(userCode: string, validatorCode: string, sampleData: string | null): string {
+    const userCodeB64 = Buffer.from(userCode).toString('base64');
+    const validatorCodeB64 = Buffer.from(validatorCode).toString('base64');
+
+    const dataSetup = sampleData
+      ? `import io as _io, pandas as _pd, builtins as _builtins
+try:
+    _df = _pd.read_csv(_io.StringIO(_b64.b64decode('${Buffer.from(sampleData).toString('base64')}').decode('utf-8')))
+    _df.columns = _df.columns.str.lower().str.strip()
+    _builtins.data = _df
+    _builtins.df = _df
+except Exception:
+    pass
+`
+      : '';
+
+    return `import base64 as _b64, types as _types
+${dataSetup}
+_user_module = _types.ModuleType("user_code")
+exec(_b64.b64decode('${userCodeB64}').decode('utf-8'), _user_module.__dict__)
+
+_validator_module = _types.ModuleType("validator")
+exec(_b64.b64decode('${validatorCodeB64}').decode('utf-8'), _validator_module.__dict__)
+
+_result = _validator_module.validate(_user_module)
+print(_result)
+`;
   }
 
   /**

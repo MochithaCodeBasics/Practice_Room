@@ -3,26 +3,37 @@
 @tailwind utilities;
 
 :root {
-  --background: #f8fafc; /* slate-50 */
-  --foreground: #0f172a;
-  --card: #ffffff;
-  --card-foreground: #0f172a;
-  --popover: #ffffff;
-  --popover-foreground: #0f172a;
-  --primary: #6366f1; /* Indigo-500 */
-  --primary-foreground: #ffffff;
-  --secondary: #f1f5f9;
-  --secondary-foreground: #0f172a;
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
-  --accent: #f1f5f9;
-  --accent-foreground: #0f172a;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #6366f1;
-  --radius: 0.75rem; /* Increased radius */
+  /* Codebasics Dark-First Theme */
+  --background:           #181830;
+  --foreground:           #FFFFFF;
+  --card:                 rgba(255, 255, 255, 0.03);
+  --card-foreground:      #FFFFFF;
+  --popover:              #1e1e40;
+  --popover-foreground:   #FFFFFF;
+  --primary:              #3B82F6;
+  --primary-foreground:   #FFFFFF;
+  --secondary:            #3F4C78;
+  --secondary-foreground: #FFFFFF;
+  --muted:                rgba(255, 255, 255, 0.06);
+  --muted-foreground:     rgba(255, 255, 255, 0.50);
+  --accent:               rgba(255, 255, 255, 0.06);
+  --accent-foreground:    #FFFFFF;
+  --destructive:          #ef4444;
+  --destructive-foreground: #FFFFFF;
+  --border:               rgba(255, 255, 255, 0.06);
+  --input:                rgba(255, 255, 255, 0.08);
+  --ring:                 #3B82F6;
+  --radius:               0.5rem;
+
+  /* Brand Tokens */
+  --cb-blue:     #3B82F6;
+  --cb-purple:   #6F53C1;
+  --cb-slate:    #3F4C78;
+  --cb-teal:     #20C997;
+  --cb-lime:     #D7EF3F;
+  --cb-orange:   #FD7E15;
+  --cb-pink:     #D63384;
+  --cb-lavender: #E1E3FA;
 }
 
 @layer base {

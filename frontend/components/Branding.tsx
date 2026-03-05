@@ -20,7 +20,7 @@ export const PracticeRoomLogo: React.FC<PracticeRoomLogoProps> = ({ className = 
     return (
         <div className="flex items-center gap-5">
             <img src="/assets/logo.png" alt="Codebasics" className={`${logoSize} w-auto drop-shadow-sm`} />
-            <div className="h-6 w-px bg-slate-200" />
+            <div className="h-6 w-px bg-border" />
             <PracticeRoomText className={className} />
         </div>
     );
@@ -32,8 +32,8 @@ interface PracticeRoomTextProps {
 
 export const PracticeRoomText: React.FC<PracticeRoomTextProps> = ({ className = "text-lg" }) => {
     return (
-        <span className={`${className} font-bold text-slate-700 tracking-tight leading-none`}>
-            Practice <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 animate-gradient-x">Room</span>
+        <span className={`${className} font-display font-bold text-foreground tracking-tight leading-none uppercase`}>
+            Practice <span className="text-cb-lime">Room</span>
         </span>
     );
 };

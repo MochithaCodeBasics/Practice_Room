@@ -1,14 +1,26 @@
 import { SessionProvider } from "next-auth/react";
 import { AuthProvider } from "@/context/AuthContext";
 import "./globals.css";
-import { Inter } from "next/font/google";
+import { Kanit, Saira_Condensed } from "next/font/google";
 import type { Metadata } from "next";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+const kanit = Kanit({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const sairaCondensed = Saira_Condensed({
+  subsets: ["latin"],
+  weight: ["400", "600", "700", "800", "900"],
+  variable: "--font-display",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
-  title: "Practice room",
-  description: "Math & Stats Practice Room",
+  title: "Codebasics Practice Room",
+  description: "Python & Data Practice Room by Codebasics",
   icons: {
     icon: "/assets/favicon.png",
   },
@@ -17,7 +29,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} font-sans antialiased bg-slate-50`} suppressHydrationWarning>
+      <body className={`${kanit.variable} ${sairaCondensed.variable} font-sans antialiased`} suppressHydrationWarning>
         <SessionProvider>
           <AuthProvider>{children}</AuthProvider>
         </SessionProvider>

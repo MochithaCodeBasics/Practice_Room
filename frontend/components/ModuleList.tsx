@@ -102,7 +102,7 @@ export default function ModuleList() {
     <div>
       {user?.role === "admin" && ENABLE_MODULE_MANAGEMENT && (
         <div className="flex justify-end mb-4">
-          <Button onClick={() => setShowCreateModal(true)} className="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 shadow-lg font-bold text-sm">
+          <Button onClick={() => setShowCreateModal(true)} className="bg-primary hover:bg-primary/90 font-bold text-sm">
             + Create Module
           </Button>
         </div>
@@ -128,7 +128,7 @@ export default function ModuleList() {
               <div className="space-y-2">
                 <Label className="flex justify-between">
                   <span>ID (URL Slug)</span>
-                  {isIdAuto && <span className="text-xs text-indigo-500 font-normal">Auto-generating...</span>}
+                  {isIdAuto && <span className="text-xs text-primary font-normal">Auto-generating...</span>}
                 </Label>
                 <Input
                   type="text"
@@ -138,10 +138,10 @@ export default function ModuleList() {
                     setNewModule({ ...newModule, id: e.target.value });
                     setIsIdAuto(false);
                   }}
-                  className={`w-full ${isIdAuto || isEditing ? "bg-gray-50 text-gray-500" : ""}`}
+                  className={`w-full ${isIdAuto || isEditing ? "bg-muted text-muted-foreground" : ""}`}
                   disabled={isEditing}
                 />
-                <p className="text-[10px] text-gray-400">This ID will be used in URLs.</p>
+                <p className="text-[10px] text-muted-foreground">This ID will be used in URLs.</p>
               </div>
             </div>
             <DialogFooter>
@@ -158,32 +158,32 @@ export default function ModuleList() {
           <Link
             key={module.id}
             href={`/modules/${module.slug}`}
-            className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-1 transition-all duration-300 cursor-pointer group relative block"
+            className="bg-card p-6 rounded-xl border hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-300 cursor-pointer group relative block"
           >
             {user?.role === "admin" && ENABLE_MODULE_MANAGEMENT && (
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="absolute top-4 right-4 p-2 text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 rounded-full z-10"
+                className="absolute top-4 right-4 p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full z-10"
                 title="Edit Module"
                 onClick={(e) => handleEdit(e, module)}
               >
                 <Pencil size={16} />
               </Button>
             )}
-            <div className="h-12 w-12 rounded-lg bg-blue-50 flex items-center justify-center mb-4 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+            <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">
+            <h3 className="text-xl font-display font-bold text-foreground group-hover:text-primary transition-colors uppercase">
               {module.name.replace(/practice/gi, "").trim()}
             </h3>
             {module.description ? (
-              <p className="text-sm text-gray-500 mt-2">{module.description}</p>
+              <p className="text-sm text-muted-foreground mt-2">{module.description}</p>
             ) : (
-              <p className="text-sm text-gray-500 mt-2">Master {module.name.replace(/practice/gi, "").trim()} with hands-on challenges</p>
+              <p className="text-sm text-muted-foreground mt-2">Master {module.name.replace(/practice/gi, "").trim()} with hands-on challenges</p>
             )}
           </Link>
         ))}

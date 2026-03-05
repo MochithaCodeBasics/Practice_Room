@@ -13,7 +13,7 @@ export default function Header() {
   const [showAuthPopup, setShowAuthPopup] = useState(false);
 
   return (
-    <header className="sticky top-0 z-30 h-16 bg-white border-b border-gray-200 flex items-center px-8 justify-between">
+    <header className="sticky top-0 z-30 h-16 bg-background/80 backdrop-blur-md border-b border flex items-center px-8 justify-between">
       <Link href="/" className="flex items-center">
         <PracticeRoomLogo variant="horizontal" logoSize="h-8" className="text-lg" />
       </Link>
@@ -27,7 +27,7 @@ export default function Header() {
           <button
             type="button"
             onClick={() => setShowAuthPopup(true)}
-            className="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-bold text-sm"
+            className="px-5 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-bold text-sm"
           >
             Sign In
           </button>

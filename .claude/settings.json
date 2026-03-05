@@ -8,7 +8,8 @@
       "Bash(script -q /dev/null npx prisma migrate dev --name clean_users_table)",
       "Bash(npx prisma db push:*)",
       "Bash(npx prisma migrate resolve:*)",
-      "Bash(npx prisma migrate:*)"
+      "Bash(npx prisma migrate:*)",
+      "Bash(npm audit --json)"
     ]
   }
 }

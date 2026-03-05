@@ -77,9 +77,9 @@ function getOutputLineClass(tone: "error" | "warning" | "success" | "default"): 
     return "bg-amber-900/30 text-amber-100 border-l-2 border-amber-400 px-2 py-1 rounded-sm";
   }
   if (tone === "success") {
-    return "bg-emerald-900/30 text-emerald-200 border-l-2 border-emerald-500 px-2 py-1 rounded-sm";
+    return "bg-cb-teal/10 text-cb-teal border-l-2 border-cb-teal/50 px-2 py-1 rounded-sm";
   }
-  return "text-slate-300";
+  return "text-foreground/60";
 }
 
 export default function Workspace({ questionId, onBack, onPrev, onNext, currentIndex = 0, totalQuestions = 0, initialQuestion }: WorkspaceProps) {
@@ -238,10 +238,10 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
 
   if (!question) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-white h-screen">
+      <div className="flex-1 flex items-center justify-center bg-background h-screen">
         <div className="flex flex-col items-center gap-3">
-          <Loader className="animate-spin text-indigo-600" size={32} />
-          <p className="text-gray-500 font-medium text-lg">Loading Codebasics Practice Room...</p>
+          <Loader className="animate-spin text-primary" size={32} />
+          <p className="text-muted-foreground font-medium text-lg">Loading Codebasics Practice Room...</p>
         </div>
       </div>
     );
@@ -252,7 +252,7 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
   const pdfOutputText = lastRunOutput;
 
   return (
-    <div id="workspace-root" className="h-screen flex flex-col bg-white overflow-hidden relative">
+    <div id="workspace-root" className="h-screen flex flex-col bg-background overflow-hidden relative">
       {showConfetti && typeof window !== "undefined" && (
         <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} numberOfPieces={500} gravity={0.2} />
       )}
@@ -292,7 +292,7 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
         `}</style>
       )}
 
-      <div className="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200/60 flex items-center justify-between px-4 flex-shrink-0 z-40 shadow-sm sticky top-0">
+      <div className="h-16 bg-background/80 backdrop-blur-md border-b border flex items-center justify-between px-4 flex-shrink-0 z-40 sticky top-0">
         <div className="flex items-center gap-5">
           <PracticeRoomLogo />
         </div>
@@ -306,7 +306,7 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
             <button
               type="button"
               onClick={() => setShowAuthPopup(true)}
-              className="px-4 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-bold text-xs"
+              className="px-4 py-1.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-bold text-xs"
             >
               Sign In
             </button>
@@ -314,15 +314,15 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
         </div>
       </div>
 
-      <header className="h-10 border-b border-gray-200 flex items-center justify-between px-4 bg-gray-50 flex-shrink-0 z-30">
+      <header className="h-10 border-b border flex items-center justify-between px-4 bg-background/50 flex-shrink-0 z-30">
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
             size="sm"
             onClick={onBack}
-            className="h-7 px-2 text-slate-500 hover:text-slate-900 hover:bg-slate-200/50 flex items-center gap-1 font-medium transition-all group"
+            className="h-7 px-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 flex items-center gap-1 font-medium transition-all group"
           >
-            <span className="text-slate-400 group-hover:translate-x-[-2px] transition-transform">&larr;</span>
+            <span className="text-muted-foreground group-hover:translate-x-[-2px] transition-transform">&larr;</span>
             <span className="text-[11px] uppercase tracking-wider font-bold">Back</span>
           </Button>
           <div className="flex items-center gap-1">
@@ -330,13 +330,13 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
               type="button"
               onClick={onPrev ?? undefined}
               disabled={!onPrev}
-              className={`w-6 h-6 flex items-center justify-center rounded text-sm font-bold transition-all ${onPrev ? "text-gray-500 hover:text-indigo-600 hover:bg-indigo-50" : "text-gray-300 cursor-not-allowed"}`}
+              className={`w-6 h-6 flex items-center justify-center rounded text-sm font-bold transition-all ${onPrev ? "text-muted-foreground hover:text-primary hover:bg-primary/10" : "text-muted-foreground/30 cursor-not-allowed"}`}
               title="Previous Question"
             >
               &lt;
             </button>
             {totalQuestions > 0 && (
-              <span className="text-[10px] text-gray-400 font-medium tabular-nums px-1">
+              <span className="text-[10px] text-muted-foreground/60 font-medium tabular-nums px-1">
                 {currentIndex + 1}/{totalQuestions}
               </span>
             )}
@@ -344,31 +344,31 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
               type="button"
               onClick={onNext ?? undefined}
               disabled={!onNext}
-              className={`w-6 h-6 flex items-center justify-center rounded text-sm font-bold transition-all ${onNext ? "text-gray-500 hover:text-indigo-600 hover:bg-indigo-50" : "text-gray-300 cursor-not-allowed"}`}
+              className={`w-6 h-6 flex items-center justify-center rounded text-sm font-bold transition-all ${onNext ? "text-muted-foreground hover:text-primary hover:bg-primary/10" : "text-muted-foreground/30 cursor-not-allowed"}`}
               title="Next Question"
             >
               &gt;
             </button>
           </div>
-          <h1 className="text-sm font-bold text-gray-800 truncate max-w-xl">{question.title}</h1>
+          <h1 className="text-sm font-bold text-foreground truncate max-w-xl">{question.title}</h1>
           {user?.role !== "admin" &&
             (isValidationPassed || question.is_completed ? (
-              <span className="flex items-center gap-1 text-green-600 bg-green-50 px-2 py-0.5 rounded-full text-[10px] font-bold border border-green-100">
+              <span className="flex items-center gap-1 text-cb-teal bg-cb-teal/10 px-2 py-0.5 rounded-full text-[10px] font-bold border border-cb-teal/25">
                 <CheckCircle size={10} /> COMPLETED
               </span>
             ) : question.is_attempted ? (
-              <span className="flex items-center gap-1 text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full text-[10px] font-bold border border-amber-100">
+              <span className="flex items-center gap-1 text-cb-orange bg-cb-orange/10 px-2 py-0.5 rounded-full text-[10px] font-bold border border-cb-orange/25">
                 <Clock size={10} /> ATTEMPTED
               </span>
             ) : null)}
           {user?.role === "admin" && (
             <div
               onClick={isValidationPassed ? handleVerify : undefined}
-              className={`ml-2 px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest select-none transition-all border shadow-sm flex items-center gap-1 ${!isValidationPassed
-                ? "bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed opacity-60"
+              className={`ml-2 px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest select-none transition-all border flex items-center gap-1 ${!isValidationPassed
+                ? "bg-background text-muted-foreground/30 border cursor-not-allowed opacity-60"
                 : isVerified
-                  ? "bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100 ring-1 ring-emerald-500/20 cursor-pointer"
-                  : "bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200 hover:text-slate-700 cursor-pointer"
+                  ? "bg-cb-teal/10 text-cb-teal border-cb-teal/25 hover:bg-cb-teal/20 ring-1 ring-cb-teal/20 cursor-pointer"
+                  : "bg-muted text-muted-foreground border hover:bg-muted/80 hover:text-foreground cursor-pointer"
                 }`}
               title={!isValidationPassed ? "Pass validation to enable verification" : "Click to toggle verification status"}
             >
@@ -380,24 +380,24 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
 
       <div className="flex-1 overflow-hidden relative flex">
         <ResizablePanelGroup direction="horizontal">
-          <ResizablePanel defaultSize={33} minSize={20} className="bg-gray-50">
-            <div className="h-full border-r border-gray-200 overflow-hidden flex flex-col">
-              <div className="h-8 bg-gray-50 border-b border-gray-200 flex items-center px-4 shrink-0">
-                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Question Details</span>
+          <ResizablePanel defaultSize={33} minSize={20} className="bg-background">
+            <div className="h-full border-r border overflow-hidden flex flex-col">
+              <div className="h-8 bg-background/50 border-b border flex items-center px-4 shrink-0">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Question Details</span>
               </div>
               <div className="flex-1 overflow-y-auto p-4">
-                <div className="prose prose-sm max-w-none text-gray-700 prose-headings:text-base prose-headings:font-bold prose-h1:text-lg prose-h2:text-base prose-h3:text-sm prose-h4:text-sm">
+                <div className="prose prose-sm max-w-none text-foreground/80 prose-headings:text-base prose-headings:font-bold prose-h1:text-lg prose-h2:text-base prose-h3:text-sm prose-h4:text-sm prose-headings:text-foreground prose-strong:text-foreground prose-code:text-cb-teal prose-a:text-primary">
                   {/* AI Key Warning */}
                   {(question.module_id === "genai" || question.module_id === "agentic") && (!user?.has_groq_api_key && !user?.has_openai_api_key && !user?.has_anthropic_api_key) && (
-                    <div className="mb-6 p-5 bg-amber-50 border border-amber-100 rounded-2xl flex gap-4 animate-pulse">
-                      <AlertTriangle className="text-amber-600 shrink-0" size={20} />
+                    <div className="mb-6 p-5 bg-cb-orange/10 border border-cb-orange/25 rounded-2xl flex gap-4 animate-pulse">
+                      <AlertTriangle className="text-cb-orange shrink-0" size={20} />
                       <div className="space-y-2">
-                        <p className="text-xs font-black text-amber-900 uppercase tracking-[0.05em]">
+                        <p className="text-xs font-black text-foreground uppercase tracking-[0.05em]">
                           API KEY REQUIRED
                         </p>
-                        <p className="text-[11px] text-amber-700 font-medium leading-relaxed">
+                        <p className="text-[11px] text-foreground/70 font-medium leading-relaxed">
                           This question requires a specialized engine. Please set your <strong>LLM Provider API Key</strong> in{" "}
-                          <a href="/settings" className="text-amber-800 font-bold underline hover:text-amber-950">
+                          <a href="/settings" className="text-cb-orange font-bold underline hover:text-cb-orange/80">
                             Environment Settings
                           </a>{" "}
                           to run this code.
@@ -408,10 +408,10 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>{question.question_py}</ReactMarkdown>
                 </div>
                 {question.hint && (
-                  <div className="mt-8 pt-4 border-t border-gray-200">
+                  <div className="mt-8 pt-4 border-t border">
                     <details className="group">
-                      <summary className="cursor-pointer text-xs font-bold text-gray-600">{"\uD83D\uDCA1"} Show Hint</summary>
-                      <div className="mt-2 text-xs text-gray-600 bg-yellow-50 p-3 rounded border border-yellow-200">
+                      <summary className="cursor-pointer text-xs font-bold text-muted-foreground">{"\uD83D\uDCA1"} Show Hint</summary>
+                      <div className="mt-2 text-xs text-foreground/80 bg-muted p-3 rounded border">
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>{question.hint}</ReactMarkdown>
                       </div>
                     </details>
@@ -419,9 +419,9 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
                 )}
                 {question.sample_data && (
                   <div className="mt-6">
-                    <h4 className="font-bold text-gray-800 text-xs mb-2">{"\uD83D\uDCCA"} Sample Data (First 5 Rows)</h4>
-                    <div className="overflow-x-auto border border-gray-200 rounded p-2 bg-gray-50">
-                      <div className="prose prose-xs max-w-none prose-table:border-collapse prose-table:text-xs prose-td:border prose-td:px-2 prose-th:bg-gray-100">
+                    <h4 className="font-bold text-foreground text-xs mb-2">{"\uD83D\uDCCA"} Sample Data (First 5 Rows)</h4>
+                    <div className="overflow-x-auto border rounded p-2 bg-background/50">
+                      <div className="prose prose-xs max-w-none prose-table:border-collapse prose-table:text-xs prose-td:border prose-td:px-2 prose-th:bg-muted prose-th:text-foreground prose-td:text-foreground/80">
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>{question.sample_data}</ReactMarkdown>
                       </div>
                     </div>
@@ -437,22 +437,22 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
             <ResizablePanelGroup direction="vertical">
               <ResizablePanel defaultSize={70} minSize={20}>
                 <div className="w-full h-full relative flex flex-col">
-                  <div className="h-8 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
-                    <div className="flex items-center gap-2 px-4 h-full bg-white rounded-t-md border-l border-t border-r border-slate-200 relative -mb-px z-10">
+                  <div className="h-8 bg-background/50 border-b border flex items-center justify-between shrink-0">
+                    <div className="flex items-center gap-2 px-4 h-full bg-background rounded-t-md border-l border-t border-r border relative -mb-px z-10">
                       <img src="/assets/python.png" alt="Python" className="h-3.5 w-3.5 object-contain" />
-                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Python</span>
+                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Python</span>
                     </div>
                     <div className="flex items-center gap-2 pr-2">
-                      <div className="w-px h-4 bg-slate-300 mx-1" />
-                      <Button type="button" variant="secondary" size="sm" onClick={handleRun} className="h-7 text-[10px] uppercase font-bold tracking-wider bg-white border-slate-200 text-slate-600 hover:bg-slate-50">
+                      <div className="w-px h-4 bg-border mx-1" />
+                      <Button type="button" variant="secondary" size="sm" onClick={handleRun} className="h-7 text-[10px] uppercase font-bold tracking-wider bg-background border text-foreground hover:bg-muted/50">
                         Run Code
                       </Button>
-                      <Button type="button" size="sm" onClick={handleValidate} className="h-7 text-[10px] uppercase font-bold tracking-wider bg-indigo-600 hover:bg-indigo-700 text-white border-none">
+                      <Button type="button" size="sm" onClick={handleValidate} className="h-7 text-[10px] uppercase font-bold tracking-wider bg-cb-teal hover:bg-cb-teal/90 text-[#181830] border-none">
                         Submit & Validate
                       </Button>
                     </div>
                   </div>
-                  <div className="flex-1 min-h-0 border-l border-r border-b border-slate-200 bg-white relative">
+                  <div className="flex-1 min-h-0 border-l border-r border-b border bg-background relative">
                     <Editor
                       height="100%"
                       defaultLanguage="python"
@@ -466,11 +466,11 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
 
               <ResizableHandle withHandle />
 
-              <ResizablePanel defaultSize={30} minSize={10} className="bg-slate-900 border-t border-slate-800">
-                <div className="flex flex-col h-full bg-slate-900 text-slate-300 text-sm overflow-hidden shadow-inner">
-                  <div className="flex justify-between items-center bg-slate-950/50 border-b border-slate-800 p-2 shrink-0">
-                    <span className="uppercase text-[10px] font-bold tracking-wider text-indigo-400 flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+              <ResizablePanel defaultSize={30} minSize={10} className="bg-black/40 border-t border-white/10">
+                <div className="flex flex-col h-full bg-black/40 text-foreground/80 text-sm overflow-hidden shadow-inner">
+                  <div className="flex justify-between items-center bg-black/60 border-b border-white/5 p-2 shrink-0">
+                    <span className="uppercase text-[10px] font-bold tracking-wider text-cb-teal flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-cb-teal animate-pulse" />
                       Console Output
                     </span>
                     <div className="flex gap-2">
@@ -481,7 +481,7 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
                           setLastRunOutput("");
                           setSavedArtifacts([]);
                         }}
-                        className="text-gray-400 hover:text-white uppercase text-[10px]"
+                        className="text-muted-foreground hover:text-foreground uppercase text-[10px]"
                       >
                         Clear
                       </button>
@@ -489,8 +489,8 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
                   </div>
                   <div className="flex-1 overflow-auto p-4 font-mono">
                     {savedArtifacts?.map((item, i) => (
-                      <div key={i} className="mb-4 bg-slate-800/50 border border-slate-700 p-2 rounded-lg">
-                        <span className="text-xs text-slate-400 block mb-2 font-medium">Image: {item.filename}</span>
+                      <div key={i} className="mb-4 bg-white/5 border border-white/10 p-2 rounded-lg">
+                        <span className="text-xs text-muted-foreground block mb-2 font-medium">Image: {item.filename}</span>
                         <img src={`/api/execute/runs/${item.runId}/${item.filename}`} alt="Output" className="max-w-full h-auto" />
                       </div>
                     ))}

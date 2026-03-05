@@ -83,10 +83,10 @@ export default function QuestionDetailPage({
 
     if (loading || !question) {
         return (
-            <div className="flex-1 flex items-center justify-center bg-white h-screen">
+            <div className="flex-1 flex items-center justify-center bg-background h-screen">
                 <div className="flex flex-col items-center gap-3">
-                    <Loader className="animate-spin text-indigo-600" size={32} />
-                    <p className="text-gray-500 font-medium text-lg">Loading Question...</p>
+                    <Loader className="animate-spin text-primary" size={32} />
+                    <p className="text-muted-foreground font-medium text-lg">Loading Question...</p>
                 </div>
             </div>
         );

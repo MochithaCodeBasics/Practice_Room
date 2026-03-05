@@ -104,16 +104,16 @@ export default function AdminUploadPage() {
     <div className="p-8 max-w-5xl mx-auto">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">Add New Question</h1>
-          <p className="text-gray-500 text-sm mt-1">Logged in as {user?.username}</p>
+          <h1 className="text-3xl font-display font-bold uppercase text-foreground">Add New Question</h1>
+          <p className="text-muted-foreground text-sm mt-1">Logged in as {user?.username}</p>
         </div>
-        <Button variant="outline" onClick={() => router.push("/")} className="border-indigo-100 text-indigo-600 hover:bg-indigo-50">
+        <Button variant="outline" onClick={() => router.push("/")} className="border text-primary hover:bg-primary/10">
           Back to Dashboard
         </Button>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
-        <Card className="border-gray-100">
+        <Card className="border">
           <CardHeader>
             <CardTitle className="text-lg border-b pb-2">Question Details</CardTitle>
           </CardHeader>
@@ -161,7 +161,7 @@ export default function AdminUploadPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-gray-100">
+        <Card className="border">
           <CardHeader>
             <CardTitle className="text-lg border-b pb-2">Files</CardTitle>
           </CardHeader>
@@ -170,14 +170,14 @@ export default function AdminUploadPage() {
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
                   <Label>question.py <span className="text-red-500">*</span></Label>
-                  <a href="/samples/question.py" download className="text-xs text-indigo-600 hover:text-indigo-800 underline underline-offset-2">Download sample</a>
+                  <a href="/samples/question.py" download className="text-xs text-primary hover:text-primary/80 underline underline-offset-2">Download sample</a>
                 </div>
                 <Input type="file" name="question_py" accept=".py" onChange={handleFileChange} className="cursor-pointer" required />
               </div>
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
                   <Label>validator.py <span className="text-red-500">*</span></Label>
-                  <a href="/samples/validator.py" download className="text-xs text-indigo-600 hover:text-indigo-800 underline underline-offset-2">Download sample</a>
+                  <a href="/samples/validator.py" download className="text-xs text-primary hover:text-primary/80 underline underline-offset-2">Download sample</a>
                 </div>
                 <Input type="file" name="validator_py" accept=".py" onChange={handleFileChange} className="cursor-pointer" required />
               </div>
@@ -190,13 +190,13 @@ export default function AdminUploadPage() {
         </Card>
 
         {status.message && (
-          <div className={`p-4 rounded-lg text-center ${status.type === "success" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
+          <div className={`p-4 rounded-lg text-center ${status.type === "success" ? "bg-cb-teal/10 text-cb-teal" : "bg-destructive/10 text-destructive"}`}>
             {status.message}
           </div>
         )}
 
         <div className="flex justify-end pt-4">
-          <Button type="submit" disabled={loading} className="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-lg font-bold" size="lg">
+          <Button type="submit" disabled={loading} className="px-8 py-4 bg-primary hover:bg-primary/90 text-lg font-bold" size="lg">
             {loading ? "Creating Question..." : "Create Question"}
           </Button>
         </div>

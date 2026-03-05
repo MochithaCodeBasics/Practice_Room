@@ -53,19 +53,19 @@ export default function AuthPopup({ open, onOpenChange }: AuthPopupProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader className="text-center sm:text-center">
-          <DialogTitle className="text-xl font-bold text-gray-900">
+          <DialogTitle className="text-xl font-display font-bold text-foreground uppercase">
             Sign in to continue
           </DialogTitle>
-          <DialogDescription className="text-sm text-gray-500 mt-1">
+          <DialogDescription className="text-sm text-muted-foreground mt-1">
             Authentication is required to run code on the Practice Room.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="my-4 p-5 bg-indigo-50 rounded-xl border border-indigo-100">
-          <p className="text-sm text-indigo-800 italic leading-relaxed text-center">
+        <div className="my-4 p-5 bg-primary/10 rounded-xl border border-primary/20">
+          <p className="text-sm text-foreground/80 italic leading-relaxed text-center">
             &ldquo;{quote.quote}&rdquo;
           </p>
-          <p className="text-xs text-indigo-500 font-semibold mt-2 text-center">
+          <p className="text-xs text-primary font-semibold mt-2 text-center">
             &mdash; {quote.author}
           </p>
         </div>
@@ -73,11 +73,11 @@ export default function AuthPopup({ open, onOpenChange }: AuthPopupProps) {
         <div className="flex flex-col gap-3">
           <Button
             onClick={handleSignIn}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 text-sm"
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-3 text-sm"
           >
             Sign in with Codebasics
           </Button>
-          <p className="text-[11px] text-gray-400 text-center">
+          <p className="text-[11px] text-muted-foreground text-center">
             You will be redirected to codebasics.io to authenticate.
             After signing in, you&apos;ll be brought back here automatically.
           </p>

@@ -110,15 +110,15 @@ export default function AdminQuestionsPage() {
     <div>
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">All Questions</h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <h1 className="text-3xl font-display font-bold uppercase text-foreground">All Questions</h1>
+          <p className="text-muted-foreground text-sm mt-1">
             {filtered.length} question{filtered.length !== 1 ? "s" : ""}
             {(filterModule || filterDifficulty) && ` (filtered from ${questions.length})`}
           </p>
         </div>
         <Button
           onClick={() => router.push("/admin/upload")}
-          className="bg-indigo-600 hover:bg-indigo-700 font-bold"
+          className="bg-primary hover:bg-primary/90 font-bold"
         >
           + Add Question
         </Button>
@@ -129,7 +129,7 @@ export default function AdminQuestionsPage() {
         <select
           value={filterModule}
           onChange={(e) => setFilterModule(e.target.value)}
-          className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none bg-white"
+          className="px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-background text-foreground"
         >
           <option value="">All Modules</option>
           {modules.map((m) => (
@@ -141,7 +141,7 @@ export default function AdminQuestionsPage() {
         <select
           value={filterDifficulty}
           onChange={(e) => setFilterDifficulty(e.target.value)}
-          className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none bg-white"
+          className="px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-background text-foreground"
         >
           <option value="">All Difficulties</option>
           <option value="easy">Easy</option>
@@ -155,7 +155,7 @@ export default function AdminQuestionsPage() {
               setFilterModule("");
               setFilterDifficulty("");
             }}
-            className="px-3 py-2 text-sm text-gray-500 hover:text-gray-700 underline"
+            className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground underline"
           >
             Clear filters
           </button>
@@ -170,28 +170,28 @@ export default function AdminQuestionsPage() {
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-20 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-          <p className="text-gray-500">No questions found.</p>
+        <div className="text-center py-20 bg-card rounded-xl border-2 border-dashed border">
+          <p className="text-muted-foreground">No questions found.</p>
         </div>
       ) : (
         <>
-          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <div className="bg-card rounded-xl border overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100 bg-gray-50/50">
-                  <th className="text-left px-4 py-3 font-bold text-gray-500 text-xs uppercase tracking-wider">
+                <tr className="border-b border bg-muted/30">
+                  <th className="text-left px-4 py-3 font-bold text-muted-foreground text-xs uppercase tracking-wider">
                     Title
                   </th>
-                  <th className="text-left px-4 py-3 font-bold text-gray-500 text-xs uppercase tracking-wider hidden md:table-cell">
+                  <th className="text-left px-4 py-3 font-bold text-muted-foreground text-xs uppercase tracking-wider hidden md:table-cell">
                     Module
                   </th>
-                  <th className="text-center px-4 py-3 font-bold text-gray-500 text-xs uppercase tracking-wider">
+                  <th className="text-center px-4 py-3 font-bold text-muted-foreground text-xs uppercase tracking-wider">
                     Difficulty
                   </th>
-                  <th className="text-center px-4 py-3 font-bold text-gray-500 text-xs uppercase tracking-wider">
+                  <th className="text-center px-4 py-3 font-bold text-muted-foreground text-xs uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="text-right px-4 py-3 font-bold text-gray-500 text-xs uppercase tracking-wider">
+                  <th className="text-right px-4 py-3 font-bold text-muted-foreground text-xs uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -200,16 +200,16 @@ export default function AdminQuestionsPage() {
                 {paginatedQuestions.map((q) => (
                   <tr
                     key={q.id}
-                    className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors"
+                    className="border-b border hover:bg-muted/20 transition-colors"
                   >
                     <td className="px-4 py-3">
-                      <p className="font-semibold text-gray-800 truncate max-w-xs">
+                      <p className="font-semibold text-foreground truncate max-w-xs">
                         {q.title}
                       </p>
-                      <p className="text-xs text-gray-400 font-mono">{q.id}</p>
+                      <p className="text-xs text-muted-foreground font-mono">{q.id}</p>
                     </td>
                     <td className="px-4 py-3 hidden md:table-cell">
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-muted-foreground">
                         {moduleMap.get(String(q.module_id)) || q.module_id}
                       </span>
                     </td>
@@ -218,10 +218,10 @@ export default function AdminQuestionsPage() {
                         variant="outline"
                         className={`text-[10px] font-black uppercase tracking-wider rounded-md border ${
                           q.difficulty.toLowerCase() === "easy"
-                            ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                            ? "bg-cb-teal/10 text-cb-teal border-cb-teal/25"
                             : q.difficulty.toLowerCase() === "medium"
-                              ? "bg-amber-50 text-amber-700 border-amber-100"
-                              : "bg-rose-50 text-rose-700 border-rose-100"
+                              ? "bg-cb-orange/10 text-cb-orange border-cb-orange/25"
+                              : "bg-cb-pink/10 text-cb-pink border-cb-pink/25"
                         }`}
                       >
                         {q.difficulty}
@@ -233,8 +233,8 @@ export default function AdminQuestionsPage() {
                           variant="outline"
                           className={`text-[10px] font-bold uppercase ${
                             q.is_verified
-                              ? "bg-green-50 text-green-700 border-green-100"
-                              : "bg-red-50 text-red-700 border-red-100"
+                              ? "bg-cb-teal/10 text-cb-teal border-cb-teal/25"
+                              : "bg-destructive/10 text-destructive border-destructive/25"
                           }`}
                         >
                           {q.is_verified ? "Verified" : "Unverified"}
@@ -243,8 +243,8 @@ export default function AdminQuestionsPage() {
                           variant="outline"
                           className={`text-[10px] font-bold uppercase ${
                             q.is_active
-                              ? "bg-emerald-50 text-emerald-700 border-emerald-100"
-                              : "bg-slate-100 text-slate-600 border-slate-200"
+                              ? "bg-cb-teal/10 text-cb-teal border-cb-teal/25"
+                              : "bg-muted text-muted-foreground border"
                           }`}
                         >
                           {q.is_active ? "Active" : "Inactive"}
@@ -257,7 +257,7 @@ export default function AdminQuestionsPage() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-8 px-2 text-[11px] text-gray-500 hover:text-green-700 hover:bg-green-50"
+                            className="h-8 px-2 text-[11px] text-muted-foreground hover:text-cb-teal hover:bg-cb-teal/10"
                             onClick={() => handleMarkVerified(q.id)}
                             title="Mark as verified"
                           >
@@ -268,7 +268,7 @@ export default function AdminQuestionsPage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-8 px-2 text-[11px] text-gray-500 hover:text-emerald-700 hover:bg-emerald-50"
+                          className="h-8 px-2 text-[11px] text-muted-foreground hover:text-cb-teal hover:bg-cb-teal/10"
                           onClick={() => handleActivation(q.id, !!q.is_active)}
                           title={q.is_active ? "Inactivate" : "Activate"}
                         >
@@ -278,7 +278,7 @@ export default function AdminQuestionsPage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-8 w-8 p-0 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50"
+                          className="h-8 w-8 p-0 text-muted-foreground hover:text-primary hover:bg-primary/10"
                           onClick={() => router.push(`/admin/edit/${q.id}`)}
                           title="Edit"
                         >
@@ -287,7 +287,7 @@ export default function AdminQuestionsPage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-8 w-8 p-0 text-gray-400 hover:text-red-600 hover:bg-red-50"
+                          className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                           onClick={() => handleDelete(q.id)}
                           title={
                             pendingDeleteId === q.id
@@ -301,7 +301,7 @@ export default function AdminQuestionsPage() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-8 px-2 text-xs text-gray-500 hover:text-gray-700"
+                            className="h-8 px-2 text-xs text-muted-foreground hover:text-foreground"
                             onClick={() => setPendingDeleteId(null)}
                             title="Cancel delete"
                           >
@@ -319,7 +319,7 @@ export default function AdminQuestionsPage() {
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex items-center justify-between mt-4 px-1">
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 Page {currentPage} of {totalPages}
               </p>
               <div className="flex items-center gap-1">
@@ -352,7 +352,7 @@ export default function AdminQuestionsPage() {
                     item === "..." ? (
                       <span
                         key={`ellipsis-${idx}`}
-                        className="px-1 text-xs text-gray-400"
+                        className="px-1 text-xs text-muted-foreground"
                       >
                         ...
                       </span>

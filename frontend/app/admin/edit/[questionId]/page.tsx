@@ -118,16 +118,16 @@ export default function AdminEditQuestionPage() {
     <div className="p-8 max-w-5xl mx-auto">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">Edit Question</h1>
-          <p className="text-gray-500 text-sm mt-1">Editing: {questionId}</p>
+          <h1 className="text-3xl font-display font-bold uppercase text-foreground">Edit Question</h1>
+          <p className="text-muted-foreground text-sm mt-1">Editing: {questionId}</p>
         </div>
-        <Button variant="outline" onClick={() => router.push("/")} className="border-indigo-100 text-indigo-600 hover:bg-indigo-50">
+        <Button variant="outline" onClick={() => router.push("/")} className="border text-primary hover:bg-primary/10">
           Back to Dashboard
         </Button>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
-        <Card className="border-gray-100">
+        <Card className="border">
           <CardHeader>
             <CardTitle className="text-lg border-b pb-2">Question Details</CardTitle>
           </CardHeader>
@@ -171,17 +171,17 @@ export default function AdminEditQuestionPage() {
                 <Label>Tags (comma separated)</Label>
                 <Input name="tags" value={formData.tags} onChange={handleTextChange} className="w-full" />
               </div>
-              <div className="md:col-span-2 flex items-center justify-between p-3 rounded-lg border border-gray-200 bg-gray-50">
+              <div className="md:col-span-2 flex items-center justify-between p-3 rounded-lg border bg-muted/20">
                 <div>
-                  <p className="text-sm font-medium text-gray-700">Active</p>
-                  <p className="text-xs text-gray-500">Inactive questions are hidden from learners</p>
+                  <p className="text-sm font-medium text-foreground">Active</p>
+                  <p className="text-xs text-muted-foreground">Inactive questions are hidden from learners</p>
                 </div>
                 <button
                   type="button"
                   role="switch"
                   aria-checked={formData.is_active}
                   onClick={() => setFormData((prev) => ({ ...prev, is_active: !prev.is_active }))}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${formData.is_active ? "bg-indigo-600" : "bg-gray-300"}`}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${formData.is_active ? "bg-primary" : "bg-muted-foreground/30"}`}
                 >
                   <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${formData.is_active ? "translate-x-6" : "translate-x-1"}`} />
                 </button>
@@ -190,36 +190,36 @@ export default function AdminEditQuestionPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-gray-100">
+        <Card className="border">
           <CardHeader>
             <CardTitle className="text-lg border-b pb-2">Files</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="text-sm font-medium text-gray-700 mb-3">Current Files</h3>
+            <div className="bg-muted/30 p-4 rounded-lg">
+              <h3 className="text-sm font-medium text-foreground mb-3">Current Files</h3>
               <div className="flex flex-wrap gap-2">
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">{"\u2713"} question.py</span>
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">{"\u2713"} validator.py</span>
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-cb-teal/10 text-cb-teal">{"\u2713"} question.py</span>
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-cb-teal/10 text-cb-teal">{"\u2713"} validator.py</span>
                 {existingFiles.map((file, idx) => (
-                  <span key={idx} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  <span key={idx} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
                     {file}
                   </span>
                 ))}
               </div>
             </div>
-            <p className="text-sm text-gray-500">Upload new files only if you want to replace the existing ones.</p>
+            <p className="text-sm text-muted-foreground">Upload new files only if you want to replace the existing ones.</p>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
                   <Label>Replace question.py</Label>
-                  <a href="/samples/question.py" download className="text-xs text-indigo-600 hover:text-indigo-800 underline underline-offset-2">Download sample</a>
+                  <a href="/samples/question.py" download className="text-xs text-primary hover:text-primary/80 underline underline-offset-2">Download sample</a>
                 </div>
                 <Input type="file" name="question_py" accept=".py" onChange={handleFileChange} className="cursor-pointer" />
               </div>
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
                   <Label>Replace validator.py</Label>
-                  <a href="/samples/validator.py" download className="text-xs text-indigo-600 hover:text-indigo-800 underline underline-offset-2">Download sample</a>
+                  <a href="/samples/validator.py" download className="text-xs text-primary hover:text-primary/80 underline underline-offset-2">Download sample</a>
                 </div>
                 <Input type="file" name="validator_py" accept=".py" onChange={handleFileChange} className="cursor-pointer" />
               </div>
@@ -232,7 +232,7 @@ export default function AdminEditQuestionPage() {
         </Card>
 
         {status.message && (
-          <div className={`p-4 rounded-lg text-center ${status.type === "success" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
+          <div className={`p-4 rounded-lg text-center ${status.type === "success" ? "bg-cb-teal/10 text-cb-teal" : "bg-destructive/10 text-destructive"}`}>
             {status.message}
           </div>
         )}
@@ -241,7 +241,7 @@ export default function AdminEditQuestionPage() {
           <Button type="button" variant="secondary" onClick={() => router.push("/")}>
             Cancel
           </Button>
-          <Button type="submit" disabled={saving} className="bg-indigo-600 hover:bg-indigo-700 font-bold">
+          <Button type="submit" disabled={saving} className="bg-primary hover:bg-primary/90 font-bold">
             {saving ? "Saving..." : "Save Changes"}
           </Button>
         </div>
