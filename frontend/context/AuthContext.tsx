@@ -14,6 +14,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const loading = status === "loading";
   const isAuthenticated = !!session?.user;
 
+  // Auto sign-out when the OAuth refresh token is exhausted or invalid.
+  useEffect(() => {
+    if ((session as any)?.error === "RefreshAccessTokenError") {
+      nextAuthSignOut({ callbackUrl: "/" });
+    }
+  }, [session]);
+
   useEffect(() => {
     if (session?.user) {
       setUser({

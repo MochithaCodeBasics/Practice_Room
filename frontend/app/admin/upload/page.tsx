@@ -107,7 +107,7 @@ export default function AdminUploadPage() {
           <h1 className="text-3xl font-display font-bold uppercase text-foreground">Add New Question</h1>
           <p className="text-muted-foreground text-sm mt-1">Logged in as {user?.username}</p>
         </div>
-        <Button variant="outline" onClick={() => router.push("/")} className="border text-primary hover:bg-primary/10">
+        <Button variant="outline" onClick={() => router.push("/admin")} className="border text-primary hover:bg-primary/10">
           Back to Dashboard
         </Button>
       </div>

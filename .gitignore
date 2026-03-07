@@ -8,6 +8,8 @@ jspm_packages/
 .stylelintcache
 .prettiercache
 
+.env.docker
+
 # Next.js
 .next/
 out/

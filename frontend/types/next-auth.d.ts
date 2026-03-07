@@ -3,6 +3,8 @@ import { DefaultSession } from "next-auth";
 declare module "next-auth" {
   interface Session {
     accessToken?: string;
+    /** Set to "RefreshAccessTokenError" when the OAuth refresh fails. */
+    error?: string;
     user: {
       id: string;
       role?: string;
@@ -15,6 +17,8 @@ declare module "next-auth/jwt" {
     accessToken?: string;
     refreshToken?: string;
     expiresAt?: number;
+    /** Set to "RefreshAccessTokenError" when the OAuth refresh fails. */
+    error?: string;
     codebasicsProfile?: Record<string, unknown>;
   }
 }

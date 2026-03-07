@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getSession } from "next-auth/react";
+import { getSession, signOut } from "next-auth/react";
 import type { Filters, QuestionRead, QuestionDetail, ExecutionResult, Module } from "@/types";
 
 const api = axios.create({
@@ -16,6 +16,25 @@ api.interceptors.request.use(async (config) => {
   }
   return config;
 });
+
+// 401 response interceptor — fires when the backend rejects a token.
+// The jwt callback in auth.ts proactively refreshes tokens before expiry, so
+// a 401 at runtime means the refresh itself failed (RefreshAccessTokenError)
+// or the session cookie is gone. Sign the user out to clear stale state.
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response?.status === 401) {
+      const session = await getSession();
+      // Only sign out if we actually had a session — avoids redirect loops on
+      // public endpoints that return 401 when no user is logged in.
+      if (session) {
+        await signOut({ callbackUrl: "/" });
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
 
 export const getQuestions = async (filters: Partial<Filters> = {}): Promise<QuestionRead[]> => {

@@ -6,10 +6,11 @@ import api from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
 import { Pencil, Trash2, ChevronLeft, ChevronRight, CheckCircle, Power } from "lucide-react";
 import type { QuestionRead, Module } from "@/types";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE_OPTIONS = [5, 10, 25, 50];
 
 export default function AdminQuestionsPage() {
   const router = useRouter();
@@ -18,6 +19,8 @@ export default function AdminQuestionsPage() {
   const [loading, setLoading] = useState(true);
   const [filterModule, setFilterModule] = useState("");
   const [filterDifficulty, setFilterDifficulty] = useState("");
+  const [searchTitle, setSearchTitle] = useState("");
+  const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
@@ -46,20 +49,22 @@ export default function AdminQuestionsPage() {
       const matchesModule = !filterModule || String(q.module_id) === filterModule;
       const matchesDifficulty =
         !filterDifficulty || q.difficulty.toLowerCase() === filterDifficulty;
-      return matchesModule && matchesDifficulty;
+      const matchesTitle =
+        !searchTitle || q.title.toLowerCase().includes(searchTitle.toLowerCase());
+      return matchesModule && matchesDifficulty && matchesTitle;
     });
-  }, [questions, filterModule, filterDifficulty]);
+  }, [questions, filterModule, filterDifficulty, searchTitle]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const paginatedQuestions = filtered.slice(
-    (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
   );
 
-  // Reset to page 1 when filters change
+  // Reset to page 1 when filters or page size change
   useEffect(() => {
     setCurrentPage(1);
-  }, [filterModule, filterDifficulty]);
+  }, [filterModule, filterDifficulty, searchTitle, pageSize]);
 
   const handleDelete = async (id: string) => {
     if (pendingDeleteId !== id) {
@@ -113,7 +118,7 @@ export default function AdminQuestionsPage() {
           <h1 className="text-3xl font-display font-bold uppercase text-foreground">All Questions</h1>
           <p className="text-muted-foreground text-sm mt-1">
             {filtered.length} question{filtered.length !== 1 ? "s" : ""}
-            {(filterModule || filterDifficulty) && ` (filtered from ${questions.length})`}
+            {(filterModule || filterDifficulty || searchTitle) && ` (filtered from ${questions.length})`}
           </p>
         </div>
         <Button
@@ -126,6 +131,12 @@ export default function AdminQuestionsPage() {
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3 mb-6">
+        <Input
+          value={searchTitle}
+          onChange={(e) => setSearchTitle(e.target.value)}
+          placeholder="Search by title..."
+          className="w-56 h-9 text-sm"
+        />
         <select
           value={filterModule}
           onChange={(e) => setFilterModule(e.target.value)}
@@ -148,12 +159,13 @@ export default function AdminQuestionsPage() {
           <option value="medium">Medium</option>
           <option value="hard">Hard</option>
         </select>
-        {(filterModule || filterDifficulty) && (
+        {(filterModule || filterDifficulty || searchTitle) && (
           <button
             type="button"
             onClick={() => {
               setFilterModule("");
               setFilterDifficulty("");
+              setSearchTitle("");
             }}
             className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground underline"
           >
@@ -317,11 +329,22 @@ export default function AdminQuestionsPage() {
           </div>
 
           {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between mt-4 px-1">
+          <div className="flex items-center justify-between mt-4 px-1">
+            <div className="flex items-center gap-2">
               <p className="text-xs text-muted-foreground">
                 Page {currentPage} of {totalPages}
               </p>
+              <select
+                value={pageSize}
+                onChange={(e) => setPageSize(Number(e.target.value))}
+                className="px-2 py-1 border rounded text-xs focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-background text-foreground"
+              >
+                {PAGE_SIZE_OPTIONS.map((size) => (
+                  <option key={size} value={size}>{size} / page</option>
+                ))}
+              </select>
+            </div>
+            {totalPages > 1 && (
               <div className="flex items-center gap-1">
                 <Button
                   variant="outline"
@@ -378,8 +401,8 @@ export default function AdminQuestionsPage() {
                   <ChevronRight size={16} />
                 </Button>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </>
       )}
     </div>
