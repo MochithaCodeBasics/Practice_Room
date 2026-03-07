@@ -11,33 +11,31 @@ This guide covers two ways to run the application:
 ### For Docker Setup (Option A)
 - **Docker Engine**: v20+ with Docker Compose v2
 - **External MySQL/MariaDB**: (e.g. AWS RDS, PlanetScale, or a self-managed instance)
+- **External Judge0 instance**: separately hosted (see Judge0 section below)
 - **Git**
 
 ### For Local Development (Option B)
 - **Node.js**: v18+
-- **Docker & Docker Compose**: (for Judge0 code execution engine only)
 - **MariaDB**: (local database)
+- **External Judge0 instance**: or run it locally (see Judge0 section below)
 - **Git**
 
 ---
 
 ## Option A: Docker Setup
 
-This runs the entire stack (Frontend, Backend, Judge0) via a single `docker compose` command. The database is **external** (not part of Docker) — you provide the connection details.
+This runs the Frontend and Backend via a single `docker compose` command. The database and Judge0 code execution service are **external** — you provide the connection details.
 
 ### Architecture
 
 ```
 docker compose up
-  ├── frontend        → Next.js        → port 3000
-  ├── backend         → NestJS + Prisma → port 3001
-  ├── judge0-server   → Code executor  → port 2358
-  ├── judge0-worker   → Background worker
-  ├── judge0-db       → PostgreSQL (internal to Judge0)
-  └── judge0-redis    → Redis (internal to Judge0)
+  ├── frontend   → Next.js        → port 3000
+  └── backend    → NestJS + Prisma → port 3001
 
 External:
-  └── MySQL/MariaDB   → Your RDS or managed DB instance
+  ├── MySQL/MariaDB  → Your RDS or managed DB instance
+  └── Judge0         → Your separately hosted Judge0 instance
 ```
 
 ### Step 1: Configure Environment Variables
@@ -74,6 +72,15 @@ Open `.env.docker` and fill in the required values:
 | `AUTH_CODEBASICS_ID` | Codebasics OAuth client ID | From Codebasics developer panel |
 | `AUTH_CODEBASICS_SECRET` | Codebasics OAuth client secret | From Codebasics developer panel |
 
+#### Judge0 (required for code execution)
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `USE_JUDGE0` | Enable Judge0 execution | `true` |
+| `JUDGE0_API_URL` | URL of your Judge0 instance | `https://judge0.yourdomain.com` |
+| `JUDGE0_API_KEY` | Auth token (if configured) | leave empty if self-hosted without auth |
+| `JUDGE0_PYTHON_LANGUAGE_ID` | Python language ID (auto-detected if empty) | `71` |
+
 #### URLs (update for production)
 
 | Variable | Default | When to change |
@@ -92,25 +99,7 @@ Open `.env.docker` and fill in the required values:
 | `SMTP_PASSWORD` | SMTP password or app-specific password |
 | `SMTP_FROM_EMAIL` | Sender email address |
 
-### Step 2: Configure Judge0
-
-The Judge0 code execution engine uses its own PostgreSQL and Redis (managed internally by Docker). You need to set passwords in `judge0/judge0.conf`:
-
-```bash
-# Open the config file
-nano judge0/judge0.conf
-```
-
-Update these two values with strong passwords:
-
-```
-REDIS_PASSWORD=your-redis-password-here
-POSTGRES_PASSWORD=your-postgres-password-here
-```
-
-> **Note:** These are internal to Judge0's Docker network and not related to your application database. They just need to be set to non-empty values.
-
-### Step 3: Ensure Database is Ready
+### Step 2: Ensure Database is Ready
 
 Before starting Docker, make sure your external MySQL/MariaDB is:
 1. Running and accessible from the server
@@ -120,7 +109,7 @@ Before starting Docker, make sure your external MySQL/MariaDB is:
    ```
 3. The user specified in `DB_USER` has full access to this database
 
-### Step 4: Build and Start
+### Step 3: Build and Start
 
 ```bash
 docker compose --env-file .env.docker up --build
@@ -128,13 +117,12 @@ docker compose --env-file .env.docker up --build
 
 This will:
 1. Build the frontend and backend Docker images
-2. Build the custom Judge0 image (with Python data-science libraries)
-3. Start all services with health checks
-4. Run database migrations automatically (via backend entrypoint)
+2. Start all services with health checks
+3. Run database migrations automatically (via backend entrypoint)
 
 Wait for all services to become healthy. First run may take a few minutes for image builds.
 
-### Step 5: Seed the Database (first run only)
+### Step 4: Seed the Database (first run only)
 
 After all services are up, seed the database with modules and questions:
 
@@ -142,13 +130,13 @@ After all services are up, seed the database with modules and questions:
 docker compose --env-file .env.docker exec backend npx prisma db seed
 ```
 
-### Step 6: Verify
+### Step 5: Verify
 
 | Check | URL |
 |-------|-----|
 | Frontend loads | http://localhost:3000 |
 | Backend API responds | http://localhost:3001/api |
-| Judge0 is running | http://localhost:2358/languages |
+| Judge0 (external) | `<your JUDGE0_API_URL>/languages` |
 
 ### Common Docker Commands
 
@@ -180,7 +168,6 @@ After creating `.env.docker` on the server, restrict file permissions:
 
 ```bash
 chmod 600 .env.docker
-chmod 600 judge0/judge0.conf
 ```
 
 This ensures only the file owner can read the credentials.
@@ -191,18 +178,7 @@ This ensures only the file owner can read the credentials.
 
 Use this when you're actively developing and want hot-reload for frontend and backend.
 
-### 1. Judge0 Setup (Code Execution)
-
-```bash
-cd judge0
-
-# Set passwords in judge0.conf first (see Step 2 in Docker Setup above)
-docker-compose up -d
-```
-
-Verify Judge0 is running at http://localhost:2358.
-
-### 2. Backend Setup (NestJS)
+### 1. Backend Setup (NestJS)
 
 ```bash
 cd backend
@@ -211,7 +187,7 @@ npm install
 
 # Configure environment
 cp .env.example .env
-# Edit .env to match your local DB credentials
+# Edit .env — set DB credentials, SECRET_KEY, and Judge0 URL
 
 # Run database migrations
 npx prisma migrate dev
@@ -223,12 +199,16 @@ npx prisma db seed
 npm run start:dev
 ```
 
-### 3. Frontend Setup (Next.js)
+### 2. Frontend Setup (Next.js)
 
 ```bash
 cd frontend
 
 npm install
+
+# Configure environment
+cp .env.local.example .env.local
+# Edit .env.local — set AUTH_SECRET and OAuth credentials
 
 # Start dev server (port 3000)
 npm run dev
@@ -238,13 +218,26 @@ Visit http://localhost:3000 to access the application.
 
 ---
 
+## Judge0 (External Code Execution)
+
+Judge0 is not bundled with this project. You need to run it as a separate service and point the backend at it via `JUDGE0_API_URL`.
+
+**Options:**
+- **Self-hosted**: Deploy the [Judge0 repository](https://github.com/judge0/judge0) on your own server or VM
+- **Managed**: Use a hosted Judge0 API endpoint
+
+**Local development without Judge0:**
+Set `USE_JUDGE0=false` and `USE_DOCKER_EXECUTOR=true` in `backend/.env` to use the local Docker-based executor instead. This requires Docker to be running and the `practice-room-python:latest` image to be built.
+
+---
+
 ## Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
-| **Port conflicts** | Ensure ports `3000`, `3001`, and `2358` are free. Use `lsof -i :PORT` to check. |
+| **Port conflicts** | Ensure ports `3000` and `3001` are free. Use `lsof -i :PORT` to check. |
 | **Database connection refused** | Verify MySQL/MariaDB is running and credentials in `.env.docker` (or `backend/.env`) are correct. |
-| **Judge0 not responding** | Check `docker compose logs judge0-server`. It may take 30-60s to start. |
+| **Judge0 not responding** | Check that `JUDGE0_API_URL` is reachable and `JUDGE0_API_KEY` is correct if auth is enabled. |
 | **Backend health check failing** | Check `docker compose logs backend`. Common cause: database not reachable. |
 | **Migrations fail** | Ensure the database exists and the user has DDL permissions (CREATE, ALTER, DROP). |
 | **Frontend can't reach backend** | In Docker: this is handled internally. In local dev: ensure backend is running on port 3001. |
@@ -262,11 +255,8 @@ Practice_Room/
 │   ├── Dockerfile          # Multi-stage production build
 │   ├── docker-entrypoint.sh # Runs migrations + starts server
 │   └── .dockerignore
-├── judge0/                 # Judge0 code execution engine (port 2358)
-│   ├── Dockerfile.python-libs  # Custom image with numpy, pandas, etc.
-│   └── judge0.conf         # Judge0 configuration (set passwords here)
 ├── questions/              # Question data, validators, and datasets
-├── docker-compose.yml      # Orchestrates all services
-├── .env.docker.example     # Environment variable template
+├── docker-compose.yml      # Orchestrates frontend + backend
+├── .env.docker.example     # Environment variable template for Docker
 └── INSTRUCTION_GUIDE.md    # This file
 ```

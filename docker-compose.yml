@@ -48,10 +48,12 @@ services:
       - DEFAULT_ADMIN_USERNAME=${DEFAULT_ADMIN_USERNAME:-admin}
       - DEFAULT_ADMIN_PASSWORD=${DEFAULT_ADMIN_PASSWORD:-YourSecurePassword123!}
       - DEFAULT_ADMIN_EMAIL=${DEFAULT_ADMIN_EMAIL:-admin@yourdomain.com}
-      - CORS_ORIGINS=http://localhost:3000
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000}
       - USE_DOCKER_EXECUTOR=false
-      - USE_JUDGE0=true
-      - JUDGE0_API_URL=http://judge0-server:2358
+      - USE_JUDGE0=${USE_JUDGE0:-true}
+      - JUDGE0_API_URL=${JUDGE0_API_URL}
+      - JUDGE0_API_KEY=${JUDGE0_API_KEY:-}
+      - JUDGE0_PYTHON_LANGUAGE_ID=${JUDGE0_PYTHON_LANGUAGE_ID:-71}
       - QUESTIONS_DIR=/app/questions
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
       - SMTP_HOST=${SMTP_HOST:-}
@@ -65,9 +67,6 @@ services:
     volumes:
       - ./questions:/app/questions:ro
       - backend-runs:/app/runs
-    depends_on:
-      judge0-server:
-        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3001/api"]
       interval: 15s
@@ -77,77 +76,5 @@ services:
     <<: *default-logging
     restart: unless-stopped
 
-  # ── Judge0 Server ─────────────────────────────────────────────────────────
-  judge0-server:
-    image: judge0/judge0-python-libs:local
-    build:
-      context: ./judge0
-      dockerfile: Dockerfile.python-libs
-    volumes:
-      - ./judge0/judge0.conf:/judge0.conf:ro
-    ports:
-      - "2358:2358"
-    privileged: true
-    depends_on:
-      judge0-db:
-        condition: service_healthy
-      judge0-redis:
-        condition: service_started
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:2358/languages"]
-      interval: 15s
-      timeout: 10s
-      retries: 10
-      start_period: 60s
-    <<: *default-logging
-    restart: unless-stopped
-
-  # ── Judge0 Worker ─────────────────────────────────────────────────────────
-  judge0-worker:
-    image: judge0/judge0-python-libs:local
-    build:
-      context: ./judge0
-      dockerfile: Dockerfile.python-libs
-    command: ["./scripts/workers"]
-    volumes:
-      - ./judge0/judge0.conf:/judge0.conf:ro
-    privileged: true
-    depends_on:
-      judge0-db:
-        condition: service_healthy
-      judge0-redis:
-        condition: service_started
-    <<: *default-logging
-    restart: unless-stopped
-
-  # ── Judge0 PostgreSQL ─────────────────────────────────────────────────────
-  judge0-db:
-    image: postgres:16.2
-    env_file: ./judge0/judge0.conf
-    volumes:
-      - judge0-postgres-data:/var/lib/postgresql/data/
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U judge0 -d judge0"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 15s
-    <<: *default-logging
-    restart: unless-stopped
-
-  # ── Judge0 Redis ──────────────────────────────────────────────────────────
-  judge0-redis:
-    image: redis:7.2.4
-    command:
-      [
-        "bash",
-        "-c",
-        'docker-entrypoint.sh --appendonly no --requirepass "$$REDIS_PASSWORD"',
-      ]
-    env_file: ./judge0/judge0.conf
-    <<: *default-logging
-    restart: unless-stopped
-
 volumes:
-  judge0-postgres-data:
   backend-runs:

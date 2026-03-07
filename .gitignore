@@ -52,6 +52,7 @@ wheels/
 *.env
 !.env.example
 !.env.docker.example
+!.env.local.example
 
 # Database
 *.db
