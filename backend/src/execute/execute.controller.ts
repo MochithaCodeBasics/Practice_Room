@@ -123,33 +123,33 @@ export class ExecuteController {
       throw new HttpException('Invalid run ID', HttpStatus.BAD_REQUEST);
     }
 
-    // Security: prevent path traversal
-    if (
-      filename.includes('..') ||
-      filename.includes('/') ||
-      filename.includes('\\')
-    ) {
-      throw new HttpException('Invalid filename', HttpStatus.BAD_REQUEST);
-    }
+    // Normalise filename: path.basename strips any traversal components
+    const safeFilename = path.basename(filename);
 
     // Only allow PNG files
-    if (!filename.endsWith('.png')) {
+    if (!safeFilename.endsWith('.png')) {
       throw new HttpException(
         'Only PNG files are allowed',
         HttpStatus.BAD_REQUEST,
       );
     }
 
-    const filePath = path.join(
-      this.dockerExecutor.getRunsDir(),
-      runId,
-      filename,
-    );
+    const runDir = path.join(this.dockerExecutor.getRunsDir(), runId);
 
-    if (!fs.existsSync(filePath)) {
+    // Canonical path guard: resolved path must stay within runDir
+    if (
+      !path.resolve(path.join(runDir, safeFilename)).startsWith(
+        path.resolve(runDir) + path.sep,
+      )
+    ) {
+      throw new HttpException('Invalid filename', HttpStatus.BAD_REQUEST);
+    }
+
+    if (!fs.existsSync(path.join(runDir, safeFilename))) {
       throw new HttpException('File not found', HttpStatus.NOT_FOUND);
     }
 
-    res.sendFile(filePath);
+    // root option ensures Express validates the file stays within runDir
+    res.sendFile(safeFilename, { root: runDir });
   }
 }

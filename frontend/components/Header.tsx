@@ -27,7 +27,7 @@ export default function Header() {
           <button
             type="button"
             onClick={() => setShowAuthPopup(true)}
-            className="px-5 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-bold text-sm"
+            className="px-5 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-display font-bold uppercase tracking-wide text-sm"
           >
             Sign In
           </button>

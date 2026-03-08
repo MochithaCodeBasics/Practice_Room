@@ -95,6 +95,16 @@ export class QuestionsService {
     if (!question.is_active && userRole !== 'admin') return null;
 
     const folderPath = path.join(this.questionsDir, question.folder_name);
+
+    // Guard against path traversal via DB-stored folder_name
+    if (
+      !path.resolve(folderPath).startsWith(
+        path.resolve(this.questionsDir) + path.sep,
+      )
+    ) {
+      return null;
+    }
+
     const hasFolder = fs.existsSync(folderPath);
 
     // Read files from disk
@@ -123,9 +133,10 @@ export class QuestionsService {
       this.extractStr(qText, 'hint')?.trim() ||
       null;
 
-    // Get sample data
-    const sampleData =
+    // Get sample data and ensure it's in markdown table format
+    const rawSampleData =
       question.sample_data || this.getSampleData(folderPath, question.folder_name);
+    const sampleData = rawSampleData ? this.ensureMarkdownTable(rawSampleData) : null;
 
     // List data files
     const dataFiles = hasFolder
@@ -188,6 +199,15 @@ export class QuestionsService {
     const end = source.indexOf('"""', contentStart);
     if (end === -1) return null;
     return source.substring(contentStart, end);
+  }
+
+  private ensureMarkdownTable(data: string): string {
+    const trimmed = data.trim();
+    // Already a markdown table or fenced code block — pass through as-is
+    if (trimmed.startsWith('|') || trimmed.startsWith('`')) return trimmed;
+    // Raw text/CSV: wrap in a fenced code block so newlines are preserved
+    const lines = trimmed.split('\n').filter((l) => l.trim()).slice(0, 10);
+    return '```\n' + lines.join('\n') + '\n```';
   }
 
   private getSampleData(

@@ -5,8 +5,7 @@ import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import Confetti from "react-confetti";
-import { Download, ChevronDown, FileCode, FileText, Lock, Loader, CheckCircle, Clock, AlertTriangle } from "lucide-react";
-import Layout from "@/components/Layout";
+import { Download, Loader, CheckCircle, Clock, AlertTriangle } from "lucide-react";
 import UserProfile from "@/components/UserProfile";
 import StreakIndicator from "@/components/StreakIndicator";
 import { PracticeRoomLogo } from "@/components/Branding";
@@ -15,17 +14,11 @@ import { getQuestion, runCode, validateCode, verifyQuestion } from "@/services/a
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import type { QuestionDetail, ExecutionResult } from "@/types";
+import type { QuestionDetail } from "@/types";
 
 const Editor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
 
@@ -88,12 +81,10 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
   const [question, setQuestion] = useState<QuestionDetail | null>(initialQuestion || null);
   const [code, setCode] = useState<string>(initialQuestion?.initial_code || "");
   const [output, setOutput] = useState<string>("");
-  const [runResult, setRunResult] = useState<ExecutionResult | null>(null);
   const [showConfetti, setShowConfetti] = useState<boolean>(false);
   const [isValidationPassed, setIsValidationPassed] = useState<boolean>(false);
   const [isVerified, setIsVerified] = useState<boolean>(initialQuestion?.is_verified || false);
   const [lastRunOutput, setLastRunOutput] = useState<string>("");
-  const [isDownloadMenuOpen, setIsDownloadMenuOpen] = useState<boolean>(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState<boolean>(false);
   const [savedArtifacts, setSavedArtifacts] = useState<SavedArtifact[]>([]);
 
@@ -103,7 +94,6 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
       setCode(initialQuestion.initial_code || "# Write your solution here\n");
       setIsValidationPassed(false);
       setIsVerified(initialQuestion.is_verified || false);
-      setRunResult(null);
       setOutput("");
       setLastRunOutput("");
       setSavedArtifacts([]);
@@ -116,7 +106,6 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
       setCode(data.initial_code || "# Write your solution here\n");
       setIsValidationPassed(false);
       setIsVerified(data.is_verified || false);
-      setRunResult(null);
       setOutput("");
       setLastRunOutput("");
       setSavedArtifacts([]);
@@ -143,7 +132,6 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
     setSavedArtifacts([]);
     try {
       const result = await runCode({ code, question_id: question.id, module_id: question.module_id });
-      setRunResult(result);
       // Smarter stderr handling
       let runOut = result.stdout || "";
       if (result.stderr) {
@@ -184,7 +172,6 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
     setSavedArtifacts([]);
     try {
       const result = await validateCode({ code, question_id: question.id, module_id: question.module_id });
-      setRunResult(result);
       const text = (result.stdout || "") + (result.stderr ? "\nVALIDATION ERROR:\n" + result.stderr : "");
       setOutput(`Validation Result:\n${text}`);
       if (result.artifacts && result.artifacts.length > 0) {
@@ -219,7 +206,6 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
 
   const handleDownloadPy = () => {
     if (!question) return;
-    setIsDownloadMenuOpen(false);
     const blob = new Blob([code], { type: "text/x-python" });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -232,7 +218,6 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
   };
 
   const handleDownloadPdf = () => {
-    setIsDownloadMenuOpen(false);
     setIsGeneratingPdf(true);
   };
 
@@ -386,7 +371,7 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
                 <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Question Details</span>
               </div>
               <div className="flex-1 overflow-y-auto p-4">
-                <div className="prose prose-sm max-w-none text-foreground/80 prose-headings:text-base prose-headings:font-bold prose-h1:text-lg prose-h2:text-base prose-h3:text-sm prose-h4:text-sm prose-headings:text-foreground prose-strong:text-foreground prose-code:text-cb-teal prose-a:text-primary">
+                <div className="prose prose-sm prose-invert max-w-none text-foreground/80 prose-headings:text-base prose-headings:font-bold prose-h1:text-lg prose-h2:text-base prose-h3:text-sm prose-h4:text-sm prose-headings:text-foreground prose-strong:text-foreground prose-code:text-cb-teal prose-a:text-primary">
                   {/* AI Key Warning */}
                   {(question.module_id === "genai" || question.module_id === "agentic") && (!user?.has_groq_api_key && !user?.has_openai_api_key && !user?.has_anthropic_api_key) && (
                     <div className="mb-6 p-5 bg-cb-orange/10 border border-cb-orange/25 rounded-2xl flex gap-4 animate-pulse">
@@ -408,7 +393,7 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>{question.question_py}</ReactMarkdown>
                 </div>
                 {question.hint && (
-                  <div className="mt-8 pt-4 border-t border">
+                  <div className="mt-8 py-4 border-t border">
                     <details className="group">
                       <summary className="cursor-pointer text-xs font-bold text-muted-foreground">{"\uD83D\uDCA1"} Show Hint</summary>
                       <div className="mt-2 text-xs text-foreground/80 bg-muted p-3 rounded border">
@@ -419,11 +404,19 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
                 )}
                 {question.sample_data && (
                   <div className="mt-6">
-                    <h4 className="font-bold text-foreground text-xs mb-2">{"\uD83D\uDCCA"} Sample Data (First 5 Rows)</h4>
-                    <div className="overflow-x-auto border rounded p-2 bg-background/50">
-                      <div className="prose prose-xs max-w-none prose-table:border-collapse prose-table:text-xs prose-td:border prose-td:px-2 prose-th:bg-muted prose-th:text-foreground prose-td:text-foreground/80">
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{question.sample_data}</ReactMarkdown>
-                      </div>
+                    <h4 className="font-bold text-foreground text-xs mb-2">{"\uD83D\uDCCA"} Sample Data</h4>
+                    <div className="overflow-x-auto border border-white/10 rounded p-2 bg-muted/30">
+                      {question.sample_data.trim().startsWith('|') ? (
+                        <div className="prose prose-xs prose-invert max-w-none prose-table:border-collapse prose-table:text-xs prose-td:border prose-td:border-white/10 prose-td:px-2 prose-th:bg-muted prose-th:text-foreground prose-td:text-foreground/80">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>{question.sample_data}</ReactMarkdown>
+                        </div>
+                      ) : (
+                        <pre className="text-xs text-foreground/70 font-mono whitespace-pre leading-relaxed m-0">
+                          {question.sample_data.trim().startsWith('```')
+                            ? question.sample_data.trim().replace(/^```[^\n]*\n?/, '').replace(/\n?```$/, '')
+                            : question.sample_data.trim()}
+                        </pre>
+                      )}
                     </div>
                   </div>
                 )}
@@ -443,6 +436,12 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
                       <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Python</span>
                     </div>
                     <div className="flex items-center gap-2 pr-2">
+                      <Button type="button" variant="ghost" size="sm" onClick={handleDownloadPy} title="Download .py" className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground hover:bg-muted/50">
+                        <Download size={13} />
+                      </Button>
+                      <Button type="button" variant="ghost" size="sm" onClick={handleDownloadPdf} title="Export PDF" className="h-7 text-[10px] uppercase font-bold tracking-wider text-muted-foreground hover:text-foreground hover:bg-muted/50 px-2">
+                        PDF
+                      </Button>
                       <div className="w-px h-4 bg-border mx-1" />
                       <Button type="button" variant="secondary" size="sm" onClick={handleRun} className="h-7 text-[10px] uppercase font-bold tracking-wider bg-background border text-foreground hover:bg-muted/50">
                         Run Code

@@ -25,7 +25,13 @@ function slugify(text: string): string {
  * Extracts the value of a Python triple-quoted variable from a .py file.
  * e.g. `description = """..."""` → returns the string between triple quotes.
  */
+const ALLOWED_PY_VARS = new Set([
+  'description', 'initial_sample_code', 'inital_sample_code', 'hint', 'sample_data',
+]);
+
 function extractPyVar(content: string, varName: string): string | null {
+  // Allowlist guard — prevents ReDoS via dynamic RegExp construction
+  if (!ALLOWED_PY_VARS.has(varName)) return null;
   // Match: varName = """...""" or varName = '''...'''
   const regex = new RegExp(
     `${varName}\\s*=\\s*(?:"""([\\s\\S]*?)"""|'''([\\s\\S]*?)''')`,

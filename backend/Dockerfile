@@ -34,4 +34,8 @@ RUN chmod +x docker-entrypoint.sh
 
 EXPOSE 3001
 
+# Run as non-root user to limit container blast radius (semgrep: missing-user-entrypoint)
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser
+
 ENTRYPOINT ["./docker-entrypoint.sh"]

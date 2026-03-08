@@ -43,4 +43,36 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
   }
+
+  /* Headings default to Saira Condensed per brand guidelines */
+  h1, h2, h3, h4 {
+    @apply font-display font-bold uppercase tracking-tight;
+  }
+
+  /* Dark scrollbar matching brand palette */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--cb-slate); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--cb-blue); }
+}
+
+@layer utilities {
+  /* Codebasics marketing gradient — use on hero / ad sections */
+  .cb-gradient-bg {
+    background: linear-gradient(
+      170deg,
+      #0c1630 0%,
+      #151040 35%,
+      #1a1545 55%,
+      #12103a 80%,
+      #0c1630 100%
+    );
+  }
+
+  /* Dark IDE-style card per brand card guidelines */
+  .cb-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+  }
 }

@@ -82,7 +82,13 @@ export class AdminService {
     };
   }
 
+  private static readonly ALLOWED_PY_VARS = new Set([
+    'description', 'initial_sample_code', 'inital_sample_code', 'hint',
+  ]);
+
   private extractPyVar(content: string, varName: string): string | null {
+    // Allowlist guard — prevents ReDoS via dynamic RegExp construction
+    if (!AdminService.ALLOWED_PY_VARS.has(varName)) return null;
     const regex = new RegExp(
       `${varName}\\s*=\\s*(?:"""([\\s\\S]*?)"""|'''([\\s\\S]*?)''')`,
     );

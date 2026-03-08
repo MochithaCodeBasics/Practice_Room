@@ -3,7 +3,6 @@ import { ConfigService } from '@nestjs/config';
 import Docker from 'dockerode';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as os from 'os';
 import { v4 as uuidv4 } from 'uuid';
 import pLimit from 'p-limit';
 
@@ -293,6 +292,20 @@ export class DockerExecutorService implements OnModuleInit {
       return {
         stdout: '',
         stderr: 'Docker is not available. Code execution disabled for security.',
+        artifacts: [],
+        status: 'error',
+      };
+    }
+
+    // Guard against path traversal via DB-stored folder_name values
+    if (
+      !path.resolve(questionFolderPath).startsWith(
+        path.resolve(this.questionsDir) + path.sep,
+      )
+    ) {
+      return {
+        stdout: '',
+        stderr: 'Invalid question path',
         artifacts: [],
         status: 'error',
       };

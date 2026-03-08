@@ -17,16 +17,12 @@ interface AuthPopupProps {
 
 const INSPIRATIONAL_QUOTES = [
   {
-    quote: "Every expert was once a beginner.",
-    author: "Helen Hayes",
+    quote: "The only way to learn is to do. Not watch. Not read. Do.",
+    author: "Codebasics",
   },
   {
-    quote: "The only way to learn mathematics is to do mathematics.",
-    author: "Paul Halmos",
-  },
-  {
-    quote: "Code is like humor. When you have to explain it, it's bad.",
-    author: "Cory House",
+    quote: "Real projects beat 100 tutorials. Every time.",
+    author: "Codebasics",
   },
   {
     quote: "First, solve the problem. Then, write the code.",
@@ -35,6 +31,10 @@ const INSPIRATIONAL_QUOTES = [
   {
     quote: "The beautiful thing about learning is that nobody can take it away from you.",
     author: "B.B. King",
+  },
+  {
+    quote: "Code is like humor. When you have to explain it, it's bad.",
+    author: "Cory House",
   },
 ];
 
@@ -54,10 +54,10 @@ export default function AuthPopup({ open, onOpenChange }: AuthPopupProps) {
       <DialogContent className="sm:max-w-md">
         <DialogHeader className="text-center sm:text-center">
           <DialogTitle className="text-xl font-display font-bold text-foreground uppercase">
-            Sign in to continue
+            Your Code. Your Progress.
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground mt-1">
-            Authentication is required to run code on the Practice Room.
+            Sign in to run code, track your streak, and save progress across sessions.
           </DialogDescription>
         </DialogHeader>
 
@@ -73,13 +73,12 @@ export default function AuthPopup({ open, onOpenChange }: AuthPopupProps) {
         <div className="flex flex-col gap-3">
           <Button
             onClick={handleSignIn}
-            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-3 text-sm"
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-display font-bold uppercase tracking-wide py-3 text-sm"
           >
-            Sign in with Codebasics
+            Continue with Codebasics →
           </Button>
           <p className="text-[11px] text-muted-foreground text-center">
-            You will be redirected to codebasics.io to authenticate.
-            After signing in, you&apos;ll be brought back here automatically.
+            Redirects to codebasics.io to authenticate — you&apos;ll be brought back automatically.
           </p>
         </div>
       </DialogContent>
