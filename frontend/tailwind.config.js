@@ -17,9 +17,18 @@ module.exports = {
     },
     extend: {
       fontFamily: {
-        sans: ["var(--font-sans)", ...fontFamily.sans],
+        sans:    ["var(--font-sans)",    ...fontFamily.sans],
+        display: ["var(--font-display)", ...fontFamily.sans],
       },
       colors: {
+        'cb-blue':     'var(--cb-blue)',
+        'cb-purple':   'var(--cb-purple)',
+        'cb-slate':    'var(--cb-slate)',
+        'cb-teal':     'var(--cb-teal)',
+        'cb-lime':     'var(--cb-lime)',
+        'cb-orange':   'var(--cb-orange)',
+        'cb-pink':     'var(--cb-pink)',
+        'cb-lavender': 'var(--cb-lavender)',
         border: "var(--border)",
         input: "var(--input)",
         ring: "var(--ring)",

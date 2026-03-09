@@ -8,6 +8,8 @@ jspm_packages/
 .stylelintcache
 .prettiercache
 
+.env.docker
+
 # Next.js
 .next/
 out/
@@ -49,6 +51,8 @@ wheels/
 .env.development
 *.env
 !.env.example
+!.env.docker.example
+!.env.local.example
 
 # Database
 *.db

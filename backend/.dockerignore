@@ -1,0 +1,16 @@
+node_modules
+dist
+runs
+.env*
+.git
+.gitignore
+*.md
+.DS_Store
+Thumbs.db
+.vscode
+.idea
+coverage
+*.log
+.turbo
+__pycache__
+*.pyc

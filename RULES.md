@@ -1,0 +1,11 @@
+- Prefer minimal, correct diffs; avoid unrelated refactors.
+- Verify existing project conventions before adding new patterns.
+- Styling: Tailwind CSS only; avoid bespoke CSS unless unavoidable.
+- Code: clean, small functions; explicit names; typed boundaries at edges.
+- Async: use async/await; no callbacks/.then chains; handle errors explicitly.
+- APIs: RESTful resources/verbs/status codes; validate at boundaries; consistent error shape.
+- Frontend: Use Next.js 15 (App Router), shadcn for ui components, prefer reusable components over repeated class blobs, Maintain a11y.
+- Backend: Use NestJS, enforce authorization server-side, offload long-running requests to worker processes via a task queue, short post-response callbacks only for lightweight work.
+- Agentic/GenAI tasks: use Docs by LangChain as source of truth.
+- Docs: use Context7 MCP for latest library/tool docs and APIs.
+- Don't use Supabase for backend, database, or authentication. Use Postgres or MySQL for database and NestJS for backend.
