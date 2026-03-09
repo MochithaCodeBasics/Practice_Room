@@ -1,0 +1,116 @@
+# ── Local Development Stack (includes MySQL — no external DB needed) ──────────
+# Usage:
+#   docker compose -f docker-compose.local.yml --env-file .env.docker up --build
+#
+# This file is for LOCAL TESTING ONLY.
+# For production / Coolify deployment use docker-compose.yml with an external DB.
+
+x-logging:
+  &default-logging
+  logging:
+    driver: json-file
+    options:
+      max-size: 50M
+
+services:
+  # ── MySQL Database ─────────────────────────────────────────────────────────
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-localpassword}
+      MYSQL_DATABASE: ${DB_NAME:-practice_room}
+      MYSQL_USER: ${DB_USER:-appuser}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-localpassword}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD:-localpassword}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    <<: *default-logging
+    restart: unless-stopped
+
+  # ── Backend (NestJS) ───────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "3001:3001"
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+      - PORT=3001
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USER=${DB_USER:-appuser}
+      - DB_PASSWORD=${DB_PASSWORD:-localpassword}
+      - DB_NAME=${DB_NAME:-practice_room}
+      - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
+      - JWT_EXPIRATION_MINUTES=${JWT_EXPIRATION_MINUTES:-1440}
+      - DEFAULT_ADMIN_USERNAME=${DEFAULT_ADMIN_USERNAME:-admin}
+      - DEFAULT_ADMIN_PASSWORD=${DEFAULT_ADMIN_PASSWORD:-YourSecurePassword123!}
+      - DEFAULT_ADMIN_EMAIL=${DEFAULT_ADMIN_EMAIL:-admin@yourdomain.com}
+      - CORS_ORIGINS=http://localhost:3000
+      - USE_DOCKER_EXECUTOR=false
+      - USE_JUDGE0=${USE_JUDGE0:-true}
+      - JUDGE0_API_URL=${JUDGE0_API_URL}
+      - JUDGE0_API_KEY=${JUDGE0_API_KEY:-}
+      - JUDGE0_PYTHON_LANGUAGE_ID=${JUDGE0_PYTHON_LANGUAGE_ID:-71}
+      - QUESTIONS_DIR=/app/questions
+      - FRONTEND_URL=http://localhost:3000
+      - SMTP_HOST=${SMTP_HOST:-}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER:-}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-}
+      - SMTP_FROM_EMAIL=${SMTP_FROM_EMAIL:-}
+      - CB_OAUTH_CLIENT_ID=${CB_OAUTH_CLIENT_ID:-}
+      - CB_OAUTH_CLIENT_SECRET=${CB_OAUTH_CLIENT_SECRET:-}
+      - CB_OAUTH_BASE_URL=${CB_OAUTH_BASE_URL:-https://beta.codebasics.io}
+    volumes:
+      - ./questions:/app/questions:ro
+      - backend-runs:/app/runs
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/api"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    <<: *default-logging
+    restart: unless-stopped
+
+  # ── Frontend (Next.js) ────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+        NEXT_PUBLIC_CB_IMAGE_PREFIX: ${NEXT_PUBLIC_CB_IMAGE_PREFIX:-https://beta-images.codebasics.io/filters:format(webp)/fit-in/50x50}
+    ports:
+      - "3000:3000"
+    environment:
+      - BACKEND_URL=http://backend:3001
+      - AUTH_SECRET=${AUTH_SECRET}
+      - AUTH_CODEBASICS_ID=${AUTH_CODEBASICS_ID}
+      - AUTH_CODEBASICS_SECRET=${AUTH_CODEBASICS_SECRET}
+      - CODEBASICS_BASE_URL=${CODEBASICS_BASE_URL:-https://beta.codebasics.io}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      - NEXT_PUBLIC_CB_IMAGE_PREFIX=${NEXT_PUBLIC_CB_IMAGE_PREFIX:-https://beta-images.codebasics.io/filters:format(webp)/fit-in/50x50}
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    <<: *default-logging
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  backend-runs:

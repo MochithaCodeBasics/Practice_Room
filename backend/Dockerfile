@@ -38,4 +38,7 @@ EXPOSE 3001
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 USER appuser
 
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=5 \
+  CMD wget -qO- http://localhost:3001/api || exit 1
+
 ENTRYPOINT ["./docker-entrypoint.sh"]
