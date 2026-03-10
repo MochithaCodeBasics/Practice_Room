@@ -7,7 +7,6 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
-import * as crypto from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { ProgressService } from '../progress/progress.service.js';
@@ -176,83 +175,6 @@ export class AuthService {
     } catch {
       // If token is invalid/expired, nothing to revoke
     }
-  }
-
-  async generateResetToken(email: string): Promise<{ username: string; token: string } | null> {
-    const user = await this.prisma.user.findUnique({ where: { email } });
-    if (!user) return null;
-
-    // Invalidate existing tokens
-    await this.prisma.passwordResetToken.updateMany({
-      where: { user_id: user.id, used: false },
-      data: { used: true },
-    });
-
-    // Generate secure token
-    const token = crypto.randomBytes(32).toString('base64url');
-    const tokenHash = crypto
-      .createHash('sha256')
-      .update(token)
-      .digest('hex');
-
-    await this.prisma.passwordResetToken.create({
-      data: {
-        user_id: user.id,
-        token_hash: tokenHash,
-        expires_at: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
-      },
-    });
-
-    return { username: user.username, token };
-  }
-
-  async verifyAndResetPassword(
-    token: string,
-    newPassword: string,
-  ): Promise<boolean> {
-    // Password strength validation
-    if (newPassword.length < 8) return false;
-    if (!/[A-Z]/.test(newPassword)) return false;
-    if (!/[a-z]/.test(newPassword)) return false;
-    if (!/[0-9]/.test(newPassword)) return false;
-
-    const tokenHash = crypto
-      .createHash('sha256')
-      .update(token)
-      .digest('hex');
-
-    const resetToken = await this.prisma.passwordResetToken.findFirst({
-      where: {
-        token_hash: tokenHash,
-        used: false,
-        expires_at: { gt: new Date() },
-      },
-    });
-
-    if (!resetToken) return false;
-
-    const user = await this.prisma.user.findUnique({
-      where: { id: resetToken.user_id },
-    });
-    if (!user) return false;
-
-    // Prevent admin account takeover via email reset
-    if (user.role === 'admin') return false;
-
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-    await this.prisma.$transaction([
-      this.prisma.user.update({
-        where: { id: user.id },
-        data: { hashed_password: hashedPassword },
-      }),
-      this.prisma.passwordResetToken.update({
-        where: { id: resetToken.id },
-        data: { used: true },
-      }),
-    ]);
-
-    return true;
   }
 
   async changePassword(
