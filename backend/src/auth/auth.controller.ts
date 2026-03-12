@@ -18,10 +18,6 @@ import { EmailService } from '../email/email.service.js';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
 import { CurrentUser } from '../common/decorators/current-user.decorator.js';
 import { SignupDto } from './dto/signup.dto.js';
-import {
-  PasswordResetRequestDto,
-  PasswordResetVerifyDto,
-} from './dto/password-reset.dto.js';
 import { UserSettingsDto } from './dto/user-settings.dto.js';
 import { ChangePasswordDto } from './dto/change-password.dto.js';
 
@@ -138,45 +134,5 @@ export class AuthController {
       .catch(() => { });
 
     return user;
-  }
-
-  @Post('request-password-reset')
-  @Throttle({ default: { limit: 1, ttl: 300000 } })
-  @HttpCode(HttpStatus.OK)
-  async requestPasswordReset(@Body() dto: PasswordResetRequestDto) {
-    const result = await this.authService.generateResetToken(dto.email);
-
-    if (result) {
-      // Send email in background
-      this.emailService
-        .sendPasswordResetEmail(dto.email, result.username, result.token)
-        .catch(() => { });
-    }
-
-    // Always return success to prevent email enumeration
-    return {
-      message:
-        'If an account with that email exists, a password reset link has been sent.',
-    };
-  }
-
-  @Post('verify-password-reset')
-  @HttpCode(HttpStatus.OK)
-  async verifyPasswordReset(@Body() dto: PasswordResetVerifyDto) {
-    const success = await this.authService.verifyAndResetPassword(
-      dto.token,
-      dto.new_password,
-    );
-
-    if (!success) {
-      throw new HttpException(
-        'Invalid or expired reset token. Please request a new reset link.',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    return {
-      message: 'Password has been reset successfully. You can now login.',
-    };
   }
 }
