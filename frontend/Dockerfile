@@ -15,6 +15,7 @@ ARG NEXT_PUBLIC_APP_URL=http://localhost:3000
 ARG NEXT_PUBLIC_CB_IMAGE_PREFIX=https://beta-images.codebasics.io/filters:format(webp)/fit-in/50x50
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 ENV NEXT_PUBLIC_CB_IMAGE_PREFIX=$NEXT_PUBLIC_CB_IMAGE_PREFIX
+ENV NODE_OPTIONS="--max-old-space-size=2048"
 
 RUN npm run build
 
