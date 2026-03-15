@@ -7,6 +7,9 @@ x-logging: &default-logging
 services:
   # ── Frontend (Next.js) ────────────────────────────────────────────────────
   frontend:
+    networks:
+      - default
+      - coolify
     build:
       context: ./frontend
       args:
@@ -36,6 +39,9 @@ services:
 
   # ── Backend (NestJS) ──────────────────────────────────────────────────────
   backend:
+    networks:
+      - default
+      - coolify
     build:
       context: ./backend
     ports:
@@ -83,3 +89,8 @@ services:
 
 volumes:
   backend-runs:
+
+networks:
+  default:
+  coolify:
+    external: true
