@@ -6,6 +6,7 @@ RUN npm ci
 
 # ── Stage 2: Build the NestJS app ────────────────────────────────────────────
 FROM node:20-alpine AS build
+ARG CACHEBUST=1
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
