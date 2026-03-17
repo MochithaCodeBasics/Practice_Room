@@ -14,6 +14,9 @@ DELETE FROM `user_progress`;
 -- Clear users (cb_user_id can only be populated after users re-authenticate via CB OAuth)
 DELETE FROM `users`;
 
+-- Drop FK on user_progress.username before dropping the column
+ALTER TABLE `user_progress` DROP FOREIGN KEY `user_progress_username_fkey`;
+
 -- Drop old user_progress indexes and constraints (IF EXISTS guards against partial prior runs)
 DROP INDEX IF EXISTS `idx_up_username` ON `user_progress`;
 DROP INDEX IF EXISTS `username_question_id` ON `user_progress`;
