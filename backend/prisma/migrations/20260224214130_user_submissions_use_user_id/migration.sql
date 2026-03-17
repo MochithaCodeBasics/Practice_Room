@@ -5,6 +5,9 @@
   - Added the required column `user_id` to the `user_submissions` table without a default value. This is not possible if the table is not empty.
 
 */
+-- Clear user_submissions: username→user_id mapping is not possible, data cannot be migrated
+DELETE FROM `user_submissions`;
+
 -- DropForeignKey
 ALTER TABLE `user_submissions` DROP FOREIGN KEY `user_submissions_username_fkey`;
 

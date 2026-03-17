@@ -19,7 +19,7 @@ ALTER TABLE `user_progress` DROP FOREIGN KEY `user_progress_username_fkey`;
 
 -- Drop old user_progress indexes and constraints (IF EXISTS guards against partial prior runs)
 DROP INDEX IF EXISTS `idx_up_username` ON `user_progress`;
-DROP INDEX IF EXISTS `username_question_id` ON `user_progress`;
+DROP INDEX IF EXISTS `user_progress_username_question_id_key` ON `user_progress`;
 
 -- Add user_id to user_progress and remove username
 -- Table is empty so NOT NULL is safe
