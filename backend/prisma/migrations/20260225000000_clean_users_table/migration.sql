@@ -14,12 +14,23 @@ DELETE FROM `user_progress`;
 -- Clear users (cb_user_id can only be populated after users re-authenticate via CB OAuth)
 DELETE FROM `users`;
 
--- Drop FK on user_progress.username before dropping the column
-ALTER TABLE `user_progress` DROP FOREIGN KEY `user_progress_username_fkey`;
+-- Drop FK on user_progress.username (conditional — safe if already dropped)
+SET @exist := (SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+               WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'user_progress'
+               AND CONSTRAINT_NAME = 'user_progress_username_fkey' AND CONSTRAINT_TYPE = 'FOREIGN KEY');
+SET @sql := IF(@exist > 0, 'ALTER TABLE `user_progress` DROP FOREIGN KEY `user_progress_username_fkey`', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
--- Drop old user_progress indexes and constraints (IF EXISTS guards against partial prior runs)
-DROP INDEX IF EXISTS `idx_up_username` ON `user_progress`;
-DROP INDEX IF EXISTS `user_progress_username_question_id_key` ON `user_progress`;
+-- Drop old user_progress indexes (MySQL has no DROP INDEX IF EXISTS — use INFORMATION_SCHEMA)
+SET @exist := (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS
+               WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'user_progress' AND INDEX_NAME = 'idx_up_username');
+SET @sql := IF(@exist > 0, 'DROP INDEX `idx_up_username` ON `user_progress`', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @exist := (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS
+               WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'user_progress' AND INDEX_NAME = 'user_progress_username_question_id_key');
+SET @sql := IF(@exist > 0, 'DROP INDEX `user_progress_username_question_id_key` ON `user_progress`', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
 -- Add user_id to user_progress and remove username
 -- Table is empty so NOT NULL is safe
