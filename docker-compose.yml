@@ -15,8 +15,6 @@ services:
       args:
         NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
         NEXT_PUBLIC_CB_IMAGE_PREFIX: ${NEXT_PUBLIC_CB_IMAGE_PREFIX:-https://beta-images.codebasics.io/filters:format(webp)/fit-in/50x50}
-    ports:
-      - "3000:3000"
     environment:
       - BACKEND_URL=http://backend:3001
       - AUTH_SECRET=${AUTH_SECRET}
@@ -44,8 +42,6 @@ services:
       - coolify
     build:
       context: ./backend
-    ports:
-      - "3001:3001"
     environment:
       - ENVIRONMENT=${ENVIRONMENT:-production}
       - PORT=3001
