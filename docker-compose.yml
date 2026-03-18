@@ -75,7 +75,7 @@ services:
       - ./questions:/app/questions:ro
       - backend-runs:/app/runs
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001/api"]
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
       interval: 15s
       timeout: 5s
       retries: 5
