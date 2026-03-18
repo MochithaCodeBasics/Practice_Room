@@ -13,7 +13,6 @@ import { AppController } from './app.controller.js';
 // AuthModule disabled — OAuth with Codebasics replaces local auth
 // import { AuthModule } from './auth/auth.module.js';
 import { ExecuteModule } from './execute/execute.module.js';
-import { ProgressModule } from './progress/progress.module.js';
 // import { EmailModule } from './email/email.module.js';
 
 @Module({
@@ -36,6 +35,6 @@ import { ProgressModule } from './progress/progress.module.js';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(NoCacheMiddleware).forRoutes('api/(.*)');
+    consumer.apply(NoCacheMiddleware).forRoutes('api/*path');
   }
 }
