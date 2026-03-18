@@ -121,7 +121,6 @@ export class DockerExecutorService implements OnModuleInit {
     this.runsDir = path.resolve(
       this.config.get<string>('questionsDir')!,
       '..',
-      'backend',
       'runs',
     );
     this.questionsDir = this.config.get<string>('questionsDir')!;

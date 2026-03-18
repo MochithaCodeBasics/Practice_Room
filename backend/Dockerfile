@@ -37,6 +37,10 @@ EXPOSE 3001
 
 # Run as non-root user to limit container blast radius (semgrep: missing-user-entrypoint)
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+# Pre-create directories that the app writes to at runtime
+RUN mkdir -p /app/runs && chown appuser:appgroup /app/runs
+
 USER appuser
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=5 \
