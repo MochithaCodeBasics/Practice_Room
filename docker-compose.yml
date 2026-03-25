@@ -16,7 +16,7 @@ services:
         NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
         NEXT_PUBLIC_CB_IMAGE_PREFIX: ${NEXT_PUBLIC_CB_IMAGE_PREFIX:-https://beta-images.codebasics.io/filters:format(webp)/fit-in/50x50}
     environment:
-      - BACKEND_URL=http://backend:3001
+      - BACKEND_URL=${BACKEND_URL:-http://backend:3001}
       - AUTH_SECRET=${AUTH_SECRET}
       - AUTH_CODEBASICS_ID=${AUTH_CODEBASICS_ID}
       - AUTH_CODEBASICS_SECRET=${AUTH_CODEBASICS_SECRET}
