@@ -43,7 +43,7 @@ RUN mkdir -p /app/runs && chown appuser:appgroup /app/runs
 
 USER appuser
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=5 \
-  CMD wget -qO- http://localhost:3001/api || exit 1
+HEALTHCHECK --interval=15s --timeout=5s --start-period=30s --retries=5 \
+  CMD curl -f http://localhost:3001/health || exit 1
 
 ENTRYPOINT ["./docker-entrypoint.sh"]
