@@ -39,6 +39,7 @@ async function refreshAccessToken(token: Record<string, unknown>) {
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  trustHost: true,
   providers: [
     {
       id: "codebasics",
