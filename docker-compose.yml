@@ -17,6 +17,7 @@ services:
         NEXT_PUBLIC_CB_IMAGE_PREFIX: ${NEXT_PUBLIC_CB_IMAGE_PREFIX:-https://beta-images.codebasics.io/filters:format(webp)/fit-in/50x50}
     environment:
       - BACKEND_URL=${BACKEND_URL:-http://backend:3001}
+      - AUTH_URL=${AUTH_URL}
       - AUTH_SECRET=${AUTH_SECRET}
       - AUTH_CODEBASICS_ID=${AUTH_CODEBASICS_ID}
       - AUTH_CODEBASICS_SECRET=${AUTH_CODEBASICS_SECRET}
