@@ -47,6 +47,7 @@ export interface User {
   email?: string;
   image?: string;
   role?: string;
+  isAdmin?: boolean;
   current_streak?: number;
   has_groq_api_key?: boolean;
   has_openai_api_key?: boolean;

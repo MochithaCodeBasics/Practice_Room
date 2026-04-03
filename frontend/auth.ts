@@ -79,6 +79,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.userEmail = p.email as string;
         token.userName = (p.full_name as string) || (p.name as string);
         token.userImage = p.avatar as string;
+        token.userIsAdmin = p.is_admin as boolean;
       }
 
       // ── No expiry info → assume valid (provider didn't supply it) ──────────
@@ -104,6 +105,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       session.user.email = (token.userEmail as string) || session.user.email;
       session.user.name = (token.userName as string) || session.user.name;
       session.user.image = (token.userImage as string) || session.user.image;
+      session.user.isAdmin = token.userIsAdmin as boolean | undefined;
       return session;
     },
   },

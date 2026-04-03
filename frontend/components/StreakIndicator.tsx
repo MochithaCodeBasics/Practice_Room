@@ -8,7 +8,7 @@ export default function StreakIndicator() {
   const { user } = useAuth();
   const [showTooltip, setShowTooltip] = useState<boolean>(false);
 
-  if (!user || user.role === "admin") return null;
+  if (!user || user.isAdmin) return null;
 
   return (
     <div className="relative z-50">

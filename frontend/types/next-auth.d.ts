@@ -8,6 +8,7 @@ declare module "next-auth" {
     user: {
       id: string;
       role?: string;
+      isAdmin?: boolean;
     } & DefaultSession["user"];
   }
 }
@@ -20,5 +21,6 @@ declare module "next-auth/jwt" {
     /** Set to "RefreshAccessTokenError" when the OAuth refresh fails. */
     error?: string;
     codebasicsProfile?: Record<string, unknown>;
+    userIsAdmin?: boolean;
   }
 }

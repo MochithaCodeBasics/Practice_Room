@@ -67,12 +67,27 @@ export default function UserProfile() {
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-64 p-0 rounded-xl overflow-hidden" align="end" forceMount>
-        <div className="p-4 border-b border bg-muted/30">
-          <p className="text-sm text-muted-foreground">Hi,</p>
-          <p className="text-lg font-bold text-foreground truncate">{user.username}</p>
+        <div className="p-4 border-b border bg-muted/30 flex items-center gap-3">
+          <Avatar className="h-12 w-12 shrink-0">
+            {avatarUrl && <AvatarImage src={avatarUrl} alt={user.name || "User"} />}
+            <AvatarFallback className="bg-primary/10 text-primary text-base font-bold">
+              {user.name?.[0]?.toUpperCase() || "U"}
+            </AvatarFallback>
+          </Avatar>
+          <div className="min-w-0 flex-1">
+            {user.name && (
+              <p className="text-sm font-bold text-foreground truncate">{user.name}</p>
+            )}
+            {user.email && (
+              <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+            )}
+            <span className="inline-block mt-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary capitalize">
+              {user.role || "learner"}
+            </span>
+          </div>
         </div>
 
-        {user.role !== "admin" && (
+        {!user.isAdmin && (
           <div className="p-4 flex flex-col items-center gap-4">
             <div
               className="relative w-24 h-24 rounded-full"
@@ -113,7 +128,7 @@ export default function UserProfile() {
         )}
 
         <div className="p-2 border-t border bg-muted/20 flex flex-col gap-1">
-          {user.role === "admin" && (
+          {user.isAdmin && (
             <DropdownMenuItem asChild>
               <Button
                 variant="outline"

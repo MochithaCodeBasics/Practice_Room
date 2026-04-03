@@ -109,7 +109,7 @@ export default function QuestionList({ moduleId, onSelectQuestion, filters, sear
                     </Badge>
                   </div>
                   <div className="flex items-center gap-4">
-                    {user?.role !== "admin" &&
+                    {!user?.isAdmin &&
                       (q.is_completed ? (
                         <Badge variant="secondary" className="flex items-center gap-1.5 text-cb-teal bg-cb-teal/10 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tight hover:bg-cb-teal/20">
                           <CheckCircle size={12} /> Completed
@@ -119,7 +119,7 @@ export default function QuestionList({ moduleId, onSelectQuestion, filters, sear
                           <Clock size={12} /> Attempted
                         </Badge>
                       ) : null)}
-                    {user?.role === "admin" && (
+                    {user?.isAdmin && (
                       <div className="flex items-center gap-2">
                         <Badge variant="outline" className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-md border tracking-tighter ${q.is_verified ? "bg-cb-teal/10 text-cb-teal border-cb-teal/25" : "bg-destructive/10 text-destructive border-destructive/25"}`}>
                           {q.is_verified ? "Verified" : "Unverified"}
@@ -150,7 +150,7 @@ export default function QuestionList({ moduleId, onSelectQuestion, filters, sear
                 </div>
               </CardContent>
               <CardFooter className="flex justify-end items-center pt-0 pb-3 pr-6 gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                {user?.role === "admin" && (
+                {user?.isAdmin && (
                   <>
                     <Button
                       type="button"

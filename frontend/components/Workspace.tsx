@@ -336,7 +336,7 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
             </button>
           </div>
           <h1 className="text-sm font-bold text-foreground truncate max-w-xl">{question.title}</h1>
-          {user?.role !== "admin" &&
+          {!user?.isAdmin &&
             (isValidationPassed || question.is_completed ? (
               <span className="flex items-center gap-1 text-cb-teal bg-cb-teal/10 px-2 py-0.5 rounded-full text-[10px] font-bold border border-cb-teal/25">
                 <CheckCircle size={10} /> COMPLETED
@@ -346,7 +346,7 @@ export default function Workspace({ questionId, onBack, onPrev, onNext, currentI
                 <Clock size={10} /> ATTEMPTED
               </span>
             ) : null)}
-          {user?.role === "admin" && (
+          {user?.isAdmin && (
             <div
               onClick={isValidationPassed ? handleVerify : undefined}
               className={`ml-2 px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest select-none transition-all border flex items-center gap-1 ${!isValidationPassed

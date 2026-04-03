@@ -100,7 +100,7 @@ export default function ModuleList() {
 
   return (
     <div>
-      {user?.role === "admin" && ENABLE_MODULE_MANAGEMENT && (
+      {user?.isAdmin && ENABLE_MODULE_MANAGEMENT && (
         <div className="flex justify-end mb-4">
           <Button onClick={() => setShowCreateModal(true)} className="bg-primary hover:bg-primary/90 font-bold text-sm">
             + Create Module
@@ -160,7 +160,7 @@ export default function ModuleList() {
             href={`/modules/${module.slug}`}
             className="bg-card p-6 rounded-xl border hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-300 cursor-pointer group relative block"
           >
-            {user?.role === "admin" && ENABLE_MODULE_MANAGEMENT && (
+            {user?.isAdmin && ENABLE_MODULE_MANAGEMENT && (
               <Button
                 type="button"
                 variant="ghost"

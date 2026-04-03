@@ -30,6 +30,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         email: session.user.email || undefined,
         image: session.user.image || undefined,
         role: session.user.role || "learner",
+        isAdmin: session.user.isAdmin,
       });
     } else {
       setUser(null);
