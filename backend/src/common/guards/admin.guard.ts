@@ -30,7 +30,7 @@ export class AdminGuard implements CanActivate {
       .filter(Boolean);
     const isAdminRole = roleCandidates.includes('admin');
 
-    if (isAdminRole) {
+    if (isAdminRole || user.isAdmin === true) {
       return true;
     }
 

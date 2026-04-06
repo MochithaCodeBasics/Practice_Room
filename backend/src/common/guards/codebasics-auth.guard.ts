@@ -12,6 +12,7 @@ interface CachedToken {
   email: string;
   cbId: string;
   roleName: string;
+  isAdmin: boolean;
   expiresAt: number;
 }
 
@@ -43,6 +44,7 @@ export class CodebasicsAuthGuard implements CanActivate {
     let email: string;
     let cbId: string;
     let roleName: string;
+    let isAdmin: boolean;
 
     // Check cache first
     const cached = TOKEN_CACHE.get(token);
@@ -50,6 +52,7 @@ export class CodebasicsAuthGuard implements CanActivate {
       email = cached.email;
       cbId = cached.cbId;
       roleName = cached.roleName;
+      isAdmin = cached.isAdmin;
     } else {
       // Validate token against Codebasics API
       try {
@@ -70,12 +73,13 @@ export class CodebasicsAuthGuard implements CanActivate {
         email = userData.email as string;
         cbId = String(userData.id ?? '');
         roleName = (userData.role_name as string)?.toLowerCase() || 'learner';
+        isAdmin = !!(userData.is_admin as boolean);
 
         if (!email) {
           throw new UnauthorizedException('Could not retrieve email from Codebasics API');
         }
 
-        TOKEN_CACHE.set(token, { email, cbId, roleName, expiresAt: Date.now() + CACHE_TTL_MS });
+        TOKEN_CACHE.set(token, { email, cbId, roleName, isAdmin, expiresAt: Date.now() + CACHE_TTL_MS });
       } catch (error) {
         if (error instanceof UnauthorizedException) throw error;
         this.logger.error('Failed to validate token with Codebasics API', error);
@@ -99,7 +103,7 @@ export class CodebasicsAuthGuard implements CanActivate {
       });
     }
 
-    request.user = localUser;
+    request.user = { ...localUser, isAdmin };
     return true;
   }
 }
